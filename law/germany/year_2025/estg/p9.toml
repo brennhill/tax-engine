@@ -1,0 +1,15 @@
+# § 9 EStG (Werbungskosten)
+#
+# Authority root: https://www.gesetze-im-internet.de/estg/__9.html
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[HOME_OFFICE_DAILY_RATE_EUR]
+value = "6.00"
+authority = "§ 4 Abs. 5 Satz 1 Nr. 6c EStG: €6 daily rate for the home-office Tagespauschale, applied via § 9 Abs. 5 EStG to employee Werbungskosten."
+citation_url = "https://www.gesetze-im-internet.de/estg/__4.html"
+
+[HOME_OFFICE_MAX_EUR]
+value = "1260.00"
+authority = "§ 4 Abs. 5 Satz 1 Nr. 6c EStG: €1,260 annual cap on the Tagespauschale (210 days × €6)."
+citation_url = "https://www.gesetze-im-internet.de/estg/__4.html"

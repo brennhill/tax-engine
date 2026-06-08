@@ -1,0 +1,2 @@
+jurisdiction,person_id,payment_type,amount,currency,source,note
+germany,person_1,income_tax_prepayment,1500.00,EUR,synthetic_demo,Synthetic Germany prepayment for the DE-only public demo.

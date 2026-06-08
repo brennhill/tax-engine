@@ -1,0 +1,20 @@
+# § 4 SolzG 1995 (Zuschlagssatz, Freigrenze, Milderungszone)
+#
+# Authority root: https://www.gesetze-im-internet.de/solzg_1995/__4.html
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[SOLI_SINGLE_THRESHOLD_EUR]
+value = "19950.00"
+authority = "§ 3 Abs. 3 SolzG 1995: Soli-Freigrenze (the festgesetzte Einkommensteuer below which no Solidaritätszuschlag is assessed). Posture-specific: single/getrennte Veranlagung uses €19.950; Splittingverfahren uses €39.900 (twice the single Freigrenze)."
+citation_url = "https://www.gesetze-im-internet.de/solzg_1995/__4.html"
+
+[SOLI_JOINT_THRESHOLD_EUR]
+value = "39900.00"
+authority = "§ 4 SolzG 1995 (Zuschlagssatz, Freigrenze, Milderungszone)"
+citation_url = "https://www.gesetze-im-internet.de/solzg_1995/__4.html"
+
+[SOLI_MITIGATION_RATE]
+value = "0.119"
+authority = "§ 4 Satz 2 SolzG 1995: Milderungszone — between the Freigrenze and the point where the full 5,5 % rate would apply, the surcharge is capped at 11,9 % of the excess of the assessment base over the Freigrenze."
+citation_url = "https://www.gesetze-im-internet.de/solzg_1995/__4.html"

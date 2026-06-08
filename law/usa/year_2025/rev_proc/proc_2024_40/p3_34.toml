@@ -1,0 +1,10 @@
+# Rev. Proc. 2024-40 § 3.34
+#
+# Authority root: https://www.irs.gov/pub/irs-drop/rp-24-40.pdf
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[SECTION_911_FEIE_2025_USD]
+value = "130000"
+authority = "26 U.S.C. § 911(b)(2)(D) annual base FEIE ceiling for 2025: $130,000 (Rev. Proc. 2024-40 § 3.34). § 911(c)(1)(B) base housing amount = 16 % of FEIE ($20,800 for 2025). § 911(c)(2)(A) caps the housing-cost ceiling at 30 % of the § 911 exclusion ($39,000 default for 2025) before the IRS Notice 2024-77 location adjustment."
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section911"

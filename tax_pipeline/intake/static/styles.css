@@ -1,0 +1,1425 @@
+/* =========================================================================
+ * Tax Engine — intake wizard stylesheet
+ * -------------------------------------------------------------------------
+ * Legacy stylesheet pending a full visual-design redesign. Design tokens
+ * are exposed as CSS custom properties so a maintainer can change the
+ * palette in one place rather than hunting hex codes across rules.
+ * ========================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Archivo+Black&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* -------------------------------------------------------------------------
+ * Design tokens
+ * ----------------------------------------------------------------------- */
+
+:root {
+  /* Surfaces — stark white field with one inverted register. */
+  --paper:           #ffffff;   /* primary background */
+  --paper-deep:      #f4f4f4;   /* recessed strips, ledger rows */
+  --paper-soft:      #fafafa;   /* lifted cards on the page */
+  --paper-edge:      #e8e8e8;   /* hairline edge tone */
+
+  /* Ink — pure-black register. */
+  --ink:             #0a0a0a;   /* primary text and 3px borders */
+  --ink-soft:        #2a2a2a;   /* secondary text */
+  --ink-faint:       #6a6a6a;   /* tertiary, marginalia */
+  --rule:            #0a0a0a;   /* ruled separator line */
+  --rule-soft:       #c8c8c8;   /* light separator */
+
+  /* Alarm red — Kruger banner red. Used for slogans, banners, the
+   * Run button, the run-failure stamp, and amounts the regime takes. */
+  --alarm:           #e10000;
+  --alarm-deep:      #a80000;
+  --alarm-wash:      #ffe5e5;
+
+  /* One cool accent — cobalt. Hyperlinks, statutory citations, the
+   * cool side of "two governments". Use sparingly. */
+  --cobalt:          #1a3a8a;
+  --cobalt-soft:     #d8def0;
+
+  /* Type stacks. Inter for body and display, Archivo Black for
+   * Kruger-banner headlines (stand-in for Futura Bold; Futura is not
+   * a Google webfont). JetBrains Mono with tabular figures for
+   * currency. No serifs, no blackletter, no stencil typewriter. */
+  --font-display:    "Archivo Black", "Inter", -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body:       "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono:       "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Measurements */
+  --measure:         70ch;
+  --gutter:          2rem;
+  --gutter-tight:    1rem;
+  --rule-thin:       1px;
+  --rule-mid:        2px;
+  --rule-thick:      3px;
+
+  /* Type scale — dramatic. The contrast between scales does the work. */
+  --fs-marginalia:   0.78rem;
+  --fs-body:         1rem;
+  --fs-body-lead:    1.125rem;
+  --fs-h3:           1.25rem;
+  --fs-h2:           clamp(1.75rem, 3.6vw, 2.5rem);
+  --fs-h1:           clamp(2.5rem, 6vw, 4.5rem);
+  --fs-banner:       clamp(1.5rem, 3vw, 2rem);
+  --lh-body:         1.55;
+
+  --focus:           var(--alarm);
+}
+
+/* -------------------------------------------------------------------------
+ * Reset
+ * ----------------------------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-feature-settings: "kern" 1, "liga" 1, "ss01" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+button { font: inherit; color: inherit; }
+::selection { background: var(--alarm); color: var(--paper); }
+
+a {
+  color: var(--cobalt);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+a:hover { color: var(--alarm); }
+
+/* -------------------------------------------------------------------------
+ * Shell
+ * ----------------------------------------------------------------------- */
+
+.wizard-shell {
+  max-width: 84rem;
+  margin: 0 auto;
+  padding: 0 0 4rem;
+}
+
+/* Masthead --------------------------------------------------------------- */
+
+.wizard-header {
+  position: relative;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 3.5rem clamp(1rem, 4vw, 3rem) 2.5rem;
+  margin: 0 0 0;
+  text-align: left;
+  border-bottom: var(--rule-thick) solid var(--ink);
+}
+
+.wizard-header h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: var(--fs-h1);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--paper);
+  text-transform: uppercase;
+  font-style: italic;
+  /* Kruger-style — italic Futura-Bold-Oblique stand-in, all-caps. */
+}
+
+/* Accent bar that sits beneath the brand mark, used for the product strapline. */
+.wizard-header .strapline {
+  display: inline-block;
+  margin: 1.25rem 0 0;
+  padding: 0.5rem 0.85rem 0.55rem;
+  background: var(--alarm);
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-style: italic;
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  max-width: 64ch;
+}
+
+/* Subhead under the brand mark — quieter, declarative. */
+.wizard-header p.lede-paragraph {
+  margin: 1.25rem 0 0;
+  max-width: 70ch;
+  font-family: var(--font-body);
+  font-style: normal;
+  font-weight: 400;
+  font-size: var(--fs-body-lead);
+  color: var(--paper-edge);
+  line-height: 1.5;
+  text-align: left;
+}
+
+.wizard-header p.lede-paragraph strong {
+  color: var(--paper);
+  font-weight: 700;
+}
+
+.wizard-header .truisms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--rule-thin) solid var(--paper-edge);
+}
+
+.wizard-header .truisms li {
+  flex: 1 1 auto;
+  padding: 0.85rem 1.1rem 0.85rem 0;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper);
+}
+
+.wizard-header .truisms li + li {
+  border-left: var(--rule-thin) solid var(--paper-edge);
+  padding-left: 1.1rem;
+}
+
+/* The "alarm" truism uses a brighter red than the banner alarm so
+ * it clears WCAG AA on the inverted black masthead. The banner red
+ * (#e10000) on black is ~3.9:1, AA-large but not AA-normal; #ff5050
+ * on #0a0a0a is ~5.6:1, comfortably AA for body-size text. */
+.wizard-header .truisms .alarm { color: #ff5050; }
+
+/* -------------------------------------------------------------------------
+ * Wizard navigation — a brutalist tab strip
+ * ----------------------------------------------------------------------- */
+
+.wizard-nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  border-bottom: var(--rule-thick) solid var(--ink);
+}
+
+.wizard-nav button {
+  position: relative;
+  border: 0;
+  border-right: var(--rule-thin) solid var(--ink);
+  background: var(--paper);
+  padding: 0.95rem 1rem;
+  text-align: left;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 100ms linear, color 100ms linear;
+}
+
+.wizard-nav button:last-child { border-right: 0; }
+
+.wizard-nav button:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.wizard-nav button.is-current,
+body:has(.screen[data-screen="workspace"].is-active)       .wizard-nav button[data-nav-target="workspace"],
+body:has(.screen[data-screen="household"].is-active)       .wizard-nav button[data-nav-target="household"],
+body:has(.screen[data-screen="identity"].is-active)        .wizard-nav button[data-nav-target="identity"],
+body:has(.screen[data-screen="bank_accounts"].is-active)   .wizard-nav button[data-nav-target="bank_accounts"],
+body:has(.screen[data-screen="payments"].is-active)        .wizard-nav button[data-nav-target="payments"],
+body:has(.screen[data-screen="postures"].is-active)        .wizard-nav button[data-nav-target="postures"],
+body:has(.screen[data-screen="de_deductions"].is-active)   .wizard-nav button[data-nav-target="de_deductions"],
+body:has(.screen[data-screen="vorabpauschale"].is-active)  .wizard-nav button[data-nav-target="vorabpauschale"],
+body:has(.screen[data-screen="carryovers"].is-active)      .wizard-nav button[data-nav-target="carryovers"],
+body:has(.screen[data-screen="children"].is-active)        .wizard-nav button[data-nav-target="children"],
+body:has(.screen[data-screen="documents"].is-active)       .wizard-nav button[data-nav-target="documents"],
+body:has(.screen[data-screen="readiness"].is-active)       .wizard-nav button[data-nav-target="readiness"],
+body:has(.screen[data-screen="run"].is-active)             .wizard-nav button[data-nav-target="run"],
+body:has(.screen[data-screen="outputs"].is-active)         .wizard-nav button[data-nav-target="outputs"] {
+  background: var(--alarm);
+  color: var(--paper);
+}
+
+.wizard-nav button:focus-visible {
+  outline: var(--rule-thick) solid var(--alarm);
+  outline-offset: -3px;
+  z-index: 1;
+}
+
+/* -------------------------------------------------------------------------
+ * Progress toolbar — a "ledger header" strip
+ * ----------------------------------------------------------------------- */
+
+.progress-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  padding: 0.85rem clamp(1rem, 4vw, 3rem);
+  margin: 0;
+  background: var(--paper-deep);
+  border-bottom: var(--rule-mid) solid var(--ink);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.progress-summary { font-weight: 700; color: var(--ink); }
+
+.save-all-status,
+.autosave-global-status {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.06em;
+}
+
+.autosave-global-status { margin-left: auto; }
+
+.autosave-global-status.is-pending,
+.save-all-status:not(.is-success):not(:empty) { color: var(--cobalt); }
+
+.autosave-global-status.is-error { color: var(--alarm); }
+
+.save-all-status.is-success { color: var(--ink); font-weight: 700; }
+
+#save-all-button {
+  border: var(--rule-mid) solid var(--ink);
+  border-radius: 0;
+  padding: 0.5rem 1rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 100ms linear, color 100ms linear;
+}
+
+#save-all-button:hover { background: var(--ink); color: var(--paper); }
+#save-all-button:active { background: var(--alarm); color: var(--paper); border-color: var(--alarm); }
+#save-all-button:disabled { background: var(--paper-deep); border-color: var(--rule-soft); color: var(--ink-faint); cursor: wait; }
+#save-all-button:focus-visible { outline: var(--rule-thick) solid var(--alarm); outline-offset: 2px; }
+
+/* Offline banner — alarm-red Kruger banner. */
+.autosave-banner {
+  margin: 0;
+  padding: 0.85rem clamp(1rem, 4vw, 3rem);
+  background: var(--alarm);
+  color: var(--paper);
+  border-bottom: var(--rule-thick) solid var(--ink);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-style: italic;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.autosave-banner::before {
+  content: "TRANSMISSION FAILED — ";
+  margin-right: 0.4rem;
+}
+
+/* -------------------------------------------------------------------------
+ * Screens — each screen lives on the white field
+ * ----------------------------------------------------------------------- */
+
+main {
+  display: block;
+  padding: 0 clamp(1rem, 4vw, 3rem);
+}
+
+.screen {
+  display: none;
+  background: var(--paper);
+  border-bottom: var(--rule-thick) solid var(--ink);
+  padding: 3rem 0 4rem;
+  position: relative;
+}
+
+.screen.is-active { display: block; }
+
+.chapter-mark {
+  display: inline-block;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.35rem 0.7rem;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 0 0 1rem;
+}
+
+.screen h2 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-style: italic;
+  font-size: var(--fs-h2);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--ink);
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.screen-subtitle {
+  margin: 0.5rem 0 1.5rem;
+  display: inline-block;
+  background: var(--alarm);
+  color: var(--paper);
+  padding: 0.4rem 0.7rem 0.45rem;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-style: italic;
+  font-size: var(--fs-banner);
+  line-height: 1.05;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  max-width: var(--measure);
+}
+
+.screen > p,
+.screen-help {
+  max-width: var(--measure);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  color: var(--ink);
+  margin: 0 0 1rem;
+}
+
+.screen-help { color: var(--ink-soft); }
+
+.lede {
+  font-size: var(--fs-body-lead);
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* -------------------------------------------------------------------------
+ * Forms
+ * ----------------------------------------------------------------------- */
+
+form {
+  display: grid;
+  gap: 1.25rem;
+  max-width: var(--measure);
+  margin-top: 1.5rem;
+}
+
+label { display: grid; gap: 0.4rem; font-family: var(--font-body); }
+
+.field-label-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.inline-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+}
+
+.inline-checkbox input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: var(--rule-mid) solid var(--ink);
+  background: var(--paper);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.inline-checkbox input[type="checkbox"]:checked {
+  background: var(--alarm);
+  border-color: var(--alarm);
+}
+
+.inline-checkbox input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: var(--paper);
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+.inline-checkbox input[type="checkbox"]:focus-visible {
+  outline: var(--rule-thick) solid var(--alarm);
+  outline-offset: 2px;
+}
+
+input,
+select,
+textarea {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  color: var(--ink);
+  background: var(--paper);
+  padding: 0.65rem 0.85rem;
+  border: var(--rule-mid) solid var(--ink);
+  border-radius: 0;
+  outline: none;
+  width: 100%;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--ink) 50%),
+    linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+  background-position: calc(100% - 16px) calc(50% - 2px), calc(100% - 11px) calc(50% - 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 2rem;
+}
+
+input[type="file"] {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  padding: 0.5rem 0.6rem;
+}
+
+input::placeholder { color: var(--ink-faint); font-style: italic; }
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--alarm);
+  outline: var(--rule-thin) solid var(--alarm);
+  outline-offset: 0;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  border-color: var(--alarm);
+  outline: var(--rule-thick) solid var(--alarm);
+  outline-offset: 0;
+}
+
+input[inputmode="decimal"],
+.input-with-currency input {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum" 1, "zero" 1;
+  text-align: right;
+}
+
+/* Submit / primary action — hard black rectangle, white sans, hover
+ * to alarm-red invert. The brutalist register. */
+
+button[type="submit"],
+.save-now-button,
+#run-button,
+#outputs-button,
+#readiness-button,
+.row-add-button {
+  align-self: start;
+  border: var(--rule-thick) solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 0;
+  padding: 0.85rem 1.5rem;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 100ms linear, color 100ms linear, border-color 100ms linear;
+}
+
+button[type="submit"]:hover,
+.save-now-button:hover,
+#outputs-button:hover,
+#readiness-button:hover,
+.row-add-button:hover {
+  background: var(--alarm);
+  border-color: var(--alarm);
+  color: var(--paper);
+}
+
+button[type="submit"]:active,
+.save-now-button:active,
+#outputs-button:active,
+#readiness-button:active,
+.row-add-button:active {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+button[type="submit"]:focus-visible,
+.save-now-button:focus-visible,
+#run-button:focus-visible,
+#outputs-button:focus-visible,
+#readiness-button:focus-visible,
+.row-add-button:focus-visible {
+  outline: var(--rule-thick) solid var(--alarm);
+  outline-offset: 3px;
+}
+
+/* The Run button — the ritual. Alarm red at rest, black on hover. */
+#run-button {
+  background: var(--alarm);
+  color: var(--paper);
+  border-color: var(--alarm);
+  font-size: 1rem;
+  padding: 1rem 1.75rem;
+  letter-spacing: 0.14em;
+}
+
+#run-button:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+#run-button:active {
+  background: var(--paper);
+  color: var(--alarm);
+  border-color: var(--alarm);
+}
+
+/* Currency adornments --------------------------------------------------- */
+
+.currency-tag,
+.currency {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  background: var(--ink);
+  color: var(--paper);
+  border: 0;
+  border-radius: 0;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.input-with-currency {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr auto;
+  align-items: stretch;
+  gap: 0;
+  border: var(--rule-mid) solid var(--ink);
+}
+
+.input-with-currency input {
+  border: 0;
+  background: transparent;
+  padding: 0.65rem 0.6rem;
+}
+
+.input-with-currency input:focus,
+.input-with-currency input:focus-visible {
+  outline: 0;
+  background: var(--alarm-wash);
+}
+
+.input-with-currency:focus-within {
+  border-color: var(--alarm);
+  outline: var(--rule-mid) solid var(--alarm);
+  outline-offset: 0;
+}
+
+.currency-prefix {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--paper);
+  background: var(--ink);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-with-currency .currency {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  padding: 0 0.7rem;
+  font-size: 0.72rem;
+}
+
+/* -------------------------------------------------------------------------
+ * Sections / postures / row collections
+ * ----------------------------------------------------------------------- */
+
+.postures-section,
+.screen-section {
+  margin: 1.5rem 0;
+  padding: 1.25rem 1.4rem;
+  background: var(--paper);
+  border: var(--rule-thick) solid var(--ink);
+  position: relative;
+}
+
+.postures-section h3,
+.screen-section h3 {
+  margin: 0 0 1rem;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-style: italic;
+  font-size: 1.15rem;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--ink);
+  padding-bottom: 0.5rem;
+  border-bottom: var(--rule-mid) solid var(--ink);
+}
+
+.posture-field,
+.screen-field {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.95rem 0;
+  border-bottom: var(--rule-thin) solid var(--rule-soft);
+}
+
+.posture-field:last-child,
+.screen-field:last-child { border-bottom: 0; }
+
+.posture-field.is-disabled,
+.screen-field.is-disabled { opacity: 0.45; }
+
+.posture-field-header,
+.screen-field-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.posture-field-label,
+.screen-field-label {
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.posture-field-citations {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+}
+
+.posture-field-citations a {
+  color: var(--cobalt);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+
+.posture-field-citations a:hover { color: var(--alarm); }
+
+.posture-field-control,
+.screen-field-control {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.2rem;
+  align-items: center;
+}
+
+.posture-field-control label {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.posture-field-control input[type="radio"],
+.posture-field-control input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  border: var(--rule-mid) solid var(--ink);
+  background: var(--paper);
+  cursor: pointer;
+  position: relative;
+}
+
+.posture-field-control input[type="radio"] { border-radius: 50%; }
+.posture-field-control input[type="radio"]:checked {
+  background: var(--alarm);
+  border-color: var(--alarm);
+}
+.posture-field-control input[type="radio"]:checked::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: var(--paper);
+  border-radius: 50%;
+}
+.posture-field-control input[type="checkbox"]:checked {
+  background: var(--alarm);
+  border-color: var(--alarm);
+}
+.posture-field-control input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background: var(--paper);
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+.posture-field-control input[type="radio"]:focus-visible,
+.posture-field-control input[type="checkbox"]:focus-visible {
+  outline: var(--rule-thick) solid var(--alarm);
+  outline-offset: 2px;
+}
+
+.screen-field-control input,
+.screen-field-control select {
+  flex: 1;
+  min-width: 9rem;
+}
+
+.posture-precondition-banner {
+  margin-top: 0.5rem;
+  padding: 0.55rem 0.85rem;
+  background: var(--cobalt-soft);
+  border-left: var(--rule-thick) solid var(--cobalt);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+/* Row tables (bank accounts, vorabpauschale funds, children) ------------ */
+
+.screen-rows {
+  display: grid;
+  gap: 1rem;
+  margin: 0.5rem 0 1.2rem;
+}
+
+.screen-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.85rem 1rem;
+  padding: 1rem 1.15rem;
+  background: var(--paper);
+  border: var(--rule-mid) solid var(--ink);
+  border-left: var(--rule-thick) solid var(--ink);
+  align-items: end;
+  position: relative;
+}
+
+.screen-row-cell label { display: grid; gap: 0.3rem; }
+
+.screen-row-label-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.row-add-button {
+  font-size: 0.78rem;
+  padding: 0.6rem 1rem;
+}
+
+.row-remove-button {
+  align-self: end;
+  border: var(--rule-mid) solid var(--alarm);
+  background: var(--paper);
+  color: var(--alarm);
+  border-radius: 0;
+  padding: 0.5rem 0.85rem;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 100ms linear, color 100ms linear;
+}
+
+.row-remove-button:hover { background: var(--alarm); color: var(--paper); }
+.row-remove-button:focus-visible {
+  outline: var(--rule-thick) solid var(--alarm);
+  outline-offset: 2px;
+}
+
+.screen-rows-empty {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--ink-faint);
+  padding: 0.6rem 0;
+}
+
+/* -------------------------------------------------------------------------
+ * Validation / status
+ * ----------------------------------------------------------------------- */
+
+.postures-validation,
+.screen-validation {
+  min-height: 1.4rem;
+  margin: 0.5rem 0;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--alarm);
+}
+
+.screen-validation.is-success { color: var(--ink); }
+
+.screen-validation:not(:empty),
+.postures-validation:not(:empty) {
+  padding: 0.5rem 0.7rem;
+  background: var(--alarm-wash);
+  border-left: var(--rule-thick) solid var(--alarm);
+}
+
+.screen-validation.is-success:not(:empty) {
+  background: var(--paper-deep);
+  border-left-color: var(--ink);
+  color: var(--ink);
+}
+
+.screen-meta {
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+  margin-top: 0.4rem;
+}
+
+.screen-meta-stamp { font-style: normal; }
+
+/* Inline field error — red border + marginalia note */
+.screen-field.has-error .screen-field-control input,
+.screen-field.has-error .screen-field-control select {
+  border-color: var(--alarm);
+  background: var(--alarm-wash);
+}
+
+.screen-field-error {
+  font-family: var(--font-body);
+  color: var(--alarm-deep);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.screen-field-error::before {
+  content: "→ ";
+  color: var(--alarm);
+  font-weight: 800;
+}
+
+/* -------------------------------------------------------------------------
+ * Status pills — auto-save state
+ * ----------------------------------------------------------------------- */
+
+.screen-status {
+  display: inline-block;
+  margin-left: 0.6rem;
+  padding: 0.2rem 0.6rem;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--paper);
+  color: var(--ink-faint);
+  border: var(--rule-thin) solid var(--ink-faint);
+  border-radius: 0;
+  vertical-align: middle;
+}
+
+.screen-status.is-saving,
+.screen-status.is-retrying {
+  border-color: var(--cobalt);
+  color: var(--cobalt);
+  animation: status-pulse 1.4s ease-in-out infinite;
+}
+
+.screen-status.is-saved {
+  border-color: var(--ink);
+  color: var(--paper);
+  background: var(--ink);
+}
+
+.screen-status.is-error {
+  border-color: var(--alarm);
+  background: var(--alarm);
+  color: var(--paper);
+}
+
+@keyframes status-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+/* -------------------------------------------------------------------------
+ * Info markers — small black square with italic "i"
+ * ----------------------------------------------------------------------- */
+
+.info-marker {
+  display: inline-flex;
+  width: 1.1rem;
+  height: 1.1rem;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  color: var(--ink);
+  border: var(--rule-mid) solid var(--ink);
+  border-radius: 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 0.74rem;
+  cursor: help;
+  position: relative;
+  vertical-align: 1px;
+}
+
+.info-marker:hover { background: var(--ink); color: var(--paper); }
+
+.info-marker:focus,
+.info-marker:focus-visible {
+  outline: var(--rule-thick) solid var(--alarm);
+  outline-offset: 1px;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* Tooltip — black card, alarm-red left rule, sans-serif body. */
+.info-marker[data-tooltip]:hover::after,
+.info-marker[data-tooltip]:focus-visible::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 1.6rem;
+  left: 0;
+  z-index: 10;
+  width: 24rem;
+  max-width: 80vw;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.85rem 1rem;
+  border-radius: 0;
+  border-left: var(--rule-thick) solid var(--alarm);
+  font-family: var(--font-body);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: pre-wrap;
+  pointer-events: none;
+}
+
+.coming-soon-marker {
+  display: inline-block;
+  background: var(--cobalt);
+  color: var(--paper);
+  border: 0;
+  border-radius: 0;
+  padding: 0.15rem 0.55rem;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* -------------------------------------------------------------------------
+ * Cartoons — render with Kruger-style red caption banner
+ * ----------------------------------------------------------------------- */
+
+.cartoon-slot {
+  margin: 1rem 0 1.75rem;
+  padding: 0;
+  background: var(--paper);
+  border: var(--rule-thick) solid var(--ink);
+  max-width: 38rem;
+  position: relative;
+}
+
+.cartoon-slot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0;
+  background: var(--paper);
+}
+
+.cartoon-slot img.is-placeholder {
+  background: var(--paper-deep);
+  border: 0;
+  min-height: 140px;
+  object-fit: contain;
+  opacity: 0.7;
+}
+
+/* The figcaption sits as a Kruger-banner over the bottom of the
+ * plate: alarm-red strip, white italic display caps. */
+.cartoon-slot figcaption {
+  margin: 0;
+  padding: 0.55rem 0.85rem 0.65rem;
+  background: var(--alarm);
+  color: var(--paper);
+  border-top: var(--rule-thick) solid var(--ink);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-style: italic;
+  font-size: 0.95rem;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  text-align: left;
+  line-height: 1.15;
+}
+
+/* -------------------------------------------------------------------------
+ * Pre / output blocks — black register-tape with white mono
+ * ----------------------------------------------------------------------- */
+
+pre {
+  margin-top: 1.5rem;
+  padding: 1rem 1.2rem;
+  background: var(--ink);
+  color: var(--paper);
+  border: 0;
+  border-left: var(--rule-thick) solid var(--alarm);
+  border-radius: 0;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  overflow: auto;
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+pre:empty { display: none; }
+
+/* -------------------------------------------------------------------------
+ * Outputs screen — the final ledger
+ * ----------------------------------------------------------------------- */
+
+.outputs-summary {
+  margin: 1rem 0 1.5rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--paper);
+  border: var(--rule-thick) solid var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-body-lead);
+}
+
+.outputs-summary strong {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.outputs-list { display: grid; gap: 1rem; }
+
+.output-category {
+  padding: 1rem 1.25rem;
+  background: var(--paper);
+  border: var(--rule-mid) solid var(--ink);
+  border-left: var(--rule-thick) solid var(--ink);
+}
+
+.output-category h3 {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.output-category ul {
+  margin: 0;
+  padding-left: 1.4rem;
+  list-style: none;
+}
+
+.output-category li {
+  margin: 0.4rem 0;
+  padding-left: 0.5rem;
+  position: relative;
+}
+
+.output-category li::before {
+  content: "→";
+  position: absolute;
+  left: -1rem;
+  color: var(--alarm);
+  font-weight: 800;
+}
+
+.output-category a {
+  color: var(--cobalt);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.output-category a:hover { color: var(--alarm); }
+
+.output-path {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+/* -------------------------------------------------------------------------
+ * Run progress + failure
+ * ----------------------------------------------------------------------- */
+
+.run-progress-heading {
+  margin: 1.25rem 0 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.run-progress-list {
+  list-style: decimal;
+  padding-left: 1.8rem;
+  margin: 0.5rem 0 1.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  border-left: var(--rule-thick) solid var(--ink);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  background: var(--paper-deep);
+}
+
+.run-progress-list .run-stage {
+  margin: 0.25rem 0;
+  font-feature-settings: "tnum" 1;
+}
+
+.run-progress-list .run-stage.is-complete { color: var(--ink); }
+.run-progress-list .run-stage.is-complete::marker { color: var(--ink); }
+
+.run-progress-list .run-stage.is-running { color: var(--alarm); font-weight: 700; }
+.run-progress-list .run-stage.is-running::marker { color: var(--alarm); }
+
+.run-progress-list .run-stage-id { font-family: var(--font-mono); font-weight: 700; }
+.run-progress-list .run-stage-phase { color: var(--ink-faint); }
+.run-progress-list .run-stage-timing { color: var(--ink-faint); font-size: 0.85rem; }
+
+.run-failure-card {
+  display: none;
+  margin-top: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--paper);
+  border: var(--rule-thick) solid var(--alarm);
+  color: var(--ink);
+  position: relative;
+}
+
+.run-failure-card.is-visible { display: block; }
+
+.run-failure-card::before {
+  content: "REJECTED";
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: var(--paper);
+  background: var(--alarm);
+  padding: 0.25rem 0.7rem;
+}
+
+.run-failure-card h3 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--alarm-deep);
+}
+
+.run-failure-fields {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.4rem 1.4rem;
+  margin: 0;
+}
+
+.run-failure-fields dt {
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--alarm-deep);
+}
+
+.run-failure-fields dd {
+  margin: 0;
+  word-break: break-word;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+.run-failure-fields dd a {
+  color: var(--cobalt);
+  text-decoration: underline;
+}
+.run-failure-fields dd a:hover { color: var(--alarm); }
+
+/* -------------------------------------------------------------------------
+ * Footer — not-professional-advice disclaimer + license credit
+ * ----------------------------------------------------------------------- */
+
+.wizard-foot {
+  margin-top: 0;
+  padding: 3rem clamp(1rem, 4vw, 3rem);
+  background: var(--ink);
+  color: var(--paper);
+  border-top: var(--rule-thick) solid var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.wizard-foot .disclaimer-banner {
+  display: inline-block;
+  background: var(--alarm);
+  color: var(--paper);
+  padding: 0.5rem 0.85rem 0.55rem;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-style: italic;
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  margin: 0 0 1.25rem;
+}
+
+.wizard-foot p {
+  margin: 0 0 1rem;
+  max-width: 78ch;
+  color: var(--paper-edge);
+}
+
+.wizard-foot p strong { color: var(--paper); font-weight: 700; }
+
+.wizard-foot a {
+  color: var(--paper);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.wizard-foot a:hover { color: var(--alarm); }
+
+.wizard-foot .colophon {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: var(--rule-thin) solid #6a6a6a;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  /* #a8a8a8 on #0a0a0a is ~9.7:1 — comfortably AA for small text. */
+  color: #a8a8a8;
+  letter-spacing: 0.04em;
+}
+
+/* -------------------------------------------------------------------------
+ * Responsive
+ * ----------------------------------------------------------------------- */
+
+@media (max-width: 720px) {
+  .wizard-header { padding: 2rem 1rem 1.5rem; }
+  .wizard-nav { grid-template-columns: 1fr 1fr; }
+  .wizard-nav button { border-bottom: var(--rule-thin) solid var(--ink); }
+  main { padding: 0 1rem; }
+  .screen { padding: 2rem 0 2.5rem; }
+  .info-marker[data-tooltip]:hover::after,
+  .info-marker[data-tooltip]:focus-visible::after {
+    width: calc(100vw - 2rem);
+    max-width: none;
+  }
+  .wizard-header .truisms { flex-direction: column; }
+  .wizard-header .truisms li + li { border-left: 0; padding-left: 0; border-top: var(--rule-thin) solid var(--paper-edge); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@media print {
+  body { background: white; color: black; }
+  .wizard-header { background: white; color: black; border: 0; border-bottom: 3px solid black; }
+  .wizard-header h1 { color: black; }
+  .wizard-header .strapline { background: black; color: white; }
+  .wizard-foot { background: white; color: black; }
+  .wizard-foot p { color: black; }
+  .wizard-nav, .progress-toolbar, button, .info-marker { display: none !important; }
+  .screen { display: block !important; page-break-after: always; border: 0; }
+  pre { background: white; color: black; border-left: 2px solid black; }
+}

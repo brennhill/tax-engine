@@ -1,0 +1,10 @@
+# § 9a EStG (Pauschbeträge für Werbungskosten)
+#
+# Authority root: https://www.gesetze-im-internet.de/estg/__9a.html
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[WORKER_ALLOWANCE_PER_PERSON_EUR]
+value = "1230.00"
+authority = "§ 9a Satz 1 Nr. 1 lit. a EStG: Arbeitnehmer-Pauschbetrag €1,230 per person, applied to § 19 wage income whenever the actual Werbungskosten under § 9 EStG do not exceed it. Carries forward unchanged from 2023 (Inflationsausgleichsgesetz, BGBl. I 2022 S. 2230) into 2025."
+citation_url = "https://www.gesetze-im-internet.de/estg/__9a.html"

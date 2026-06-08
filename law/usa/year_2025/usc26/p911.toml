@@ -1,0 +1,15 @@
+# 26 U.S.C. § 911 (Foreign Earned Income Exclusion)
+#
+# Authority root: https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section911&num=0&edition=prelim
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[SECTION_911_HOUSING_BASE_RATE]
+value = "0.16"
+authority = "26 U.S.C. § 911(c)(1)(B) — base housing amount = 16 % of FEIE ceiling (a statutory rate; not a Rev. Proc. inflation amount)."
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section911&num=0&edition=prelim"
+
+[SECTION_911_HOUSING_CEILING_RATE]
+value = "0.30"
+authority = "26 U.S.C. § 911(c)(2)(A) — housing-cost ceiling = 30 % of FEIE before IRS Notice 2024-77 location adjustment."
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section911&num=0&edition=prelim"

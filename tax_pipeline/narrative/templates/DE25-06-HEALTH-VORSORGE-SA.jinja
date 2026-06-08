@@ -1,0 +1,63 @@
+## {{ rule.title }}
+
+{% set out = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 10 Abs. 1 Nr. 3 Buchst. a und b EStG](https://www.gesetze-im-internet.de/estg/__10.html) erlauben den vollen Abzug der Beiträge zur Basisversorgung Krankenversicherung und Pflegeversicherung. [§ 10 Abs. 1 Nr. 3](https://www.gesetze-im-internet.de/estg/__10.html) Satz 4 EStG zieht den nicht abzugsfähigen Krankengeld-Anteil ab. [§ 10 Abs. 1 Nr. 3a EStG](https://www.gesetze-im-internet.de/estg/__10.html) erfasst weitere Vorsorgeaufwendungen (Haftpflicht, Lebensversicherung etc.); [§ 10 Abs. 4 EStG](https://www.gesetze-im-internet.de/estg/__10.html) deckelt diese auf **1.900 €** je Arbeitnehmer (gemeinsam veranlagte Ehegatten teilen sich den Höchstbetrag, [§ 10 Abs. 4 Satz 3 EStG](https://www.gesetze-im-internet.de/estg/__10.html)).
+
+Für 2025:
+
+- Basisanteil Kranken/Pflege je Person nach Krankengeld-Reduktion: {% for v in out.by_person_health_and_nursing %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Sonstige Vorsorgeaufwendungen je Person (Bruttobeiträge): {% for v in out.by_person_other_vorsorge_contributions %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Innerhalb des [§ 10 Abs. 4](https://www.gesetze-im-internet.de/estg/__10.html) Höchstbetrags zugelassene Sonstige Vorsorge je Person: {% for v in out.by_person_other_vorsorge_allowed %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Vorsorge-Sonderausgaben je Person gesamt: {% for v in out.by_person %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Haushalt gesamt: **{{ out.total_eur | money(currency="EUR") }}**
+
+Diese Werte erscheinen in Anlage Vorsorgeaufwand:
+
+- **Zeilen 11-14** (Krankenversicherung / Pflegeversicherung, [§ 10 Abs. 1 Nr. 3 EStG](https://www.gesetze-im-internet.de/estg/__10.html)): aggregierter Basisanteil über alle Personen.
+- **Zeilen 31-37** (sonstige Vorsorgeaufwendungen, [§ 10 Abs. 1 Nr. 3a EStG](https://www.gesetze-im-internet.de/estg/__10.html)): innerhalb des [§ 10 Abs. 4](https://www.gesetze-im-internet.de/estg/__10.html)-Höchstbetrags zugelassener Anteil.
+
+Beide Beträge werden in DE25-06B mit der Rente (Zeilen 4-9) und dem [§ 10c](https://www.gesetze-im-internet.de/estg/__10c.html)-Pauschbetrag zum Sonderausgabenblock zusammengeführt.
+{% else -%}
+[§ 10 Abs. 1 Nr. 3 Buchst. a und b EStG](https://www.gesetze-im-internet.de/estg/__10.html) allows full deduction of basic health and nursing-care insurance contributions. [§ 10 Abs. 1 Nr. 3](https://www.gesetze-im-internet.de/estg/__10.html) Satz 4 EStG removes the non-deductible Krankengeld (sick-pay) component. [§ 10 Abs. 1 Nr. 3a EStG](https://www.gesetze-im-internet.de/estg/__10.html) covers other Vorsorgeaufwendungen (liability, life insurance, etc.); [§ 10 Abs. 4 EStG](https://www.gesetze-im-internet.de/estg/__10.html) caps these at **€1,900** per employee (jointly assessed spouses share the cap under [§ 10 Abs. 4 Satz 3 EStG](https://www.gesetze-im-internet.de/estg/__10.html)).
+
+For 2025:
+
+- Basic health/nursing per person after Krankengeld reduction: {% for v in out.by_person_health_and_nursing %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Other Vorsorge contributions per person (gross): {% for v in out.by_person_other_vorsorge_contributions %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Other Vorsorge allowed within the [§ 10 Abs. 4](https://www.gesetze-im-internet.de/estg/__10.html) cap, per person: {% for v in out.by_person_other_vorsorge_allowed %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Total Vorsorge-Sonderausgaben per person: {% for v in out.by_person %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Household total: **{{ out.total_eur | money(currency="EUR") }}**
+
+These appear on Anlage Vorsorgeaufwand:
+
+- **lines 11-14** (basic health and nursing-care insurance, [§ 10 Abs. 1 Nr. 3 EStG](https://www.gesetze-im-internet.de/estg/__10.html)): aggregated basic-coverage portion across both spouses (or the single filer).
+- **lines 31-37** (other Vorsorgeaufwendungen, [§ 10 Abs. 1 Nr. 3a EStG](https://www.gesetze-im-internet.de/estg/__10.html)): the share allowed within the [§ 10 Abs. 4](https://www.gesetze-im-internet.de/estg/__10.html) cap.
+
+Both blocks are combined at DE25-06B with retirement contributions (lines 4-9) and the [§ 10c](https://www.gesetze-im-internet.de/estg/__10c.html) lump sum into the Sonderausgaben section.
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

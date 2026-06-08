@@ -1,0 +1,31 @@
+# Schedule 1 (Form 1040) — Additional Income and Adjustments to Income
+# Authority: 26 U.S.C. §§ 61, 62; IRS Form 1040 Schedule 1 instructions.
+# https://www.irs.gov/pub/irs-pdf/f1040s1.pdf
+#
+# Y2 / P5 form-schema-as-data: each [[lines]] entry declares the rendered
+# label string that the renderer emits to the "Line" column of
+# 2025_schedule_1.md. The renderer reads label by line_id; it never
+# constructs the label string itself.
+#
+# Only the populated lines for the supported U.S. cross-border posture
+# are declared (line 8z catch-all "other income" with the substitute-
+# payments and staking-income statement breakouts). Other Schedule 1
+# lines (1-7, 9-25) are not modeled and not declared here.
+
+form_id = "schedule_1"
+form_year = 2025
+display_name = "Schedule 1"
+canonical_form_name = "Schedule 1"
+authority_url = "https://www.irs.gov/pub/irs-pdf/f1040s1.pdf"
+
+[[lines]]
+line_id = "8z_total"
+label = "Line 8z total"
+
+[[lines]]
+line_id = "8z_substitute_payments"
+label = "Line 8z statement - substitute payments"
+
+[[lines]]
+line_id = "8z_staking_income"
+label = "Line 8z statement - staking income"

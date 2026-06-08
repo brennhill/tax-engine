@@ -1,0 +1,10 @@
+# 26 U.S.C. § 1411 (Net Investment Income Tax)
+#
+# Authority root: https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1411&num=0&edition=prelim
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[NIIT_RATE]
+value = "0.038"
+authority = "26 U.S.C. § 1411(a) — 3.8 % statutory NIIT rate."
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1411&num=0&edition=prelim"

@@ -1,0 +1,44 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 24](https://www.law.cornell.edu/uscode/text/26/24) provides two related credits for dependents on the 2025 return, computed together on [Schedule 8812](https://www.irs.gov/forms-pubs/about-schedule-8812-form-1040):
+
+- [**§ 24(a)** Child Tax Credit](https://www.law.cornell.edu/uscode/text/26/24): **$2,200** per qualifying child under age 17 (defined in [§ 152(c)](https://www.law.cornell.edu/uscode/text/26/152)) who has a valid SSN issued before the return due date ([§ 24(h)(7)](https://www.law.cornell.edu/uscode/text/26/24)). The $2,200 figure is § 24(a)'s base as substituted by post-OBBBA § 24(h)(2) for 2025; confirmed against IRS Schedule 8812 (2025) instructions and the IRS Child Tax Credit landing page. Up to **$1,700** per qualifying child is refundable as the Additional Child Tax Credit under [§ 24(d)(1)(A)](https://www.law.cornell.edu/uscode/text/26/24) (inflation-indexed via § 24(h)(5); Rev. Proc. 2024-40 § 3.05).
+- [**§ 24(h)(4)** Credit for Other Dependents](https://www.law.cornell.edu/uscode/text/26/24): **$500** per qualifying child age 17+ (or qualifying relative under [§ 152(d)](https://www.law.cornell.edu/uscode/text/26/152)) with a TIN. **NON-refundable.** Children with an ITIN instead of an SSN fail § 24(h)(7) for CTC but route here.
+
+Both credits share the [**§ 24(b)(2)** phase-out](https://www.law.cornell.edu/uscode/text/26/24): the combined credit is reduced by **$50 per $1,000** (or fraction thereof, per § 24(b)(3)) of modified AGI above **$200,000** (single / HoH / MFS) or **$400,000** (MFJ). Modified AGI for § 24 includes the [§ 911](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section911) excluded foreign earned income, mirroring the § 1411 NIIT add-back.
+
+For a U.S.-citizen-in-Germany filer, [§ 152(c)(1)(B)](https://www.law.cornell.edu/uscode/text/26/152) treats months living abroad with the U.S.-citizen parent as months "with the taxpayer" — the loader does NOT require physical U.S. presence to qualify a child.
+
+For 2025:
+
+- § 24(a) gross CTC ($2,200 × qualifying children with SSN): **{{ rule.outputs[0].value | money(currency="USD") }}**
+- § 24(h)(4) gross ODC ($500 × ODC dependents): **{{ rule.outputs[1].value | money(currency="USD") }}**
+- Combined credit before phase-out: **{{ rule.outputs[2].value | money(currency="USD") }}**
+- § 24(b)(2) phase-out reduction (MAGI excess × 5 %): **{{ rule.outputs[3].value | money(currency="USD") }}**
+- Combined credit after phase-out: **{{ rule.outputs[4].value | money(currency="USD") }}**
+- § 24(b) nonrefundable portion (Form 1040 line 19, capped at regular tax after FTC): **{{ rule.outputs[5].value | money(currency="USD") }}**
+- § 24(d) refundable Additional Child Tax Credit (Form 1040 line 28; min of remaining CTC, $1,700 × children, 15 % × max(0, earned income − $2,500)): **{{ rule.outputs[6].value | money(currency="USD") }}**
+- **§ 24 total credit (nonrefundable + refundable): {{ rule.outputs[7].value | money(currency="USD") }}**
+
+The nonrefundable § 24 credit reduces regular tax after FTC at US25-21 (it cannot offset the § 1411 NIIT, § 55 AMT, § 1401 SE tax, or § 3101(b)(2) Additional Medicare Tax — those are separate additional taxes). The § 24(d) refundable ACTC is added to payments on the same line.
+
+**Form locations**
+
+- [Schedule 8812](https://www.irs.gov/forms-pubs/about-schedule-8812-form-1040)
+- [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 19 (nonrefundable CTC + ODC)
+- [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 28 (refundable ACTC)
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

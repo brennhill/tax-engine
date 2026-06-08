@@ -1,0 +1,38 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 901](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section901&num=0&edition=prelim) allows a credit for foreign income tax paid or accrued; [§ 905](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section905&num=0&edition=prelim) sets the timing rules (paid vs. accrued basis). Foreign tax that exceeded the [§ 904](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim) limit in prior years rolls forward and is "available" alongside current-year payments. This stage assembles the per-basket pool of foreign tax that's eligible for crediting against U.S. tax.
+
+{% set avail = rule.outputs[0].value | from_json -%}
+For 2025:
+
+- Current-year general-basket foreign tax (e.g., German wage tax allocated by IRS [Pub. 514](https://www.irs.gov/publications/p514) wage-share rules): **{{ avail.current_year_general_foreign_tax_usd | money(currency="USD") }}**
+- Current-year passive-basket foreign tax (e.g., German tax on dividends): **{{ avail.current_year_passive_foreign_tax_usd | money(currency="USD") }}**
+- General-basket carryover from 2024 (excess from prior years per § 904(c)): **{{ avail.general_ftc_carryover_2024_usd | money(currency="USD") }}**
+- Passive-basket carryover from 2024: **{{ avail.passive_ftc_carryover_2024_usd | money(currency="USD") }}**
+
+The available pool per basket is current-year + carryover. US25-14 will then take the lesser of available foreign tax and the per-basket [§ 904](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim) limit from US25-12.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

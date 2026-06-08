@@ -1,0 +1,45 @@
+# § 10 EStG (Sonderausgaben)
+#
+# Authority root: https://www.gesetze-im-internet.de/estg/__10.html
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[OTHER_VORSORGE_CAP_EMPLOYEE_EUR]
+value = "1900.00"
+authority = "§ 10 Abs. 4 EStG: alternate caps for \"andere Vorsorgeaufwendungen\" (Vorsorge other than retirement / basic health): - €1,900 for employees with statutory KV/PV cover (Satz 1). - €2,800 for self-employed and others without employer KV (Satz 2)."
+citation_url = "https://www.gesetze-im-internet.de/estg/__10.html"
+
+[OTHER_VORSORGE_CAP_GENERAL_EUR]
+value = "2800.00"
+authority = "§ 10 EStG (Sonderausgaben)"
+citation_url = "https://www.gesetze-im-internet.de/estg/__10.html"
+
+[SONDERAUSGABEN_PAUSCHBETRAG_SINGLE_EUR]
+value = "36.00"
+authority = "§ 10c EStG Sonderausgaben-Pauschbetrag: €36 single / €72 joint."
+citation_url = "https://www.gesetze-im-internet.de/estg/__10c.html"
+
+[SONDERAUSGABEN_PAUSCHBETRAG_JOINT_EUR]
+value = "72.00"
+authority = "§ 10 EStG (Sonderausgaben)"
+citation_url = "https://www.gesetze-im-internet.de/estg/__10.html"
+
+[RETIREMENT_SPECIAL_EXPENSE_CAP_SINGLE_EUR]
+value = "29344.00"
+authority = "§ 10 Abs. 3 Satz 1 EStG: the Höchstbetrag for retirement Vorsorgeaufwendungen equals the maximum (employer + employee) annual contribution to the knappschaftliche Rentenversicherung. The BMAS Sozialversicherungs-Rechengrößenverordnung 2025 abolished the West/Ost split — for 2025 there is a single bundeseinheitliche BBG of €118,800 in the knappschaftliche RV, and the contribution rate is 24.7 %, so: €118,800 × 0.247 = €29,343.60 → rounded by BMF to €29,344. The legacy \"_RV_WEST_\" suffix on the constant name is retained for fingerprint stability under invariants I1 / I2; the value is correct for the unified 2025 BBG."
+citation_url = "https://www.gesetze-im-internet.de/estg/__10.html"
+
+[RETIREMENT_SPECIAL_EXPENSE_CAP_BBG_KNAPPSCHAFT_RV_WEST_2025_EUR]
+value = "118800.00"
+authority = "§ 10 EStG (Sonderausgaben)"
+citation_url = "https://www.gesetze-im-internet.de/estg/__10.html"
+
+[RETIREMENT_SPECIAL_EXPENSE_CAP_KNAPPSCHAFT_BEITRAGSSATZ_2025]
+value = "0.247"
+authority = "§ 10 EStG (Sonderausgaben)"
+citation_url = "https://www.gesetze-im-internet.de/estg/__10.html"
+
+[STATUTORY_HEALTH_SICK_PAY_REDUCTION_RATE]
+value = "0.04"
+authority = "§ 10 Abs. 1 Nr. 3 Satz 4 EStG: statutory health insurance contributions entitled to Krankengeld must be reduced by 4 % to isolate the deductible basic-health portion. The default 4 % rate applies unless workspace facts show a different non-deductible share."
+citation_url = "https://www.gesetze-im-internet.de/estg/__10.html"

@@ -1,0 +1,32 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 1(h)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1&num=0&edition=prelim) gives **net long-term capital gain** preferential rates of 0 %, 15 %, or 20 % depending on income level. "Net long-term capital gain" is long-term gain minus short-term loss, floored at zero. Qualified dividends share that preferential base by virtue of [§ 1(h)(11)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1&num=0&edition=prelim). The [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 16 *Qualified Dividends and Capital Gain Tax Worksheet* uses this base to apply preferential rates only to the portion of taxable income that qualifies; the rest is taxed at ordinary [§ 1](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1&num=0&edition=prelim) rates.
+
+This stage just identifies the preferential base for the worksheet at US25-09. From your [Schedule D](https://www.irs.gov/forms-pubs/about-schedule-d-form-1040) / [Form 6781](https://www.irs.gov/forms-pubs/about-form-6781) numbers (US25-03 through US25-05), the preferential base is **{{ rule.outputs[0].value | money(currency="USD") }}**.
+
+If this number is zero, the qualified-dividend rate ordering won't change your regular tax (because there's no long-term gain stack to apply it to). Qualified dividends from US25-02 still get preferential rates on top.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

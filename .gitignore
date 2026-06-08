@@ -1,0 +1,47 @@
+.DS_Store
+__pycache__/
+*.pyc
+.claude/
+.review/
+
+# Keep raw source tax documents and exports out of the repo.
+/*.pdf
+/*.PDF
+/*.png
+/*.csv
+/*.eml
+/invoices/
+/years/*/raw/
+/years/[0-9][0-9][0-9][0-9]/
+# Personal-name-prefixed real-data workspaces (e.g. years/brenn-2025/).
+# Mirrors the year-only pattern above but allows multiple real users to
+# share one checkout. Synthetic fixtures (demo-* / de-only-demo-*) are
+# explicitly re-included below.
+/years/*-[0-9][0-9][0-9][0-9]/
+!/years/demo-[0-9][0-9][0-9][0-9]/
+!/years/de-only-demo-[0-9][0-9][0-9][0-9]/
+
+# Pipeline-generated outputs. `outputs/tax-positions/` is intentionally not
+# ignored because those files are user/legal posture inputs.
+/years/*/outputs/analysis-steps/
+/years/*/outputs/forms/
+/years/*/outputs/legal-audit/
+# Pipeline 1 / Pipeline 2 boundary artifacts (per WS-5H §1.5):
+# derivation-graph.json + derived-facts.json regenerate on every run.
+/years/*/outputs/derivation/
+# Auto-derived stub CSVs co-located with user-authored tax-positions
+# inputs. The parent directory stays tracked; only the machine-emitted
+# subset is ignored so synthetic fixtures don't carry stale stubs.
+/years/*/outputs/tax-positions/foreign-financial-accounts-derived.csv
+/years/*/outputs/tax-positions/de-anlage-aus-by-country.csv
+# Treaty-dividend-items CSVs are now auto-derived by
+# tax_pipeline/derive_treaty_dividend_items_2025.py from the
+# extracted income-cashflows facts. The ``source``/``note`` columns
+# regenerate on every run, so checking them in produces churn diff
+# every pipeline run. Tests build their own minimal fixtures; runtime
+# derivation rebuilds the workspace copies.
+/years/*/outputs/tax-positions/de-us-treaty-dividend-items.csv
+/years/*/outputs/tax-positions/us-treaty-dividend-items.csv
+# Per-jurisdiction derived-facts subdirectories scaffolded on first run.
+/years/*/normalized/derived-facts/usa/
+.worktrees/

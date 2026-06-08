@@ -1,0 +1,53 @@
+## {{ rule.title }}
+
+{% set out = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 20 Abs. 9 EStG](https://www.gesetze-im-internet.de/estg/__20.html) gewährt einen **Sparer-Pauschbetrag** auf Kapitalerträge: **1.000 €** für Einzelne und **2.000 €** für gemeinsam veranlagte Ehegatten. [§ 20 Abs. 9 Satz 3 EStG](https://www.gesetze-im-internet.de/estg/__20.html) regelt, wie der Pauschbetrag zwischen den Ehegatten allokiert wird, wenn der eine Ehegatte ihn nicht voll ausschöpft. Der Pauschbetrag wird **nach** Teilfreistellung und [§ 20 Abs. 6](https://www.gesetze-im-internet.de/estg/__20.html) Verlustverrechnung, **vor** der [§ 32d Abs. 1](https://www.gesetze-im-internet.de/estg/__32d.html) Steuer angewendet.
+
+Für 2025:
+
+- Kombinierte aktuelle Kapitaleinkünfte (Aktien nach Verlustvortrag + Fonds nach Teilfreistellung + Sonstige): **{{ out.combined_current_capital | money(currency="EUR") }}**
+- Steuerpflichtiger Betrag vor Pauschbetrag (primärer Steuerpflichtiger): **{{ out.primary_taxable_after_teilfreistellung_before_allowance | money(currency="EUR") }}**
+- **Genutzter Sparer-Pauschbetrag** (max(genutzt, gesetzlicher Pauschbetrag)): **{{ out.saver_allowance_used | money(currency="EUR") }}**
+- Steuerpflichtige Kapitalerträge **nach** Teilfreistellung und Pauschbetrag: **{{ out.taxable_after_teilfreistellung | money(currency="EUR") }}**
+- Steuerpflichtige Kapitalerträge **ohne** Teilfreistellung (für die Vergleichsrechnung der Anrechnung): **{{ out.taxable_before_teilfreistellung | money(currency="EUR") }}**
+
+Diese Bemessungsgrundlage wird in DE25-17 mit dem 25 %-Satz nach [§ 32d Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32d.html) belegt.
+{% else -%}
+[§ 20 Abs. 9 EStG](https://www.gesetze-im-internet.de/estg/__20.html) grants the **Sparer-Pauschbetrag** (saver allowance) on capital income: **€1,000** single and **€2,000** for jointly assessed spouses. [§ 20 Abs. 9 Satz 3 EStG](https://www.gesetze-im-internet.de/estg/__20.html) governs how the allowance is allocated between spouses when one does not fully use it. The allowance is applied **after** Teilfreistellung and [§ 20 Abs. 6](https://www.gesetze-im-internet.de/estg/__20.html) loss-netting, but **before** the [§ 32d Abs. 1](https://www.gesetze-im-internet.de/estg/__32d.html) flat tax.
+
+For 2025:
+
+- Combined current capital income (stock after carryforward + funds after Teilfreistellung + other): **{{ out.combined_current_capital | money(currency="EUR") }}**
+- Taxable amount before allowance (primary taxpayer): **{{ out.primary_taxable_after_teilfreistellung_before_allowance | money(currency="EUR") }}**
+- **Saver-Pauschbetrag used** (lesser of available capital base and statutory allowance): **{{ out.saver_allowance_used | money(currency="EUR") }}**
+- Taxable capital income **after** Teilfreistellung and allowance: **{{ out.taxable_after_teilfreistellung | money(currency="EUR") }}**
+- Taxable capital income **without** Teilfreistellung (for the foreign tax credit comparison): **{{ out.taxable_before_teilfreistellung | money(currency="EUR") }}**
+
+DE25-17 applies the 25 % flat tax rate ([§ 32d Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32d.html)) to this base.
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

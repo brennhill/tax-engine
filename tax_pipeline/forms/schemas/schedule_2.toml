@@ -1,0 +1,46 @@
+# Schedule 2 (Form 1040) — Additional Taxes
+# Authority: 26 U.S.C. § 55 (AMT), § 1401 (SE tax), § 3101(b)(2) /
+# § 1401(b)(2) (Additional Medicare), § 1411 (NIIT); IRS Schedule 2
+# (2025 revision).
+# IRS-VERIFIED 2026-05-10 — line numbering taken directly from
+# https://www.irs.gov/pub/irs-pdf/f1040s2.pdf (2025 revision).
+# Part I in the 2025 form is: line 1a APTC repayment (Form 8962),
+# 1b/1c clean-vehicle credit repayments (Schedule A Form 8936),
+# 1d/1e/1f EPE recapture / excessive payments / 20% EP (Form 4255),
+# 1y other additions to tax, 1z sum of 1a-1y, line 2 AMT (Form 6251
+# line 11), line 3 = line 1z + line 2 → Form 1040 line 17. AMT moved
+# from line 1 (2024 revision) to line 2 (2025 revision); the prior
+# 2024-line-1 schema entry was wrong and is corrected here.
+# https://www.irs.gov/pub/irs-pdf/f1040s2.pdf
+#
+# Y2 / P5 form-schema-as-data.
+
+form_id = "schedule_2"
+form_year = 2025
+display_name = "Schedule 2 — Additional Taxes"
+canonical_form_name = "Schedule 2"
+authority_url = "https://www.irs.gov/pub/irs-pdf/f1040s2.pdf"
+
+[[lines]]
+line_id = "2"
+label = "Line 2"
+
+[[lines]]
+line_id = "3"
+label = "Line 3"
+
+[[lines]]
+line_id = "4"
+label = "Line 4"
+
+[[lines]]
+line_id = "11"
+label = "Line 11"
+
+[[lines]]
+line_id = "12"
+label = "Line 12"
+
+[[lines]]
+line_id = "21"
+label = "Line 21"

@@ -1,0 +1,47 @@
+## {{ rule.title }}
+
+{% set out = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 10b Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__10b.html) gewährt für Zuwendungen (Spenden, Mitgliedsbeiträge) einen Sonderausgabenabzug. Der Abzug ist auf **20 %** des Gesamtbetrags der Einkünfte begrenzt; übersteigende Beträge können nach § 10b Abs. 1 Sätze 9-10 EStG in Folgejahre vorgetragen werden (im aktuellen Modell nicht abgebildet — Vorträge schlagen fail-closed an).
+
+Für 2025:
+
+- Geleistete Zuwendungen: **{{ out.donations_eur | money(currency="EUR") }}**
+- Gesamtbetrag der Einkünfte (nach § 24a Altersentlastungsbetrag): **{{ out.gesamtbetrag_der_einkuenfte_eur | money(currency="EUR") }}**
+- 20 %-Höchstbetrag: **{{ out.cap_eur | money(currency="EUR") }}**
+- Abzugsfähig: **{{ out.deductible_eur | money(currency="EUR") }}** — wird in DE25-07 vom zvE abgezogen.
+{% else -%}
+[§ 10b Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__10b.html) provides a Sonderausgaben deduction for donations / membership dues to recognized charities. The cap is **20 %** of the Gesamtbetrag der Einkünfte; the carryforward of excess amounts under § 10b Abs. 1 Sätze 9-10 EStG is not modeled — non-zero carryforwards fail closed.
+
+For 2025:
+
+- Donations made: **{{ out.donations_eur | money(currency="EUR") }}**
+- Gesamtbetrag der Einkünfte (after § 24a Altersentlastungsbetrag): **{{ out.gesamtbetrag_der_einkuenfte_eur | money(currency="EUR") }}**
+- 20 % cap: **{{ out.cap_eur | money(currency="EUR") }}**
+- Deductible: **{{ out.deductible_eur | money(currency="EUR") }}** — subtracted at DE25-07 from zvE.
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

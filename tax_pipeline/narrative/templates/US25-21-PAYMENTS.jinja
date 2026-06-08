@@ -1,0 +1,53 @@
+## {{ rule.title }}
+
+{# IRS-VERIFIED 2026-05-12 — 2025 Form 1040 fields 33/34/35a/36/37 (payments + refund + amount owed block) against https://www.irs.gov/pub/irs-pdf/f1040.pdf #}
+After regular tax, FTC, and NIIT are settled, [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) lines 33-37 reconcile total tax against the year's payments. If estimated payments and withholding exceed total tax, line 34 is a **refund** (and you choose direct deposit on line 35a or carry-forward on line 36). If total tax exceeds payments, line 37 is the **amount owed**.
+
+{% set rt = rule.inputs_by_key["us.stage.regular_tax_before_credits"].value | from_json -%}
+{% set niit = rule.inputs_by_key["us.stage.niit"].value | from_json -%}
+{% set allowed = rule.inputs_by_key["us.stage.allowed_ftc"].value | from_json -%}
+{% set p = rule.outputs[0].value | from_json -%}
+For 2025:
+
+- Regular tax before credits (US25-09): **{{ rt.regular_tax_before_credits_usd | money(currency="USD") }}**
+- Allowed FTC after treaty re-sourcing (US25-19): **{{ allowed.total_allowed_ftc_after_treaty_resourcing_usd | money(currency="USD") }}**
+- NIIT (US25-20): **{{ niit.niit_usd | money(currency="USD") }}**
+- Total tax with treaty re-sourcing (`regular_tax − allowed_ftc + niit`): **{{ p.total_tax_with_treaty_resourcing_usd | money(currency="USD") }}**
+- 2025 estimated payment already made: **{{ p.estimated_payment_2025_usd | money(currency="USD") }}**
+
+{# IRS-VERIFIED 2026-05-12 — 2025 Form 1040 fields 35a/37 against https://www.irs.gov/pub/irs-pdf/f1040.pdf #}
+{% if (p.refund_if_positive_else_balance_due_with_treaty_resourcing_usd | float) >= 0 -%}
+**Refund ([Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 35a)**: **{{ p.refund_if_positive_else_balance_due_with_treaty_resourcing_usd | money(currency="USD") }}**
+{% else -%}
+**Amount owed ([Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 37)**: **{{ p.refund_if_positive_else_balance_due_with_treaty_resourcing_usd | money(currency="USD") }}** (negative number = balance due)
+{% endif %}
+
+For comparison, the **without-treaty-resourcing** baseline (in case the treaty election is later contested):
+
+- Total tax without treaty re-sourcing: **{{ p.total_tax_usd | money(currency="USD") }}**
+- Refund/balance: **{{ p.refund_if_positive_else_balance_due_usd | money(currency="USD") }}**
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

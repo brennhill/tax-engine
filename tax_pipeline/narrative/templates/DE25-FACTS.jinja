@@ -1,0 +1,68 @@
+{# Audit note: the ``inputs_by_key`` keys consumed below
+   (``de.ordinary.joint_taxable_income_eur``,
+   ``de.capital.stock_gain_eur``, ``de.capital.fund_gain_eur``,
+   ``de.capital.explicit_foreign_tax_total_eur``) are NOT first-class
+   rule outputs — they are synthesized by the
+   ``rule_narrative_packets`` packet builder by flattening the nested
+   rule-graph outputs (e.g.
+   ``de.ordinary.taxable_income.joint_taxable_income_eur``,
+   ``de.capital.raw_buckets.stock_gain``). Readers looking for these
+   scalars in ``legal-execution-graph.json`` will not find them; they
+   ride through the renderer's ``LegalValue`` envelope. R-A finding
+   F-DE-14. #}
+## {{ rule.title }}
+
+{% if rule.language == "de" -%}
+Diese Karte fasst die validierten Deutschland-Fakten und das Endergebnis (Erstattung/Nachzahlung) für 2025 zusammen. [§ 25 EStG](https://www.gesetze-im-internet.de/estg/__25.html) begründet die Veranlagungspflicht; [§ 26 EStG](https://www.gesetze-im-internet.de/estg/__26.html) regelt die Wahl zwischen Einzel- und Zusammenveranlagung. Alle nachfolgenden Stufen (DE25-00 bis DE25-21) verfeinern das hier zusammengefasste Bild.
+
+Für 2025:
+
+- Veranlagungsart: **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**
+- Zu versteuerndes Einkommen (DE25-07): **{{ rule.inputs_by_key["de.ordinary.joint_taxable_income_eur"].value }}**
+- Aktiengewinne (DE25-13): **{{ rule.inputs_by_key["de.capital.stock_gain_eur"].value }}**
+- Fondsgewinne (DE25-13): **{{ rule.inputs_by_key["de.capital.fund_gain_eur"].value }}**
+- Bezahlte ausländische Steuer (DE25-15): **{{ rule.inputs_by_key["de.capital.explicit_foreign_tax_total_eur"].value }}**
+
+**Endergebnis Erstattung/Nachzahlung** (positiv = Erstattung, negativ = Nachzahlung): **{{ rule.outputs[0].value }}**
+
+Die schrittweise Herleitung steht unten in den Stufen DE25-00 bis DE25-21.
+{% else -%}
+This card summarizes the validated Germany facts and the year-end refund/balance position for 2025. [§ 25 EStG](https://www.gesetze-im-internet.de/estg/__25.html) creates the filing obligation; [§ 26 EStG](https://www.gesetze-im-internet.de/estg/__26.html) governs the choice between single and joint assessment. Every later stage (DE25-00 through DE25-21) refines the summary picture here.
+
+For 2025:
+
+- Filing posture: **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**
+- Taxable income (DE25-07): **{{ rule.inputs_by_key["de.ordinary.joint_taxable_income_eur"].value }}**
+- Stock gains (DE25-13): **{{ rule.inputs_by_key["de.capital.stock_gain_eur"].value }}**
+- Fund gains (DE25-13): **{{ rule.inputs_by_key["de.capital.fund_gain_eur"].value }}**
+- Foreign tax paid (DE25-15): **{{ rule.inputs_by_key["de.capital.explicit_foreign_tax_total_eur"].value }}**
+
+**Final target refund / balance** (positive = refund, negative = additional balance owed): **{{ rule.outputs[0].value }}**
+
+Step-by-step derivation appears below in stages DE25-00 through DE25-21.
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

@@ -1,0 +1,20 @@
+# 26 U.S.C. § 55 (Alternative Minimum Tax — imposition + tentative computation)
+#
+# Authority root: https://www.law.cornell.edu/uscode/text/26/55
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[AMT_PHASEOUT_RATE]
+value = "0.25"
+authority = "§ 55(d)(3) reduction rate: $0.25 of exemption lost per $1.00 of AMTI excess."
+citation_url = "https://www.law.cornell.edu/uscode/text/26/55"
+
+[AMT_RATE_LOW]
+value = "0.26"
+authority = "§ 55(b)(1) statutory tentative-minimum-tax rates."
+citation_url = "https://www.law.cornell.edu/uscode/text/26/55"
+
+[AMT_RATE_HIGH]
+value = "0.28"
+authority = "26 U.S.C. § 55 (Alternative Minimum Tax — imposition + tentative computation)"
+citation_url = "https://www.law.cornell.edu/uscode/text/26/55"

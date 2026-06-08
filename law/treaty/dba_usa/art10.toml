@@ -1,0 +1,20 @@
+# DBA-USA Art. 10 (Dividenden / Dividends)
+#
+# Authority root: https://www.irs.gov/pub/irs-trty/germany.pdf
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+#
+# Scope note: only the Art. 10(2)(b) 15 % portfolio-dividend rate is
+# declared here. The Art. 10(2)(a) direct-investment 5 % rate and the
+# Art. 10(3)(b) pension-fund 0 % rate were removed in W1.A / T1.1
+# (2026-05-11) because the 2025 engine does not emit those position
+# classes and the constants had no working-tree consumer. When a
+# future return adds a direct-investment or pension-fund dividend
+# pathway, re-add the matching constant here with its citation and
+# wire it into the rule that applies the rate so it never lives as a
+# cite-only orphan.
+
+[DBA_USA_ART_10_2_B_PORTFOLIO_DIVIDEND_RATE]
+value = "0.15"
+authority = "DBA-USA Art. 10(2)(b) — 15 % source-state cap on portfolio dividends. This is the single canonical declaration of the rate. Every other module imports from here."
+citation_url = "https://www.irs.gov/pub/irs-trty/germany.pdf"

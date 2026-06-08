@@ -1,0 +1,626 @@
+# .audit/hashes.toml — registry of signed law-shadow files.
+# Maintained by `python -m law.audit`. Per LOCK.md § 2 Layer 1
+# this file is the source of truth: drift between any signed
+# file and its registered hash fails `make check-invariants`.
+# Re-sign after intentional updates with:
+#   python -m law.audit sign <path>
+
+["law/germany/year_2025/bkgg/p6.py"]
+hash = "sha256:8c92802d17a79a895f31323f0ba3943e6bc9defd4da2ddc6eaa6782a143f3924"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/bkgg/p6.toml"]
+hash = "sha256:c6d17b3d3ca1b9294f3dd2eb5d5f0b122a181772a8839c9184fcd00684d0cfee"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p10.py"]
+hash = "sha256:333f4c67b4d993a5c809e5e254c183593a7578d2a5e0622275983a2ba8f82723"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p10.toml"]
+hash = "sha256:65220ac74d6ebc54795d85e86ca874a6dcbf9f27bdeef63ed4cb040e07024e2b"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p10b.py"]
+hash = "sha256:5b77904da6e650ee3824d161253b13031504375e9816f57bcc1432c005f24dc2"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p10b.toml"]
+hash = "sha256:6aeb85fe37fb71ea463864131f64fa0992ffb6c8aa596b3bec29a8a46b2399f4"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p20.py"]
+hash = "sha256:82b10df701d9c6dd7933be3fa228913b7c9d11d578241df7cce2525918a89775"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p20.toml"]
+hash = "sha256:e842931848087b2755a4e0025ce2dfeacc99966daa57d437a2e400a9498bc18c"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p22.py"]
+hash = "sha256:0a3a0442909ca3097cbd5fdc86f21593b8d62d9fc063995541333cc32d5cceac"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p22.toml"]
+hash = "sha256:f664564a92a397edab0a68d964a87ab9185e642d04a5d7a37ad0ac98b1801bd0"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p24a.py"]
+hash = "sha256:24c79c23fab5d2b59aea030f460d892e3389361430e567c100dd3c7c64f529a7"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["law/germany/year_2025/estg/p24a.toml"]
+hash = "sha256:f895c9c79157adec359d5754a5610da47f29334597e56c0f5efef72067cbe173"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["law/germany/year_2025/estg/p25.py"]
+hash = "sha256:5d6b09efb0b4002d043bfa5af26b918401ca2cd06baac084762033e4c5b857f4"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p26.py"]
+hash = "sha256:8efcdb219bdcfcafc7b1ef7d9ed203f653ce61e404d3ff18a5e3c903979c0be4"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p26a.py"]
+hash = "sha256:243c54b29a766449f40ce4e2c2f93cfe6e62ddc0901cd9e944eb75f6b2f95a69"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p26b.py"]
+hash = "sha256:87faf61bff91b1cbcf4214ab5681443f6d63b02f791d530728093b2f66e4cd76"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p31.py"]
+hash = "sha256:9498de9ad64941d472a3be3abbf22cd6d6e3f4d360e54810b2e612cde0ab449a"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p32.py"]
+hash = "sha256:13fe4f6c800ffd3fdcd23c61f4d042241f9bf685846d1a2c5249ef677fe0f3be"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p32.toml"]
+hash = "sha256:937860d7bbc749c98549c824abd2bcd7c735fdb9fe1396fb26b1801ad0caf825"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p32a.py"]
+hash = "sha256:e6fcc0f7d4af39da7139dd1e0318caf29a4dd0e7be0b412b2a0ece3ede83e02f"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p32a.toml"]
+hash = "sha256:45124c47f6bba0d1403ee71e3e1947473aa58dc83c9d20387a6178840ceb1c4a"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p32d.py"]
+hash = "sha256:cc1ff4c9faea47f3edf0bd9ced0df62e7e267c3f4e993c55efc78649207b062d"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p32d.toml"]
+hash = "sha256:6f02990185c82aab181e54b7777c7325f081dc9008135eb4178fef647e6a9741"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p33.py"]
+hash = "sha256:8ad247dc46b279fbb2613c3bebd6c480d6dc6eb5941232a9220f8b94123e4bc4"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["law/germany/year_2025/estg/p33.toml"]
+hash = "sha256:0287b3fcc42a9d0d50513bc3cfa653ad1126bbceca3c441c403a037c66cd3ee7"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["law/germany/year_2025/estg/p33a.py"]
+hash = "sha256:f7c45c61aae353126f4aad73c4f71b44ab7d491f24e5458b02028a41f4f1c034"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p33a.toml"]
+hash = "sha256:6905651d9ab71cc3cd22b5c13bf1c110a47950a37868d9bdc669685113068263"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p33b.py"]
+hash = "sha256:63b96cf6beef46ed82de3112f2ada0a20ac4fd5b7085f7f8c5f1b3d1e50b728b"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["law/germany/year_2025/estg/p33b.toml"]
+hash = "sha256:0e03e265256d22ba8a30603e3566e3e11593b1cc2cdc2b3a1925ec37688bb89d"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["law/germany/year_2025/estg/p36.py"]
+hash = "sha256:c29450c7fd8f9718e73a0c35f51dfab5207725d4849712a897b3273ab9aeb4c3"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p51a.py"]
+hash = "sha256:7ad893eba9309c222ee51744965b1ee36668d76d21bb089b20bcd99fb29a953a"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p9.py"]
+hash = "sha256:0bdfdd571bc2c8b3b0f39b412ada3a00dc32d56780f9397758f14530ecf2744d"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p9.toml"]
+hash = "sha256:07c223af126ce53183461b981a4fba37355e6af2d7a40a557ae531ae5ee8bf74"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p9a.py"]
+hash = "sha256:26ff31dccaac8e153e40a273bbf3bbdd69ad84aa130964b3c0a3f8d45799bdd0"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/estg/p9a.toml"]
+hash = "sha256:94d27deec20a9e695f939d081a3b197322b1d678c3ee62619212c5b0f8412894"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/invstg/p18.py"]
+hash = "sha256:334faa20c2b9918627e1bee68f53eba8a273528089acd43836e5137f48adbe8f"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/invstg/p18.toml"]
+hash = "sha256:4de9f0e2e183a3f595461158f576d16de3eda0a8a402c7ea4b80c08828fd9807"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/invstg/p20.py"]
+hash = "sha256:a2606e628dbcec05ab26d866c46d1578fb895f3266de5386c560e7ed675ce4b6"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["law/germany/year_2025/invstg/p20.toml"]
+hash = "sha256:f7fbabe760219b72e42a7a256c72f3c99344384e95701565ad1a84e7328bca96"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["law/germany/year_2025/solzg/p3.py"]
+hash = "sha256:5707a51a6bd3b1fbcae4d0c44a176fff52e399677a88aeee3a8538aa2a2341c5"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/solzg/p3.toml"]
+hash = "sha256:88dfce2a6a69f7a817dabc497d226b5bf75b62a0ee323196133a83e29b9f7d72"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/solzg/p4.py"]
+hash = "sha256:30114f4807630121878f35d45e20a9a9357f6ff8ab58bb4101446e58a348bbe7"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/germany/year_2025/solzg/p4.toml"]
+hash = "sha256:3b45d255d7f4b6d3d4d0c4ee60fd66eeeecce5d613b7156849a984b27f579e3f"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/treaty/dba_usa/art10.py"]
+hash = "sha256:ea4504565191ee83e02b3504f33b84e32f5dbdc393fb375275ba26b7e286f6ad"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["law/treaty/dba_usa/art10.toml"]
+hash = "sha256:fb8e7df931f958f4d1dca0ed695ebeeabc538ee62a3cb3173810d380f6312b74"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["law/treaty/dba_usa/art11.py"]
+hash = "sha256:8fae3f6b249fdf47378af00929a32fbeab0b7c1d4cee33dfe5317c107ddecbe7"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["law/treaty/dba_usa/art11.toml"]
+hash = "sha256:2cadb9938c311651eb0688d057dace6703ee4027fa00652e6b928926be36f9b1"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["law/treaty/dba_usa/art17.py"]
+hash = "sha256:53810e64045aae64a2f1afd1771f7424c67fc7ec0ede4790bf022a67781c85d6"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/treaty/dba_usa/art23.py"]
+hash = "sha256:a6a750e4fb93bc5f1e5ac63f742cc0866920d4b3a4ee7f743543c403a2046f89"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/treaty/dba_usa/art28.py"]
+hash = "sha256:29ab5eb88a45d4e3f0168017cbfe75fc93d546424978f640f64bcd105214eafd"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/treaty/dba_usa/pub_514_average_tax.py"]
+hash = "sha256:fa617f810f17f38ba132c0bbd1079922218cbed562be7bce42b85ecd862fd30b"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/rev_proc/proc_2024_40/p3_05.py"]
+hash = "sha256:6951ae1b3ba4aead06db68eff7849767113ef7dfa20b8f821b17601d98dee013"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/rev_proc/proc_2024_40/p3_05.toml"]
+hash = "sha256:1b79c2944267f4c278bd207a7b3387cec5a6f9fb753d093f104ca397d72fcc00"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/rev_proc/proc_2024_40/p3_11.py"]
+hash = "sha256:1ae3abeda8bcd60b21345e9d2f9f599c6cf6735ca8dcecd51517777e0f1a74dc"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/rev_proc/proc_2024_40/p3_11.toml"]
+hash = "sha256:58312e8aca01fdef374db4bb28792a27f74527a4ba07288fb719d7109d4108aa"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/rev_proc/proc_2024_40/p3_34.py"]
+hash = "sha256:b5c16079d715c9871e4d4456f29b1ce1768e62bc7f7cac7e96263227b88b0677"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/rev_proc/proc_2024_40/p3_34.toml"]
+hash = "sha256:86b68264993f495b942d74e2762f533e8c179ad5649259146afcd829fbc65dfd"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p1.py"]
+hash = "sha256:94042c6d7aad280255f64599a53f7fe8e25c7f0b333d9922aa0dce3db2f2f420"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p1.toml"]
+hash = "sha256:8827ded01662bb0447a3714aac20cba8f0df9efe77b49587ec21308b9ab4d40e"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p1211.py"]
+hash = "sha256:6871dda85c24e34e622f2f9ea680aa21297134afe4b4dc8b59451901892c4a3f"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p1211.toml"]
+hash = "sha256:fbf74a9b6120fa48f057c025b7683da6c6f5d4aebd728ceff29d4c6c543d31c9"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p1212.py"]
+hash = "sha256:c831a5bfb93fd4a8c66015c7709847df1690e44b1d23cf9b20747ec2b1dd2b04"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p1256.py"]
+hash = "sha256:7f65a524de2b63814c48635c041de251acda2d9bf612b1eb807c8dca55aa26d5"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p1256.toml"]
+hash = "sha256:f0cc026069d10a1b8a61c73dd89ada5b62a9e2f7099baa3c89c651a3269b2f41"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p1401.py"]
+hash = "sha256:8c560f9cf2a582718bc4b6271a374dddad6c261b8df93306ca36ec704f3948d5"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p1401.toml"]
+hash = "sha256:076d5ddbf66b8bfba570b5ef1a6527adc9f58be9b35c049b450496648724abbf"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p1411.py"]
+hash = "sha256:63979adb9f51eb7290b80a9e7e637a46bf78b12bca9aa33b84c2f86459583a44"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p1411.toml"]
+hash = "sha256:f7801d4b3adffca210ffe652b6897a9d2279a74c754517b2f708bb051d2f47f9"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p152.py"]
+hash = "sha256:f65b2911b1455460916929d63251c86918dbcbcee8392f6ae5bc9fc5b2313154"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p164.py"]
+hash = "sha256:efed478990b033808ccb19fa443a7c85e0cf488c674b471450a7b5a6e4195be4"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p24.py"]
+hash = "sha256:47dec987beebd8305fa25c487713aac2ab203b4c65b0dcf86333ccdc42abf2a6"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p24.toml"]
+hash = "sha256:15db9490dd7e4c34e12bc2056120c26cf707c2ef268e8c1153fc0430dbc53c9a"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p3101.py"]
+hash = "sha256:b1a04c54bbbdbc41c145744fcd085383a801d739380b533011154b04f030b298"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p3101.toml"]
+hash = "sha256:7a2a589e5efb1447b7a5b4f15bd963d5278b789c2570128d95c94fe3e57a52f7"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p55.py"]
+hash = "sha256:90bcfec766739286f1ce57103508eb21e90c6a01db9cb67fdd6f076d93d5ede8"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p55.toml"]
+hash = "sha256:c19db028ccca26b024bb16b7e0ca8e648931b44463e2e4850f70cf666b5508c7"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p56.py"]
+hash = "sha256:a6d5638c31e474d2614ae269ac5a54cb20c2a4ce47808f1f9377683a7f778be9"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p59.py"]
+hash = "sha256:b03fc2555394a0befefe408029dea1036ffbdb863e57b64c2655aa19326bb5a8"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p61.py"]
+hash = "sha256:43942fdec52afcc0dccb8f46e951a3cebfcf84d559ceeaccc6b04b14bf5e5187"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p63.py"]
+hash = "sha256:2de934114af7537f2d9d56dfce6ed83ee8c114625ca5f29fa8e1aaf2fab45055"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p901.py"]
+hash = "sha256:8d02de8e06e3e89f8eb516b6be066bdc4cec1852d93f1f372e069c2944924748"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p904.py"]
+hash = "sha256:0685a2d2d5aa6e46978e312818e992d589fd1441c4580850cc8f4d2ffbfd6622"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p911.py"]
+hash = "sha256:a6b4bfa36c8fe87c7e59fe3a1eedcfe0703bff4268a7fc400526feb269841889"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["law/usa/year_2025/usc26/p911.toml"]
+hash = "sha256:0592ab327931d632face75a90b691fd04e418038c2d29dcd5cbac253233fec38"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-09"
+
+["tax_pipeline/law_spec/germany/2025/altersentlastungsbetrag.md"]
+hash = "sha256:4bc891c12f1bf3526a51b579b71f7dab8afe7651ca7d640d5899d940a75b09d9"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/arbeitszimmer.md"]
+hash = "sha256:ba6d0428a260756edba012f06d7ff879f312ba54f7e709a2f7f5de86d0791559"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/assessment_ordering.md"]
+hash = "sha256:29ffa5fe909cab51057850e702e943792c9020ffff251309c0b4939949680b58"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/aussergewoehnliche_belastungen.md"]
+hash = "sha256:183712e0b3f318b2ff904780169cd5a26608968fd159f1b21b252116ec23d6c3"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/basic_tariff.md"]
+hash = "sha256:501b2c409ad86e9a2c55956a1c227a0b4fd6027e95465d08d2fb49e2cd3abf27"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/behinderung_pauschbetrag.md"]
+hash = "sha256:ea806450d1034467f6dd25ccdcb4ae88d0985c2d3616527cf0c0ddb5773d4ef2"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/capital_buckets_and_saver_allowance.md"]
+hash = "sha256:a103202acf3965b187aa935cfcf627aa36180e39738bad82ba2a7080ede30d03"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/capital_tax_ordering.md"]
+hash = "sha256:20d18128b8f04c473c0f255f53014f8315537c64539d94d7aaa80f3caaa5abc3"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/coverage.md"]
+hash = "sha256:a64e596ed1fbc416b6a6977cf431b4257d3ad2f3a30f45a4b8192419e9a5a29c"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/employment_income.md"]
+hash = "sha256:001cfb2b91960203891bef52e4b58f925350e533312f6a8cdb0cc0b9cb1480fe"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/equity_fund_teilfreistellung.md"]
+hash = "sha256:85f16153f051d1b28accd87f54e79e832e6c07971c6008c89176215bad3bc340"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/final_refund_assembly.md"]
+hash = "sha256:06e9f05b3cd49182b4629f707101dc98ff387cb3e3eb6aa90309284f496b0273"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/guenstigerpruefung_shadow.md"]
+hash = "sha256:663fce5b58b3b62f4486d69b1301d5e66a5a72c9758124b9f0b7609ebc1784c7"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/health_and_vorsorge.md"]
+hash = "sha256:cc41778c00f269a3bed21f8dcd9813fd3edcc72d9e2457a03a563c0c93d6fab8"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/index.md"]
+hash = "sha256:df891fc5c7df525249d82c30fdda4f14ae1b1d5e94073e7a8319d7513652810f"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/ordinary_soli.md"]
+hash = "sha256:0a5b31e92d046395a0bb6ec7c5cbe87c9473a3fd53289aaacf53c138f04dce55"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/other_income_22nr3.md"]
+hash = "sha256:798c5f69a0ed06de9a8a8040a7550211bbee7b92eedf81c6bb6b71760b2dc1d1"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/payments_and_crediting.md"]
+hash = "sha256:531b0f38b671296af1158851ee96fc38c63a2179eebcf22f897c75dbc473ef60"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/private_sales_carryforwards.md"]
+hash = "sha256:ab81a7a5f36d88192d49e07e919800653577a3f7b0cfc69b22f2b08a3ace7773"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/retirement_contributions.md"]
+hash = "sha256:6eb46a7775ce5ca3eea46c0733568b820c563c05adbd2ccd63bfa9be0e6552b7"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/spendenabzug.md"]
+hash = "sha256:960afc5a812454fbd50168282054fbd6c4f6157ffd8d573f8e18a7d44e40d556"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/split_tariff.md"]
+hash = "sha256:cff153e296466ac728088f2f0f45e970861c2fbd3a69aba8bf7ea411779b2dc7"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/spouse_bank_capital_certificate.md"]
+hash = "sha256:0aa35df9801a0ddc299c6a9e6c5ed58a06bf44142d0231bbed119c6f1bf780cb"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/treaty_dividend_credit.md"]
+hash = "sha256:00dcf3af95784505c15cb76e6adc4ae0a6159199405cc09cc076d18f58110f5c"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/unterhaltsleistungen.md"]
+hash = "sha256:6cfc7cd8488afa790f1d9e38c04af6774cfea826fe83952396b7f3fab5707e2f"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/germany/2025/werbungskosten_and_work_expenses.md"]
+hash = "sha256:7a2f1847899453e7bdeb38f3754edd135ab0a953de509f7373199fe40eb4cc0a"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/usa/2025/agi_and_taxable_income.md"]
+hash = "sha256:f26226310023b2ea14fd8f610b13fa2c6ddfd0df179d28ab8b9fc36c86033fb2"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/usa/2025/allowed_ftc.md"]
+hash = "sha256:b7958e4cf62f27ecf72e757f0c743107dbc100f272c42473305c90d2a966b420"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/usa/2025/amt.md"]
+hash = "sha256:6da538c31c98f44c4cfb8e4143b4cebc7252e984dbf3db23e71548f626af2c10"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/usa/2025/capital_gain_netting.md"]
+hash = "sha256:eace271c6a5d7d21ec8d2e90bab681ca60c0646a2ea1b4b02eef85003169f62d"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/usa/2025/capital_loss_limit.md"]
+hash = "sha256:06480f73e4f56bb1e4354a8f30872fe9bad928fb1665e54f763c1fd83e1635af"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/usa/2025/coverage.md"]
+hash = "sha256:b9d207787a8d8a10a6c103ba224ebeedf170579d0be67b94fe01c5c8012fdeb6"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/usa/2025/exchange_rate_and_wage_translation.md"]
+hash = "sha256:7480749548871ddc96382dd4f4dc8004c954c94a4eaa3803841f15ff5cb061ad"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/usa/2025/ftc_limitation.md"]
+hash = "sha256:f73e31e308a81fbc2fa4bba4aa6fdf5c003618a9cc950a424c5a26e397bd3e83"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/usa/2025/index.md"]
+hash = "sha256:59bea1d89459fbeb82dae0fa2ecd0dddd686f8f1aa5dc25fe081c4a2bccb7839"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/usa/2025/niit.md"]
+hash = "sha256:00c174bdf8d868349f2dd634c21326a57712abc65bf9490293163bb16ae0ac94"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/usa/2025/payments_and_refund.md"]
+hash = "sha256:0faa53385c2e176f651ab1f31935cfe0452f22b324c0c9b273a31001f6efdf0e"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/usa/2025/qualified_dividend_worksheet.md"]
+hash = "sha256:5487d69d8d3d7e7cee8a2440d5cd5795c1de1fb7e78a6f410fceec1a59650c3f"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/usa/2025/regular_tax.md"]
+hash = "sha256:2fec4b62434cb8b470c33b3d0d4fe17939d0dc85e6a13cb1fce5c26ad4f2c7a7"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"
+
+["tax_pipeline/law_spec/usa/2025/treaty_resourcing.md"]
+hash = "sha256:4f57b5f8264c0a9403e6d4e976ee6e2f076aefba4f5248a224f589e6adfac7a8"
+audited_by = "brenn@dontbugme.com"
+audited_on = "2026-05-11"

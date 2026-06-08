@@ -1,0 +1,49 @@
+## {{ rule.title }}
+
+{% set out = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 4 Abs. 5 Satz 1 Nr. 6b EStG](https://www.gesetze-im-internet.de/estg/__4.html) regelt den Abzug von Aufwendungen für ein häusliches Arbeitszimmer. Bildet das Arbeitszimmer den **Mittelpunkt der gesamten betrieblichen und beruflichen Betätigung** ([§ 4 Abs. 5 Satz 1 Nr. 6b Satz 2 EStG](https://www.gesetze-im-internet.de/estg/__4.html)), sind die tatsächlichen Aufwendungen abziehbar; andernfalls greift die **Jahrespauschale** von 1 260 EUR ([§ 4 Abs. 5 Satz 1 Nr. 6b Satz 4 EStG](https://www.gesetze-im-internet.de/estg/__4.html)). Die Jahrespauschale schließt die Tagespauschale (Nr. 6c) für denselben Zeitraum aus ([§ 4 Abs. 5 Satz 1 Nr. 6c Satz 3 EStG](https://www.gesetze-im-internet.de/estg/__4.html)).
+
+Für 2025:
+
+- Geltend gemacht: **{{ "ja" if out.claimed else "nein" }}**
+- Mittelpunkt: **{{ "ja" if out.qualifies_as_mittelpunkt else "nein" }}**
+- Tatsächliche Kosten (sofern Mittelpunkt): **{{ out.actual_costs_eur | money(currency="EUR") }}**
+- Tagespauschalentage gesamt (Mutual-Exclusion-Check): **{{ out.tagespauschale_days_total }}**
+- Abzugsfähig: **{{ out.deductible_eur | money(currency="EUR") }}** — wird in DE25-07 vom zvE abgezogen.
+{% else -%}
+[§ 4 Abs. 5 Satz 1 Nr. 6b EStG](https://www.gesetze-im-internet.de/estg/__4.html) governs the deduction for a home office (Arbeitszimmer). If the home office is the **Mittelpunkt der gesamten betrieblichen und beruflichen Betätigung** ([§ 4 Abs. 5 Satz 1 Nr. 6b Satz 2 EStG](https://www.gesetze-im-internet.de/estg/__4.html)) the actual costs are deductible; otherwise the **Jahrespauschale** of EUR 1,260 applies ([§ 4 Abs. 5 Satz 1 Nr. 6b Satz 4 EStG](https://www.gesetze-im-internet.de/estg/__4.html)). The Jahrespauschale is mutually exclusive with the Tagespauschale (Nr. 6c) for the same period ([§ 4 Abs. 5 Satz 1 Nr. 6c Satz 3 EStG](https://www.gesetze-im-internet.de/estg/__4.html)).
+
+For 2025:
+
+- Claimed: **{{ "yes" if out.claimed else "no" }}**
+- Mittelpunkt: **{{ "yes" if out.qualifies_as_mittelpunkt else "no" }}**
+- Actual costs (if Mittelpunkt): **{{ out.actual_costs_eur | money(currency="EUR") }}**
+- Total Tagespauschale days (mutual-exclusion check): **{{ out.tagespauschale_days_total }}**
+- Deductible: **{{ out.deductible_eur | money(currency="EUR") }}** — subtracted at DE25-07 from zvE.
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

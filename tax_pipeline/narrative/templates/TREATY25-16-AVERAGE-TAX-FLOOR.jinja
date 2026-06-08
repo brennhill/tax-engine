@@ -1,0 +1,43 @@
+## {{ rule.title }}
+
+IRS Publication 514's worksheet uses an *average-rate* method (lines 16-18) to compute U.S. tax on the U.S.-source dividend stack and compare it to the 15 % treaty source-country floor ([DBA-USA Article 10](https://www.irs.gov/pub/irs-trty/germtech.pdf)). The excess above the floor is the maximum amount of U.S. tax the treaty re-sourcing additional credit can target.
+
+For 2025:
+
+- U.S.-source dividends (from TREATY25-15): **{{ rule.inputs_by_key["treaty.us_source_dividends"].value | money(currency="USD") }}**
+- Regular tax before credits (from US25-09): **{{ rule.inputs_by_key["us.stage.regular_tax_before_credits"].value | money(currency="USD") }}**
+- Taxable income (from US25-08, Form 1040 line 15): **{{ rule.inputs_by_key["us.stage.taxable_income"].value | money(currency="USD") }}**
+- Treaty source-country rate ([DBA-USA Article 10](https://www.irs.gov/pub/irs-trty/germtech.pdf)): **{{ rule.inputs_by_key["us.constants.treaty_dividend_rate"].value }}**
+
+[Pub. 514](https://www.irs.gov/publications/p514) **line 16** — U.S. tax on the U.S.-source stack at average rate `regular_tax × us_source_dividends / taxable_income`: **{{ rule.outputs[0].value | money(currency="USD") }}**.
+
+[Pub. 514](https://www.irs.gov/publications/p514) **line 17** — treaty 15 % source-country floor on the same stack: **{{ rule.outputs[1].value | money(currency="USD") }}**.
+
+[Pub. 514](https://www.irs.gov/publications/p514) **line 18** — `max(0, line 16 − line 17)`, the U.S. tax above the treaty floor: **{{ rule.outputs[2].value | money(currency="USD") }}**.
+
+This is the maximum credit before Germany's residual cap is applied at TREATY25-17.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

@@ -1,0 +1,15 @@
+# Anlage N 2025 — Wage / Salary Income (per-person)
+# Authority: § 19 EStG; ELSTER Anlage N instructions.
+# https://www.gesetze-im-internet.de/estg/__19.html
+#
+# Y2 / P5 form-schema-as-data. Anlage N is rendered with pre-built
+# FormEntry rows (entries projected from anlage_n_entries_by_slot.<slot>
+# in the final-legal-output JSON), so the per-line labels are runtime
+# data — there are no statically-known line strings inside
+# tax_pipeline/forms/germany.py for Anlage N beyond the form title.
+
+form_id = "anlage_n"
+form_year = 2025
+display_name = "Anlage N"
+canonical_form_name = "Anlage N"
+authority_url = "https://www.gesetze-im-internet.de/estg/__19.html"

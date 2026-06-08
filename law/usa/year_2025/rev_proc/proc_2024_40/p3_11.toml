@@ -1,0 +1,45 @@
+# Rev. Proc. 2024-40 § 3.11
+#
+# Authority root: https://www.irs.gov/pub/irs-drop/rp-24-40.pdf
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[AMT_EXEMPTION_SINGLE_2025_USD]
+value = "88100"
+authority = "26 U.S.C. § 55(d) AMT exemption amounts for 2025 (Rev. Proc. 2024-40): - Single / unmarried (other than a surviving spouse): $88,100 - Married filing jointly / surviving spouse: $137,000 - Married filing separately: $68,500 (= MFJ exemption / 2)"
+citation_url = "https://www.law.cornell.edu/uscode/text/26/55"
+
+[AMT_EXEMPTION_MFJ_2025_USD]
+value = "137000"
+authority = "Rev. Proc. 2024-40 § 3.11"
+citation_url = "https://www.irs.gov/pub/irs-drop/rp-24-40.pdf"
+
+[AMT_EXEMPTION_MFS_2025_USD]
+value = "68500"
+authority = "Rev. Proc. 2024-40 § 3.11"
+citation_url = "https://www.irs.gov/pub/irs-drop/rp-24-40.pdf"
+
+[AMT_PHASEOUT_START_SINGLE_2025_USD]
+value = "626350"
+authority = "§ 55(d)(3) phase-out start: the exemption is reduced by 25 cents per dollar of AMTI above the threshold. 2025 thresholds (Rev. Proc. 2024-40): - Single / unmarried: $626,350 - Married filing jointly / surviving spouse: $1,252,700 - Married filing separately: $626,350 (= MFJ / 2)"
+citation_url = "https://www.irs.gov/pub/irs-drop/rp-24-40.pdf"
+
+[AMT_PHASEOUT_START_MFJ_2025_USD]
+value = "1252700"
+authority = "Rev. Proc. 2024-40 § 3.11"
+citation_url = "https://www.irs.gov/pub/irs-drop/rp-24-40.pdf"
+
+[AMT_PHASEOUT_START_MFS_2025_USD]
+value = "626350"
+authority = "Rev. Proc. 2024-40 § 3.11"
+citation_url = "https://www.irs.gov/pub/irs-drop/rp-24-40.pdf"
+
+[AMT_RATE_BREAK_2025_USD]
+value = "239100"
+authority = "§ 55(b)(1) tentative minimum tax 26%/28% rate-break threshold for 2025 (Rev. Proc. 2024-40 § 3.11): $239,100 of taxable excess AMTI; halved to $119,550 for MFS under § 55(b)(1)(A)(ii)(II). (The 2024 amounts were $232,600 / $116,300; verify against the published Rev. Proc. when rolling forward.)"
+citation_url = "https://www.irs.gov/pub/irs-drop/rp-24-40.pdf"
+
+[AMT_RATE_BREAK_MFS_2025_USD]
+value = "119550"
+authority = "Rev. Proc. 2024-40 § 3.11"
+citation_url = "https://www.irs.gov/pub/irs-drop/rp-24-40.pdf"

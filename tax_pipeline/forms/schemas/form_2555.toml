@@ -1,0 +1,27 @@
+# Form 2555 — Foreign Earned Income Exclusion
+# Authority: 26 U.S.C. § 911; IRS Notice 2024-77 (2025 § 911 cap);
+# IRS Form 2555 instructions.
+# https://www.irs.gov/forms-pubs/about-form-2555
+#
+# Y2 / P5 form-schema-as-data. Form 2555 is gated on
+# tax_estimate['feie']['elected'] == True. Only the lines the renderer
+# surfaces in the supported posture are declared (line 36 FEIE, line
+# 45 housing exclusion, line 50 housing deduction).
+
+form_id = "form_2555"
+form_year = 2025
+display_name = "Form 2555 — Foreign Earned Income Exclusion"
+canonical_form_name = "Form 2555"
+authority_url = "https://www.irs.gov/forms-pubs/about-form-2555"
+
+[[lines]]
+line_id = "36"
+label = "Line 36"
+
+[[lines]]
+line_id = "45"
+label = "Line 45"
+
+[[lines]]
+line_id = "50"
+label = "Line 50"

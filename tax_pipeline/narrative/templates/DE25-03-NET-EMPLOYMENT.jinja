@@ -1,0 +1,53 @@
+## {{ rule.title }}
+
+{% set wages = rule.inputs_by_key["de.ordinary.gross_wages"].value | from_json -%}
+{% set we = rule.inputs_by_key["de.ordinary.work_expenses"].value | from_json -%}
+{% set net = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 2 Abs. 2 Satz 1 Nr. 2 EStG](https://www.gesetze-im-internet.de/estg/__2.html): Einkünfte aus nichtselbständiger Arbeit = Bruttolohn − Werbungskosten. Diese Stufe vollzieht die Subtraktion je Person und summiert auf Haushaltsebene; dies ist die "Summe der Einkünfte aus § 19" für die spätere Einkommensbildung.
+
+Für 2025:
+
+{% for i in range(net.by_person | length) -%}
+- Person {{ i + 1 }}: Bruttolohn **{{ wages.by_person[i] | money(currency="EUR") }}** − Werbungskosten **{{ we.by_person[i].allowed_werbungskosten_eur | money(currency="EUR") }}** = **{{ net.by_person[i] | money(currency="EUR") }}**
+{% endfor -%}
+- Haushalt gesamt: **{{ net.total_eur | money(currency="EUR") }}**
+
+Dieser Betrag fließt mit [§ 22 Nr. 3](https://www.gesetze-im-internet.de/estg/__22.html) Sonstige Einkünfte (DE25-04) und nach Abzug der Sonderausgaben (DE25-06B) in das zu versteuernde Einkommen (DE25-07) ein.
+{% else -%}
+[§ 2 Abs. 2 Satz 1 Nr. 2 EStG](https://www.gesetze-im-internet.de/estg/__2.html) defines employment income as gross wages minus work expenses. This stage performs the subtraction per person and totals at the household level; this is the "Einkünfte aus § 19" component of the income build-up.
+
+For 2025:
+
+{% for i in range(net.by_person | length) -%}
+- Person {{ i + 1 }}: gross wage **{{ wages.by_person[i] | money(currency="EUR") }}** − work expenses **{{ we.by_person[i].allowed_werbungskosten_eur | money(currency="EUR") }}** = **{{ net.by_person[i] | money(currency="EUR") }}**
+{% endfor -%}
+- Household total: **{{ net.total_eur | money(currency="EUR") }}**
+
+This figure flows into taxable income at DE25-07 together with [§ 22 Nr. 3](https://www.gesetze-im-internet.de/estg/__22.html) other income (DE25-04) and after subtracting Sonderausgaben (DE25-06B).
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

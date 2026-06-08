@@ -1,0 +1,32 @@
+## {{ rule.title }}
+
+When you earn wages in euros and file in the United States, the IRS lets you translate the year's gross wages at a single annual average exchange rate rather than spot-converting every paycheck. The rate comes from the IRS yearly average currency exchange rates table.
+
+For 2025 the IRS yearly average is **{{ rule.inputs_by_key["us.fx.eur_per_usd"].value }} EUR per USD**. Your gross wages of **{{ rule.inputs_by_key["us.wages.eur"].value }} EUR** are translated by dividing by that rate, giving **{{ rule.outputs[0].value | money(currency="USD") }}** of U.S. wage income for [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 1a.
+
+This is the same translation method described in the IRS yearly-average rate guidance. The result feeds AGI assembly at stage US25-07.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

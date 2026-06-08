@@ -1,0 +1,40 @@
+# 26 U.S.C. § 24 (Child Tax Credit + ODC + ACTC)
+#
+# Authority root: https://www.law.cornell.edu/uscode/text/26/24
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[CTC_PER_CHILD_2025_USD]
+value = "2200"
+authority = "26 U.S.C. § 24(a) — $2,200 CTC per qualifying child (post-TCJA / OBBBA-extended for 2025)."
+citation_url = "https://www.law.cornell.edu/uscode/text/26/24"
+
+[ODC_PER_DEPENDENT_2025_USD]
+value = "500"
+authority = "26 U.S.C. § 24(h)(4) — $500 ODC per qualifying child age 17+ or qualifying relative with TIN. NON-refundable."
+citation_url = "https://www.law.cornell.edu/uscode/text/26/24"
+
+[CTC_PHASEOUT_THRESHOLD_SINGLE_2025_USD]
+value = "200000"
+authority = "26 U.S.C. § 24(b)(2) — MAGI phase-out thresholds (statutory; not inflation-indexed)."
+citation_url = "https://www.law.cornell.edu/uscode/text/26/24"
+
+[CTC_PHASEOUT_THRESHOLD_MFJ_2025_USD]
+value = "400000"
+authority = "26 U.S.C. § 24 (Child Tax Credit + ODC + ACTC)"
+citation_url = "https://www.law.cornell.edu/uscode/text/26/24"
+
+[CTC_PHASEOUT_RATE]
+value = "0.05"
+authority = "§ 24(b)(2) — $50 reduction per $1,000 of MAGI excess = 5 percentage points per $1,000, applied to the rounded-up thousand-dollar excess."
+citation_url = "https://www.law.cornell.edu/uscode/text/26/24"
+
+[CTC_REFUNDABLE_EARNED_INCOME_FLOOR_USD]
+value = "2500"
+authority = "§ 24(d)(1)(B) — earned income floor below which no refundable ACTC is generated."
+citation_url = "https://www.law.cornell.edu/uscode/text/26/24"
+
+[CTC_REFUNDABLE_PHASE_IN_RATE]
+value = "0.15"
+authority = "§ 24(d)(1)(B) — 15 % phase-in rate on earned income above the floor."
+citation_url = "https://www.law.cornell.edu/uscode/text/26/24"

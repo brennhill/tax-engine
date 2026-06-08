@@ -1,0 +1,17 @@
+# Form 8949 — Sales and Other Dispositions of Capital Assets
+# Authority: 26 U.S.C. § 1; Treas. Reg. § 1.6045-1; IRS Form 8949
+# instructions.
+# https://www.irs.gov/forms-pubs/about-form-8949
+#
+# Y2 / P5 form-schema-as-data: Form 8949 is a "dynamic-lines" form —
+# the renderer iterates ``us-form-8949-income-buckets.csv`` rows and
+# writes one FormEntry per box (Part I Box A/B/H, Part II Box D/K).
+# The box labels are runtime data from the CSV, not statically-known
+# line strings, so this schema declares only the form metadata used
+# for the title.
+
+form_id = "form_8949"
+form_year = 2025
+display_name = "Form 8949"
+canonical_form_name = "Form 8949"
+authority_url = "https://www.irs.gov/forms-pubs/about-form-8949"

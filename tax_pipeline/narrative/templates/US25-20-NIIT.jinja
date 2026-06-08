@@ -1,0 +1,39 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 1411](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1411&num=0&edition=prelim) imposes a 3.8 % surtax on the lesser of *net investment income* and the excess of *modified AGI* over the filing-status threshold (`$200,000` single, `$250,000` joint, `$125,000` MFS). NIIT is a **separate additional tax** — the foreign tax credit and treaty re-sourcing credit do **not** offset it. The [Form 8960](https://www.irs.gov/forms-pubs/about-form-8960) worksheet computes it; the result hits Schedule 2 line 12.
+
+{% set niit = rule.outputs[0].value | from_json -%}
+For 2025:
+
+- AGI / modified AGI from US25-07: **{{ rule.inputs_by_key["us.stage.adjusted_gross_income"].value | money(currency="USD") }}**
+- [§ 1411](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1411&num=0&edition=prelim) threshold for your filing status (US25-00 already validated this): the engine uses **{{ niit.modified_agi_excess_usd | money(currency="USD") }}** as the modified-AGI excess (`max(0, modified_AGI − threshold)`).
+- Net investment income (dividends + interest + net capital gain + Schedule 1 substitute payments + staking, per your election): **{{ niit.net_investment_income_usd | money(currency="USD") }}**
+- NIIT base (lesser of net investment income and modified-AGI excess): **{{ niit.niit_base_usd | money(currency="USD") }}**
+- **NIIT = 3.8 % × base = {{ niit.niit_usd | money(currency="USD") }}** — Schedule 2 line 12 / [Form 8960](https://www.irs.gov/forms-pubs/about-form-8960) line 17.
+
+NIIT is added on top of regular tax (after FTC) when computing total liability at US25-21.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

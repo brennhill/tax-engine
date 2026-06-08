@@ -1,0 +1,47 @@
+# Form 1116 (Passive Category) — Foreign Tax Credit
+# Authority: 26 U.S.C. § 901, § 904(d)(1)(B); IRS Form 1116 instructions.
+# https://www.irs.gov/forms-pubs/about-form-1116
+#
+# Y2 / P5 form-schema-as-data. Form 1116 — Passive Category basket per
+# § 904(d)(1)(B). The renderer surfaces parenthetical descriptive
+# context after the line number ("Line 8 (foreign taxes paid current
+# year)") so the schema label preserves both the bare line number and
+# the descriptive context.
+
+form_id = "form_1116_passive"
+form_year = 2025
+display_name = "Form 1116 - Passive Category"
+canonical_form_name = "Form 1116 Passive"
+authority_url = "https://www.irs.gov/forms-pubs/about-form-1116"
+
+[[lines]]
+line_id = "1a_dividends"
+label = "Line 1a (foreign-source passive dividends)"
+
+[[lines]]
+line_id = "1a_capital_gain"
+label = "Line 1a (foreign-source net capital gain)"
+
+[[lines]]
+line_id = "8"
+label = "Line 8 (foreign taxes paid current year)"
+
+[[lines]]
+line_id = "10"
+label = "Line 10 (carryover from prior year)"
+
+[[lines]]
+line_id = "21"
+label = "Line 21 (passive FTC limitation)"
+
+[[lines]]
+line_id = "22"
+label = "Line 22 (allowed passive credit)"
+
+[[lines]]
+line_id = "32_pub514_addon"
+label = "Line 32 / Part IV (Pub. 514 worksheet add-on)"
+
+[[lines]]
+line_id = "treaty_resourcing_addon_na"
+label = "Treaty re-sourcing add-on"

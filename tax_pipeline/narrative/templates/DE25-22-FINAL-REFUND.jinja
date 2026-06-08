@@ -1,0 +1,62 @@
+## {{ rule.title }}
+
+{% if rule.language == "de" -%}
+Diese Stufe rechnet das deutsche Endergebnis aus: das ordentliche Einkommensteuer-Restguthaben aus DE25-10 wird mit der nach DBA-USA Art. 23 / [§ 32d Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32d.html) vermittelten Kapitalsteuer (DE25-21) verrechnet, anschließend wird die einbehaltene deutsche Kapitalertragsteuer (Steuerbescheinigung) hinzugerechnet. Die Reihenfolge folgt direkt aus [§ 36 Abs. 2 EStG](https://www.gesetze-im-internet.de/estg/__36.html): zuerst werden alle einzelnen Anrechnungsbeträge erfasst, danach erfolgt die Saldierung gegen die festgesetzte Steuer.
+
+Bestandteile gemäß [§ 36 Abs. 2 EStG](https://www.gesetze-im-internet.de/estg/__36.html):
+
+- **Ordentliches Erstattungsguthaben vor Kapital** (aus DE25-10, [§ 36 Abs. 2 / Abs. 3 EStG](https://www.gesetze-im-internet.de/estg/__36.html)): **{{ rule.inputs_by_key["de.final.ordinary_refund_before_capital_eur"].value | money(currency="EUR") }}**
+- **Kapitalsteuer mit Teilfreistellung vor DBA-Schritt** (aus DE25-21, [§ 32d Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32d.html) / [InvStG § 20](https://www.gesetze-im-internet.de/invstg_2018/__20.html)): **{{ rule.inputs_by_key["de.final.capital_tax_with_teilfreistellung_before_treaty_eur"].value | money(currency="EUR") }}**
+- **Kapitalsteuer mit Teilfreistellung nach DBA-Schritt** (aus DE25-21, [DBA-USA Art. 23](https://www.irs.gov/pub/irs-trty/germtech.pdf) → [§ 32d Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32d.html)): **{{ rule.inputs_by_key["de.final.capital_tax_with_teilfreistellung_after_treaty_eur"].value | money(currency="EUR") }}**
+- **Inländischer KESt-/SolZ-Anrechnungsbetrag** (Steuerbescheinigung, [§ 36 Abs. 2 Nr. 2 EStG](https://www.gesetze-im-internet.de/estg/__36.html)): **{{ rule.inputs_by_key["de.final.domestic_capital_withholding_credit_eur"].value | money(currency="EUR") }}**
+
+Ergebnisse:
+
+- **Erstattung vor DBA-Schritt** (Audit-Querprüfung): **{{ rule.outputs[1].value | money(currency="EUR") }}**
+- **Erstattung nach DBA-Schritt, vor inländischer KESt-Anrechnung**: **{{ rule.outputs[2].value | money(currency="EUR") }}**
+- **Endgültiges Erstattungsguthaben (Hauptvordruck)** nach [§ 36 Abs. 2 EStG](https://www.gesetze-im-internet.de/estg/__36.html): **{{ rule.outputs[0].value | money(currency="EUR") }}**
+
+Diese Größe ist der Anker des deutschen Modells; sie erscheint im Hauptvordruck als verbleibendes Erstattungsguthaben (oder Nachzahlungsbetrag, wenn negativ).
+{% else -%}
+This stage computes the German headline refund: the ordinary-side refund balance from DE25-10 is netted against the post-treaty capital tax from DE25-21 (DBA-USA Art. 23 routed through [§ 32d Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32d.html)), and the domestic German Kapitalertragsteuer credit (Steuerbescheinigung) is added back. The ordering follows directly from [§ 36 Abs. 2 EStG](https://www.gesetze-im-internet.de/estg/__36.html): every individual credit (Anrechnungsbetrag) is collected first, then netted against the assessed tax.
+
+Components per [§ 36 Abs. 2 EStG](https://www.gesetze-im-internet.de/estg/__36.html):
+
+- **Ordinary refund before capital** (from DE25-10, [§ 36 Abs. 2 / Abs. 3 EStG](https://www.gesetze-im-internet.de/estg/__36.html)): **{{ rule.inputs_by_key["de.final.ordinary_refund_before_capital_eur"].value | money(currency="EUR") }}**
+- **Capital tax with Teilfreistellung, before treaty step** (from DE25-21, [§ 32d Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32d.html) / [InvStG § 20](https://www.gesetze-im-internet.de/invstg_2018/__20.html)): **{{ rule.inputs_by_key["de.final.capital_tax_with_teilfreistellung_before_treaty_eur"].value | money(currency="EUR") }}**
+- **Capital tax with Teilfreistellung, after treaty step** (from DE25-21, [DBA-USA Art. 23](https://www.irs.gov/pub/irs-trty/germtech.pdf) → [§ 32d Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32d.html)): **{{ rule.inputs_by_key["de.final.capital_tax_with_teilfreistellung_after_treaty_eur"].value | money(currency="EUR") }}**
+- **Domestic Kapitalertragsteuer / SolZ withholding credit** (Steuerbescheinigung, [§ 36 Abs. 2 Nr. 2 EStG](https://www.gesetze-im-internet.de/estg/__36.html)): **{{ rule.inputs_by_key["de.final.domestic_capital_withholding_credit_eur"].value | money(currency="EUR") }}**
+
+Outputs:
+
+- **Refund before treaty step** (audit cross-check): **{{ rule.outputs[1].value | money(currency="EUR") }}**
+- **Refund after treaty step, before domestic certificate credit**: **{{ rule.outputs[2].value | money(currency="EUR") }}**
+- **Final headline refund (Hauptvordruck Erstattung)** per [§ 36 Abs. 2 EStG](https://www.gesetze-im-internet.de/estg/__36.html): **{{ rule.outputs[0].value | money(currency="EUR") }}**
+
+This number is the anchor of the German model; it appears on the Hauptvordruck as the remaining refund (or as a balance due if negative).
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }} {{ fl.line }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }} {{ fl.line }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

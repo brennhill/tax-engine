@@ -1,0 +1,48 @@
+## {{ rule.title }}
+
+{% set tax = rule.inputs_by_key["de.ordinary.income_tax"].value | from_json -%}
+{% set soli = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 3 SolzG](https://www.gesetze-im-internet.de/solzg_1995/__3.html) 1995 erhebt den Solidaritätszuschlag in Höhe von 5,5 % der festgesetzten Einkommensteuer ([§ 4 Satz 1 SolzG](https://www.gesetze-im-internet.de/solzg_1995/__4.html)). [§ 4 Satz 2 SolzG](https://www.gesetze-im-internet.de/solzg_1995/__4.html) 1995 enthält die **Freigrenze und Milderungszone**: Bis **19.950 €** (Einzel) bzw. **39.900 €** (gemeinsam) tariflicher Einkommensteuer fällt kein SolZ an. Oberhalb der Freigrenze gilt die Milderungszone als **harte Obergrenze**: der SolZ beträgt höchstens **11,9 %** der Differenz zwischen festgesetzter Einkommensteuer und Freigrenze. Erst wenn der reguläre 5,5 %-Satz unterhalb dieser 11,9 %-Kappung liegt, wird der reguläre Satz angewendet. Der BMF-Programmablaufplan implementiert die Cent-Rundung.
+
+Für 2025 (Veranlagungsart **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**):
+
+- Tarifliche Einkommensteuer (DE25-08): **{{ tax.joint_income_tax_eur | money(currency="EUR") }}**
+- **Solidaritätszuschlag** (nach Freigrenze und Milderungszone): **{{ soli.joint_solidarity_surcharge_eur | money(currency="EUR") }}**
+
+Dieser Wert geht zusammen mit der Einkommensteuer in DE25-10 (Anrechnung Lohnsteuer/Vorauszahlungen) ein.
+{% else -%}
+[§ 3 SolzG](https://www.gesetze-im-internet.de/solzg_1995/__3.html) 1995 imposes the solidarity surcharge at 5.5 % of assessed income tax ([§ 4 Satz 1 SolzG](https://www.gesetze-im-internet.de/solzg_1995/__4.html)). [§ 4 Satz 2 SolzG](https://www.gesetze-im-internet.de/solzg_1995/__4.html) 1995 carves out the **threshold and Milderungszone**: assessed income tax up to **€19,950** (single) or **€39,900** (joint) generates no SolZ. Above that threshold, the Milderungszone applies as a **hard cap**: the SolZ is at most **11.9 %** of the difference between assessed income tax and the threshold. Only when the regular 5.5 % rate falls below this 11.9 % cap does the regular rate apply. The BMF Programmablaufplan implements cent-level rounding.
+
+For 2025 (filing posture **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**):
+
+- Assessed income tax (DE25-08): **{{ tax.joint_income_tax_eur | money(currency="EUR") }}**
+- **Solidarity surcharge** (after threshold and Milderungszone): **{{ soli.joint_solidarity_surcharge_eur | money(currency="EUR") }}**
+
+This figure flows alongside income tax into DE25-10 (withholding/prepayment credits).
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

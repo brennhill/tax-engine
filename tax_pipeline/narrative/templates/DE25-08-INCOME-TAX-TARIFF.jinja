@@ -1,0 +1,70 @@
+## {{ rule.title }}
+
+{% set zve = rule.inputs_by_key["de.ordinary.taxable_income"].value | from_json -%}
+{% set tax = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 32a EStG](https://www.gesetze-im-internet.de/estg/__32a.html) enthält den Einkommensteuertarif. Für **Einzelveranlagung** (oder getrennt veranlagte Ehegatten) gilt der **Grundtarif** nach [§ 32a Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32a.html). Bei **Zusammenveranlagung** verbinden [§ 32a Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32a.html) und [§ 26b EStG](https://www.gesetze-im-internet.de/estg/__26b.html) den **Splittingtarif**: Steuer = 2 × Grundtarif(zvE / 2). Der **BMF-Programmablaufplan 2025** legt die genauen Rundungsschritte und Eurogrenzen fest.
+
+Für 2025 (Veranlagungsart **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**):
+
+- Zu versteuerndes Einkommen (DE25-07): **{{ zve.joint_taxable_income_eur | money(currency="EUR") }}**
+- Anwendbare Tarif-Logik:
+{% if rule.inputs_by_key["de.ordinary.filing_posture"].value == "married_joint" -%}
+  Splittingtarif [§ 32a Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32a.html) i.V.m. [§ 26b EStG](https://www.gesetze-im-internet.de/estg/__26b.html) — Einkommensteuer = 2 × Grundtarif(zvE / 2)
+{% elif rule.inputs_by_key["de.ordinary.filing_posture"].value == "married_separate" -%}
+  Grundtarif [§ 32a Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32a.html) i.V.m. [§ 26a EStG](https://www.gesetze-im-internet.de/estg/__26a.html) (Einzelveranlagung von Ehegatten / Lebenspartnern) — Einkommensteuer = Grundtarif(per_person zvE) summiert über Haushalt
+{% else -%}
+  Grundtarif [§ 32a Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32a.html) — Einkommensteuer = Grundtarif(per_person zvE) summiert über Haushalt
+{% endif %}
+- **Tarifliche Einkommensteuer (Anlage Vorsorgeaufwand-folgender ESt-Wert):** **{{ tax.joint_income_tax_eur | money(currency="EUR") }}**
+{% if tax.by_person and (tax.by_person | length) > 1 -%}
+Pro Person: {% for v in tax.by_person %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+{%- endif %}
+
+Diese Einkommensteuer ist die Grundlage für den Solidaritätszuschlag (DE25-09) und die Anrechnung von Lohnsteuer und Vorauszahlungen (DE25-10).
+{% else -%}
+[§ 32a EStG](https://www.gesetze-im-internet.de/estg/__32a.html) sets the German income tax tariff. For **single assessment** (or separately filing spouses) the **basic tariff** under [§ 32a Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32a.html) applies. For **joint assessment**, [§ 32a Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32a.html) combined with [§ 26b EStG](https://www.gesetze-im-internet.de/estg/__26b.html) produces the **splitting tariff**: tax = 2 × basic_tariff(zvE / 2). The **BMF Programmablaufplan 2025** specifies the precise rounding steps and euro boundaries used inside the tariff.
+
+For 2025 (filing posture **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**):
+
+- Taxable income (DE25-07): **{{ zve.joint_taxable_income_eur | money(currency="EUR") }}**
+- Tariff logic applied:
+{% if rule.inputs_by_key["de.ordinary.filing_posture"].value == "married_joint" -%}
+  Splitting tariff [§ 32a Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32a.html) in conjunction with [§ 26b EStG](https://www.gesetze-im-internet.de/estg/__26b.html) — income tax = 2 × basic_tariff(zvE / 2)
+{% elif rule.inputs_by_key["de.ordinary.filing_posture"].value == "married_separate" -%}
+  Basic tariff [§ 32a Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32a.html) in conjunction with [§ 26a EStG](https://www.gesetze-im-internet.de/estg/__26a.html) (Einzelveranlagung von Ehegatten / Lebenspartnern) — income tax = basic_tariff(per_person zvE), summed across the household
+{% else -%}
+  Basic tariff [§ 32a Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32a.html) — income tax = basic_tariff(per_person zvE), summed across the household
+{% endif %}
+- **Assessed income tax:** **{{ tax.joint_income_tax_eur | money(currency="EUR") }}**
+{% if tax.by_person and (tax.by_person | length) > 1 -%}
+Per person: {% for v in tax.by_person %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+{%- endif %}
+
+This income tax is the base for the solidarity surcharge (DE25-09) and is reduced by withheld wage tax + estimated prepayments at DE25-10.
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

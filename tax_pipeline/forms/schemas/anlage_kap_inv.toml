@@ -1,0 +1,32 @@
+# Anlage KAP-INV 2025 — Investmenterträge
+# Authority: § 16, § 17, § 18 InvStG; ELSTER Anlage KAP-INV instructions.
+# https://www.gesetze-im-internet.de/invstg_2018/
+#
+# Y2 / P5 form-schema-as-data. Five Zeile rows surfacing per-bucket
+# fund earnings and the Vorabpauschale (Zeile 26).
+
+form_id = "anlage_kap_inv"
+form_year = 2025
+display_name = "Anlage KAP-INV"
+canonical_form_name = "Anlage KAP-INV"
+authority_url = "https://www.gesetze-im-internet.de/invstg_2018/"
+
+[[lines]]
+line_id = "zeile_4"
+label = "Anlage KAP-INV Zeile 4"
+
+[[lines]]
+line_id = "zeile_8"
+label = "Anlage KAP-INV Zeile 8"
+
+[[lines]]
+line_id = "zeilen_9_13"
+label = "Anlage KAP-INV Zeilen 9-13"
+
+[[lines]]
+line_id = "zeile_14"
+label = "Anlage KAP-INV Zeile 14"
+
+[[lines]]
+line_id = "zeile_26"
+label = "Anlage KAP-INV Zeile 26"

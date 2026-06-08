@@ -1,0 +1,3 @@
+section,key,value,source,note
+carryforward,stock_loss_carryforward_2025_eur,0.00,outputs/analysis-steps/final-legal-output.json,§ 20 Abs. 6 EStG stock-loss carryforward remaining at end of 2025 (auto-exported from DE25 capital rule graph). https://www.gesetze-im-internet.de/estg/__20.html
+carryforward,private_sale_loss_carryforward_2025_eur,0.00,outputs/analysis-steps/final-legal-output.json,§ 23 Abs. 3 Sätze 7-9 EStG updated private-sale-loss carryforward at end of 2025 (auto-exported). https://www.gesetze-im-internet.de/estg/__23.html

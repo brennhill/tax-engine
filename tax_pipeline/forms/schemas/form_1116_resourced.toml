@@ -1,0 +1,41 @@
+# Form 1116 (Certain Income Resourced by Treaty) — Foreign Tax Credit
+# Authority: 26 U.S.C. § 904(d)(6) (separate basket for treaty re-
+# sourced income); DBA-USA Art. 23(3); IRS Publication 514.
+# https://www.irs.gov/forms-pubs/about-form-1116
+#
+# Y2 / P5 form-schema-as-data. Form 1116 — Certain Income Resourced by
+# Treaty per § 904(d)(6).
+
+form_id = "form_1116_resourced"
+form_year = 2025
+display_name = "Form 1116 — Certain Income Resourced by Treaty"
+canonical_form_name = "Form 1116 Resourced"
+authority_url = "https://www.irs.gov/forms-pubs/about-form-1116"
+
+[[lines]]
+line_id = "1a"
+label = "Line 1a"
+
+[[lines]]
+line_id = "8"
+label = "Line 8"
+
+[[lines]]
+line_id = "10"
+label = "Line 10"
+
+[[lines]]
+line_id = "21"
+label = "Line 21"
+
+[[lines]]
+line_id = "22"
+label = "Line 22"
+
+[[lines]]
+line_id = "32"
+label = "Line 32"
+
+[[lines]]
+line_id = "33"
+label = "Line 33"

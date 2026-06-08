@@ -1,0 +1,8 @@
+jurisdiction,key,value,source,note
+household,marital_status_on_dec_31,single,config,Synthetic single-person demo household.
+germany,enabled,true,config,Germany outputs enabled for the demo.
+germany,filing_posture,single,config,Germany single filing posture for the demo.
+usa,enabled,true,config,U.S. outputs enabled for the demo.
+usa,filing_posture,single,config,U.S. single filing posture for the demo.
+usa,us_ftc_method,accrued,config,Synthetic demo uses accrued FTC method.
+usa,use_treaty_resourcing,true,config,Synthetic demo enables treaty re-sourcing.

@@ -1,0 +1,32 @@
+## {{ rule.title }}
+
+The [Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) instructions say that, in general, foreign-source qualified dividends and capital gain distributions need a rate-differential adjustment on [Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) line 18 (the foreign-source preferential income is scaled to reflect that those amounts are taxed at preferential rates rather than ordinary rates). The instructions also waive that adjustment when foreign-source preferential income is below the de-minimis amount (currently `$20,000`). [26 U.S.C. § 904](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim) is the underlying limitation statute.
+
+This stage is a **gate**, not a calculation: it checks whether your foreign preferential income falls inside the supported zone (de-minimis or zero). If it doesn't, the engine fails closed rather than silently using the wrong limit.
+
+For 2025, the gate result is **{{ rule.outputs[0].value }}**. With this status the FTC limitation calculation (US25-12) proceeds on the standard [§ 904](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim) fraction without an unsupported preferential adjustment.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

@@ -1,0 +1,32 @@
+# Schedule B (Form 1040) — Interest and Ordinary Dividends
+# Authority: IRS Form 1040 Instructions / Schedule B Instructions.
+# https://www.irs.gov/forms-pubs/about-schedule-b-form-1040
+#
+# Y2 / P5 form-schema-as-data: each [[lines]] entry declares the rendered
+# label string emitted to the "Line" column of 2025_schedule_b.md.
+#
+# Only the populated lines for the supported U.S. cross-border posture
+# are declared:
+#   - Part I line 2 (interest total)
+#   - Part II line 5 (dividends total)
+#   - Part III line 7a (foreign-account checkbox, "Yes")
+# Other Schedule B lines (1, 3, 4, 6, 7b, 8) are not modeled and not
+# declared here.
+
+form_id = "schedule_b"
+form_year = 2025
+display_name = "Schedule B"
+canonical_form_name = "Schedule B"
+authority_url = "https://www.irs.gov/forms-pubs/about-schedule-b-form-1040"
+
+[[lines]]
+line_id = "2"
+label = "Line 2"
+
+[[lines]]
+line_id = "5"
+label = "Line 5"
+
+[[lines]]
+line_id = "7a_foreign_account_checkbox"
+label = "Line 7a (foreign account checkbox)"

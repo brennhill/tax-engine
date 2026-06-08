@@ -1,0 +1,769 @@
+{
+  "metadata": {
+    "schema_version": 1,
+    "last_full_run_iso8601": "2026-05-12T19:43:18Z",
+    "cache_ttl_hours": 24
+  },
+  "urls": {
+    "https://ao.bundesfinanzministerium.de/esth/2025/A-Einkommensteuergesetz/II-Einkommen-2-24b/8-Die-einzelnen-Einkunftsarten-13-24b/d-Nichtselbstaendige-Arbeit-19-19a/Paragraf-19a/inhalt.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://ao.bundesfinanzministerium.de/esth/2025/A-Einkommensteuergesetz/V-Steuerermaessigungen-34c-35c/1-Steuerermaessigung-bei-ausl-Eink-34c-34d/Paragraf-34c/r-34c-1-2.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://ao.bundesfinanzministerium.de/esth/2025/B-Anhaenge/Anhang-16/XIII/inhalt.html": {
+      "last_check_iso8601": "2026-05-12T19:43:18Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://bsaefiling.fincen.treas.gov/": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1211": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1211&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1212&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1256&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1401": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1401&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1402": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1402&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1411": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1411&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section164": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section164&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section3101": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section3101&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section6012&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section6013&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section6042&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section6045&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section61&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section62&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section63&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section6651&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section6654&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section901&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section905": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section905&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section911": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section911&num=0&edition=prelim": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.bmas.de/DE/Service/Gesetze-und-Gesetzesvorhaben/sozialversicherungs-rechengroessen-2025.html": {
+      "last_check_iso8601": "2026-05-12T19:43:18Z",
+      "status": 404,
+      "consecutive_4xx_count": 3
+    },
+    "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Abgeltungsteuer/2025-05-14-einzelfragen-zur-abgeltungsteuer.pdf?__blob=publicationFile&v=6": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Einkommensteuer/2022-05-19-einzelfragen-zur-abgeltungsteuer.html": {
+      "last_check_iso8601": "2026-05-12T19:43:18Z",
+      "status": 404,
+      "consecutive_4xx_count": 3
+    },
+    "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Einkommensteuer/2025-03-06-einzelfragen-kryptowerte-bmf-schreiben.pdf?__blob=publicationFile&v=2": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Investmentsteuergesetz/2025-01-16-basiszins-zur-berechnung-der-vorabpauschale.pdf?__blob=publicationFile&v=2": {
+      "last_check_iso8601": "2026-05-12T19:43:18Z",
+      "status": 404,
+      "consecutive_4xx_count": 3
+    },
+    "https://www.bundesfinanzministerium.de/Datenportal/Daten/frei-nutzbare-produkte/Anwendungen/Programmablaufplan-2025/Programmablaufplan-2025.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Internationales_Steuerrecht/Staatenbezogene_Informationen/Vereinigte_Staaten/vereinigte_staaten.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Internationales_Steuerrecht/Staatenbezogene_Informationen/Vereinigte_Staaten/vereinigte_staaten.html?gtp=249348_list%253D2": {
+      "last_check_iso8601": "2026-05-12T19:43:18Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Steuererklaerung-Steuerformulare/Wichtige-Informationen-rund-ums-Thema-Steuern/Abgeltungsteuer/Anlage-KAP-INV/anlage-kap-inv.html": {
+      "last_check_iso8601": "2026-05-12T19:43:18Z",
+      "status": 404,
+      "consecutive_4xx_count": 3
+    },
+    "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Steuererklaerung-Steuerformulare/Wichtige-Informationen-rund-ums-Thema-Steuern/Abgeltungsteuer/Anlage-KAP/anlage-kap.html": {
+      "last_check_iso8601": "2026-05-12T19:43:18Z",
+      "status": 404,
+      "consecutive_4xx_count": 3
+    },
+    "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Steuererklaerung-Steuerformulare/Wichtige-Informationen-rund-ums-Thema-Steuern/Lohnsteuer-und-Einkommensteuer/Anlage-N/anlage-n.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Steuererklaerung-Steuerformulare/Wichtige-Informationen-rund-ums-Thema-Steuern/Lohnsteuer-und-Einkommensteuer/Anlage-SO/anlage-so.html": {
+      "last_check_iso8601": "2026-05-12T19:43:18Z",
+      "status": 404,
+      "consecutive_4xx_count": 3
+    },
+    "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Steuererklaerung-Steuerformulare/Wichtige-Informationen-rund-ums-Thema-Steuern/Lohnsteuer-und-Einkommensteuer/Anlage-Vorsorgeaufwand/anlage-vorsorgeaufwand.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": null,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Steuererklaerung-Steuerformulare/Wichtige-Informationen-rund-ums-Thema-Steuern/Lohnsteuer-und-Einkommensteuer/lohnsteuer-und-einkommensteuer.html": {
+      "last_check_iso8601": "2026-05-12T19:43:18Z",
+      "status": 404,
+      "consecutive_4xx_count": 3
+    },
+    "https://www.elster.de/": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.elster.de/eportal/helpGlobal": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.elster.de/eportal/helpGlobal?themaGlobal=help_est_ufa_10_2025": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.formulare-bfinv.de/": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/ao_1977/__139b.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/bgbl_i_2020/2770.html": {
+      "last_check_iso8601": "2026-05-12T19:43:18Z",
+      "status": 404,
+      "consecutive_4xx_count": 3
+    },
+    "https://www.gesetze-im-internet.de/bkgg_1996/": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/bkgg_1996/__6.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__10.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__10b.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__10c.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__19.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__19a.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__2.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__20.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__22.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__23.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__24a.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__25.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__26.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__26a.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__26b.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__3.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__31.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__32.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__32a.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__32d.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__33.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__33a.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__33b.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__34c.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__36.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__4.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__43a.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__51a.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__9.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/estg/__9a.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/invstg_2018/": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/invstg_2018/__16.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/invstg_2018/__18.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/invstg_2018/__19.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/invstg_2018/__2.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/invstg_2018/__20.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/invstg_2018/__21.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/solzg_1995/": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/solzg_1995/__3.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/solzg_1995/__4.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.gesetze-im-internet.de/solzg_1995/__5.html": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/businesses/comparison-of-form-8938-and-fbar-requirements": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/filing/digital-assets": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/forms-pubs/about-form-1040": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/forms-pubs/about-form-1116": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/forms-pubs/about-form-2555": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/forms-pubs/about-form-6251": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/forms-pubs/about-form-6781": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/forms-pubs/about-form-8833": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/forms-pubs/about-form-8888": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/forms-pubs/about-form-8938": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/forms-pubs/about-form-8949": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/forms-pubs/about-form-8959": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/forms-pubs/about-form-8960": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/forms-pubs/about-schedule-8812-form-1040": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/forms-pubs/about-schedule-b-form-1040": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/forms-pubs/about-schedule-d-form-1040": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/forms-pubs/about-schedule-se-form-1040": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/individuals/international-taxpayers/yearly-average-currency-exchange-rates": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/instructions/i1040gi": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/instructions/i1040sd": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/instructions/i1099b": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/instructions/i1116": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/instructions/i8949": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/instructions/i8960": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/pub/irs-drop/n-24-77.pdf": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/pub/irs-drop/rp-24-40.pdf": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/pub/irs-pdf/f1040.pdf": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/pub/irs-pdf/f1040s1.pdf": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/pub/irs-pdf/f1040s2.pdf": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/pub/irs-pdf/f1040s3.pdf": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/pub/irs-pdf/f6251.pdf": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/pub/irs-trty/germany.pdf": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/pub/irs-trty/germtech.pdf": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/publications/p514": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/publications/p525": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/publications/p54": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.irs.gov/publications/p550": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.law.cornell.edu/cfr/text/26/1.6038D-2": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.law.cornell.edu/cfr/text/31/1010.350": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.law.cornell.edu/uscode/text/26/1": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.law.cornell.edu/uscode/text/26/1212": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.law.cornell.edu/uscode/text/26/152": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.law.cornell.edu/uscode/text/26/24": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.law.cornell.edu/uscode/text/26/55": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.law.cornell.edu/uscode/text/26/56": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.law.cornell.edu/uscode/text/26/59": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.law.cornell.edu/uscode/text/26/6012": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.law.cornell.edu/uscode/text/26/6038D": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.law.cornell.edu/uscode/text/26/861": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.law.cornell.edu/uscode/text/26/862": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.law.cornell.edu/uscode/text/26/911": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.law.cornell.edu/uscode/text/31/5314": {
+      "last_check_iso8601": "2026-05-12T19:35:53Z",
+      "status": 200,
+      "consecutive_4xx_count": 0
+    },
+    "https://www.ssa.gov/international/Agreement_Pamphlets/germany.html": {
+      "last_check_iso8601": "2026-05-12T19:43:18Z",
+      "status": 403,
+      "consecutive_4xx_count": 3
+    },
+    "https://www.ssa.gov/oact/cola/cbb.html": {
+      "last_check_iso8601": "2026-05-12T19:43:18Z",
+      "status": 403,
+      "consecutive_4xx_count": 3
+    }
+  }
+}

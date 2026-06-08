@@ -1,0 +1,26 @@
+# Form 6781 — Gains and Losses From Section 1256 Contracts and Straddles
+# Authority: 26 U.S.C. § 1256; IRS Form 6781 instructions.
+# https://www.irs.gov/forms-pubs/about-form-6781
+#
+# Y2 / P5 form-schema-as-data: this rendered form uses descriptive
+# labels rather than statutory "Line N" numbers, since the Schwab
+# section 1256 result is summarized as a 40/60 split for carryover to
+# Schedule D rather than line-by-line. Schema declares each label.
+
+form_id = "form_6781"
+form_year = 2025
+display_name = "Form 6781"
+canonical_form_name = "Form 6781"
+authority_url = "https://www.irs.gov/forms-pubs/about-form-6781"
+
+[[lines]]
+line_id = "net_section_1256_result"
+label = "Net section 1256 result"
+
+[[lines]]
+line_id = "short_term_40_pct"
+label = "40% short-term portion"
+
+[[lines]]
+line_id = "long_term_60_pct"
+label = "60% long-term portion"

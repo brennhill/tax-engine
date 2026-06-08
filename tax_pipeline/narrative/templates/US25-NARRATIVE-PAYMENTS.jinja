@@ -1,0 +1,43 @@
+## {{ rule.title }}
+
+[Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) lines 33-37 reconcile **total tax** against **total payments** (estimated payments + withholding). The [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) instructions describe two outcomes:
+
+- **Line 35a (refund)** when payments exceed total tax — the amount can be sent to a bank account on [Form 8888](https://www.irs.gov/forms-pubs/about-form-8888) or carried forward.
+- **Line 37 (amount you owe)** when total tax exceeds payments — paid by the April due date to avoid [§ 6651](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section6651&num=0&edition=prelim) / [§ 6654](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section6654&num=0&edition=prelim) penalties.
+
+For 2025:
+
+- Total tax with treaty re-sourcing (regular tax minus allowed FTC plus NIIT): **{{ rule.inputs_by_key["us.tax.total_tax_with_treaty_resourcing_usd"].value | money(currency="USD") }}**
+- Estimated payment already made: **{{ rule.inputs_by_key["us.payments.estimated_payment_usd"].value | money(currency="USD") }}**
+
+Outcome:
+
+- **Refund (line 35a)**: **{{ rule.outputs[0].value | money(currency="USD") }}**
+- **Amount owed (line 37)**: **{{ rule.outputs[1].value | money(currency="USD") }}**
+
+(Exactly one of those two will be non-zero.)
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

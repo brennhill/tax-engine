@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "profile": "synthetic_single_cross_border_demo",
+  "description": "Synthetic single-person cross-border demo for a dual-national taxpayer living in Germany and filing Germany and U.S. single returns.",
+  "tax_year": 2025,
+  "employment_country": "DE",
+  "employment_city": "Berlin",
+  "primary_tax_residence": "DE",
+  "us_citizen_or_long_term_resident": true,
+  "german_return": {
+    "required": true,
+    "assume_joint_assessment_if_married": false,
+    "person_slots": [
+      {
+        "slot": "person_1",
+        "order_label": "Person 1",
+        "display_name": "Alex North",
+        "owner": "person_1",
+        "anlage_n_label": "Anlage N (Person 1)",
+        "anlage_kap_label": "Anlage KAP - Person 1",
+        "kap_lines": [
+          "17",
+          "19",
+          "20",
+          "23",
+          "41"
+        ],
+        "kap_raw_lines": [],
+        "kap_posture": "Use person 1's synthetic foreign-capital package.",
+        "kap_notes": [
+          "Synthetic public demo only."
+        ]
+      }
+    ]
+  },
+  "us_return": {
+    "required": true,
+    "default_filing_status_if_spouse_is_nonresident_alien": "",
+    "treaty_resourcing_common": true
+  },
+  "jurisdictions": {
+    "germany": {
+      "enabled": true,
+      "filing_posture": "single"
+    },
+    "usa": {
+      "enabled": true,
+      "filing_posture": "single"
+    }
+  },
+  "investment_defaults": {
+    "primary_broker_country": "US",
+    "other_stock_countries_allowed": true,
+    "crypto_supported": false,
+    "real_estate_supported": false
+  },
+  "taxpayer": {
+    "name": "Alex North",
+    "citizenship": [
+      "US",
+      "DE"
+    ],
+    "germany_tax_resident": true
+  },
+  "spouse": {
+    "name": "",
+    "us_tax_status": ""
+  },
+  "household": {
+    "marital_status_on_dec_31": "single",
+    "germany_filing_status": "single",
+    "us_filing_status": "single"
+  },
+  "elections": {
+    "us_ftc_method": "accrued",
+    "use_treaty_resourcing": true,
+    "germany_kirchensteuer_membership": "none",
+    "elect_section_911_feie": false,
+    "acknowledges_totalization_agreement_germany_us": true
+  },
+  "raw_buckets": [
+    "germany",
+    "us",
+    "brokers",
+    "crypto",
+    "equity_comp",
+    "receipts",
+    "real_estate"
+  ]
+}

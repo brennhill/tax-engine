@@ -1,0 +1,40 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 1401](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1401) imposes Self-Employment Contributions Act (SECA) tax: **12.4 % OASDI** on net SE earnings up to the SSA wage base ($176,100 for 2025) plus **2.9 % Medicare** on all net SE earnings. [§ 1402(a)(12)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1402) reduces the base to **92.35 %** of net SE earnings (the residual approximates the employer-share deduction).
+
+For U.S.-citizen-in-Germany filers, the [U.S.-Germany Totalization Agreement (1979)](https://www.ssa.gov/international/Agreement_Pamphlets/germany.html) keeps SE earnings out of § 1401 when the taxpayer holds a German Certificate of Coverage. The certificate-driven SSA-coverage path is not yet modeled — the law helper fails closed in that case. Schedule SE is the filed form.
+
+{% set out = rule.outputs[0].value | from_json -%}
+For 2025:
+
+- Net SE earnings: **{{ out.net_se_earnings_usd | money(currency="USD") }}**
+- § 1402(a)(12) SE-taxable earnings (× 92.35 %): **{{ out.se_taxable_earnings_usd | money(currency="USD") }}**
+- OASDI taxable earnings (capped at $176,100 SS wage base): **{{ out.oasdi_taxable_earnings_usd | money(currency="USD") }}**
+- § 1401(a) OASDI tax (12.4 %): **{{ out.oasdi_tax_usd | money(currency="USD") }}**
+- § 1401(b)(1) Medicare tax (2.9 %): **{{ out.medicare_tax_usd | money(currency="USD") }}**
+- Schedule SE total SE tax (Schedule 2 line 4): **{{ out.se_tax_usd | money(currency="USD") }}**
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

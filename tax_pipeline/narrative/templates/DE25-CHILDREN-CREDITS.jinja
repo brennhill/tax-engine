@@ -1,0 +1,83 @@
+## {{ rule.title }}
+
+{# C-audit (FORM-MAPPING-FOLLOWUP, 2026-05-04): DE25-CHILDREN-CREDITS
+   gained an Anlage Kind Zeilen 6-15 FormLineRef on
+   ``de.children.kinderfreibetrag_total_eur`` so the bidirectional I3
+   contract enforces the C5 renderer write
+   (``_write_anlage_kind`` Zeilen 6-15 row). Per the
+   ``_form_bound_children_stage_ids`` rule in
+   ``tests/test_rule_narratives.py``, any children sub-graph stage with
+   a form-bound output must ship a matching narrative template under
+   the canonical template root. This template documents the § 31 EStG
+   Günstigerprüfung in both German and English. #}
+{% if rule.language == "de" -%}
+[§ 31 EStG](https://www.gesetze-im-internet.de/estg/__31.html)
+regelt den Familienleistungsausgleich: pro Kind wird die Steuerwirkung
+des [§ 32 Abs. 6 EStG](https://www.gesetze-im-internet.de/estg/__32.html)
+Kinderfreibetrags + BEA-Freibetrags mit dem
+[BKGG § 6 Abs. 2](https://www.gesetze-im-internet.de/bkgg_1996/)
+Kindergeld verglichen. § 31 Satz 4 EStG verlangt die Günstigerprüfung —
+die Eltern erhalten die jeweils günstigere Variante (entweder den
+Kinderfreibetrag-Steuervorteil ODER das Kindergeld, niemals beides
+gleichzeitig).
+
+Die Stufe DE25-CHILDREN-CREDITS rechnet:
+
+1. Tarif auf das aktuelle zvE (ergibt die in DE25-08 gerechnete
+   Einkommensteuer).
+2. Tarif auf zvE − Kinderfreibetrag-Total (§ 32a Abs. 1 / Abs. 5 EStG
+   Splitting bei Zusammenveranlagung).
+3. Steuersaldo = Tarif1 − Tarif2 (Steuervorteil bei Anwendung des
+   Kinderfreibetrags).
+4. Wahl: ``kinderfreibetrag``, wenn Steuersaldo > Kindergeld;
+   sonst ``kindergeld``.
+
+**Form locations**
+
+- [Anlage Kind Zeilen 6-15](https://www.gesetze-im-internet.de/estg/__32.html)
+  — pro Kind: Steuer-Identifikationsnummer, Name, Geburtsdatum,
+  Verwandtschaftsverhältnis. Der Haushaltsgesamtbetrag des
+  Kinderfreibetrags + BEA-Freibetrags fließt in die § 31 EStG
+  Günstigerprüfung ein.
+{% else -%}
+[§ 31 EStG](https://www.gesetze-im-internet.de/estg/__31.html) governs
+the Familienleistungsausgleich (the "family-burden equalization"
+between the [§ 32 Abs. 6 EStG](https://www.gesetze-im-internet.de/estg/__32.html)
+Kinderfreibetrag + BEA-Freibetrag and the
+[BKGG § 6 Abs. 2](https://www.gesetze-im-internet.de/bkgg_1996/)
+Kindergeld). § 31 Satz 4 EStG requires the Günstigerprüfung — the
+parents receive whichever option produces the larger relief (either
+the Kinderfreibetrag tax saving OR the Kindergeld, never both
+concurrently).
+
+Stage DE25-CHILDREN-CREDITS computes:
+
+1. Tariff at the as-modeled zvE (the value DE25-08 produces).
+2. Tariff at zvE − Kinderfreibetrag-Total (§ 32a Abs. 1 / Abs. 5
+   EStG splitting under joint assessment).
+3. Tax saving = tariff_1 − tariff_2 (the Kinderfreibetrag relief).
+4. Choice: ``kinderfreibetrag`` if tax_saving > Kindergeld;
+   otherwise ``kindergeld``.
+
+**Form locations**
+
+- [Anlage Kind Zeilen 6-15](https://www.gesetze-im-internet.de/estg/__32.html)
+  — per-child Steuer-Identifikationsnummer, Name, Geburtsdatum,
+  Verwandtschaftsverhältnis. The household-aggregate Kinderfreibetrag +
+  BEA-Freibetrag total feeds the § 31 EStG Günstigerprüfung.
+{% endif %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

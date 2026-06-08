@@ -1,0 +1,42 @@
+## {{ rule.title }}
+
+[DBA-USA Art. 28](https://www.irs.gov/pub/irs-trty/germany.pdf) (Limitation on Benefits, as amended by the 2006 Protocol) gates every other treaty benefit. A treaty resourcing claim under [Art. 23](https://www.irs.gov/pub/irs-trty/germany.pdf) / [IRS Pub. 514](https://www.irs.gov/publications/p514) requires LOB qualification under one of:
+
+- **Art. 28(2)(c)** — publicly traded company
+- **Art. 28(2)(a) / (f)** — qualified resident (this is the typical posture for an individual U.S. citizen / long-term resident of Germany)
+- **Art. 28(4)** — active business
+- **Art. 28(5) / (7)** — derivative benefits
+- **Art. 28(7)** — competent authority discretionary determination
+
+If none applies (`lob_qualification_category=not_qualified`), treaty re-sourcing is disabled and the engine fails closed when the taxpayer also claims `use_treaty_resourcing=true`. When treaty benefits ARE claimed, [IRS Form 8833](https://www.irs.gov/forms-pubs/about-form-8833) disclosure is required under 26 U.S.C. § 6114.
+
+For 2025:
+
+- LOB qualification category claimed: **{{ rule.outputs[1].value }}**
+- Art. 28 qualified for treaty benefits: **{{ rule.outputs[0].value }}**
+- Form 8833 disclosure required (§ 6114): **{{ rule.outputs[2].value }}**
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

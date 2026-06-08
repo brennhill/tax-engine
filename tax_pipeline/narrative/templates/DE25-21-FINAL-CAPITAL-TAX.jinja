@@ -1,0 +1,44 @@
+## {{ rule.title }}
+
+{% if rule.language == "de" -%}
+Diese Stufe summiert die nach allen Schritten verbliebene Kapitalertragsteuer + Solidaritätszuschlag zu einer einzigen End-Belastung **de.capital.final_tax**. Die Reihenfolge ist abgeschlossen: [§ 32d Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32d.html) (Brutto), [§ 32d Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32d.html) (Anrechnung pro Item, gepoolt), [§ 4 SolzG](https://www.gesetze-im-internet.de/solzg_1995/__4.html) (5,5 % SolZ), [DBA-USA Art. 10/23](https://www.irs.gov/pub/irs-trty/germtech.pdf) Cross-Check. Was hier herauskommt, geht 1:1 in das deutsche Endergebnis (zusammen mit der ESt-Komponente aus DE25-10).
+
+Für 2025:
+
+- **Endgültige Kapitalsteuer** (ESt + SolZ nach allen Anrechnungen): **{{ rule.outputs[0].value | money(currency="EUR") }}**
+
+Diese Größe wird in der Steuererklärung in Anlage KAP / KAP-INV / KAP-INV-FONDS dokumentiert; die einbehaltene Kapitalertragsteuer aus den Steuerbescheinigungen wird gegen diesen Betrag aufgerechnet.
+{% else -%}
+This stage sums the post-everything capital tax and solidarity surcharge into one end-of-line liability **de.capital.final_tax**. The ordering is complete: [§ 32d Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32d.html) (gross), [§ 32d Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32d.html) (per-item credit, pooled), [§ 4 SolzG](https://www.gesetze-im-internet.de/solzg_1995/__4.html) (5.5 % SolZ), [DBA-USA Articles 10 / 23](https://www.irs.gov/pub/irs-trty/germtech.pdf) cross-check. The number here flows 1:1 into the German final result (together with the ordinary-income piece from DE25-10).
+
+For 2025:
+
+- **Final capital tax** (income tax + SolZ after all credits): **{{ rule.outputs[0].value | money(currency="EUR") }}**
+
+This number appears on Anlage KAP / KAP-INV / KAP-INV-FONDS in the return; withheld German Kapitalertragsteuer from broker statements is credited against it.
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

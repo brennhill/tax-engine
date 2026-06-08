@@ -1,0 +1,49 @@
+## {{ rule.title }}
+
+{% set out = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 33a Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__33a.html) erlaubt den Abzug von Unterhaltszahlungen an gesetzlich unterhaltsberechtigte Personen. Der Höchstbetrag entspricht dem Grundfreibetrag und wird um eigene Einkünfte/Bezüge des Empfängers oberhalb von **624 EUR** gemindert.
+
+Für 2025:
+
+- Beziehungsstatus: **{{ out.relationship or "(nicht angegeben)" }}**
+- Geleistete Unterhaltszahlungen: **{{ out.support_payments_eur | money(currency="EUR") }}**
+- Eigeneinkünfte des Empfängers: **{{ out.recipient_income_eur | money(currency="EUR") }}**
+- Grundfreibetrag (Höchstbetrag, § 32a Abs. 1 EStG): **{{ out.grundfreibetrag_eur | money(currency="EUR") }}**
+- Abzugsfähig nach Anrechnung der Eigenbezüge: **{{ out.deductible_eur | money(currency="EUR") }}** — wird in DE25-07 vom zvE abgezogen.
+{% else -%}
+[§ 33a Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__33a.html) allows deduction of support payments to a legally entitled recipient. The cap equals the Grundfreibetrag and is reduced by the recipient's own income/maintenance above **EUR 624**.
+
+For 2025:
+
+- Recipient relationship: **{{ out.relationship or "(not declared)" }}**
+- Support payments made: **{{ out.support_payments_eur | money(currency="EUR") }}**
+- Recipient's own income: **{{ out.recipient_income_eur | money(currency="EUR") }}**
+- Grundfreibetrag (cap, § 32a Abs. 1 EStG): **{{ out.grundfreibetrag_eur | money(currency="EUR") }}**
+- Deductible after Eigenbezüge offset: **{{ out.deductible_eur | money(currency="EUR") }}** — subtracted at DE25-07 from zvE.
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

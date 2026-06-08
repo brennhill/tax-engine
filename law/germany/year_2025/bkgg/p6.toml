@@ -1,0 +1,23 @@
+# § 6 BKGG (Bundeskindergeldgesetz) — Höhe des Kindergeldes (2025)
+#
+# Authority: § 6 Abs. 2 BKGG.
+# https://www.gesetze-im-internet.de/bkgg_1996/__6.html
+#
+# Amended by:
+#   - Inflationsausgleichsgesetz 2022 (Kindergeld €250 uniform since
+#     01.01.2023).
+#   - Steuerfortentwicklungsgesetz 2024 (BGBl. 2024 I, raised to
+#     €255/month effective 01.01.2025).
+#
+# Migrated from the Python literal at law/germany/year_2025/bkgg/p6.py per
+# F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[KINDERGELD_2025_MONTHLY_EUR]
+value = "255"
+authority = "§ 6 Abs. 2 BKGG"
+citation_url = "https://www.gesetze-im-internet.de/bkgg_1996/__6.html"
+
+[KINDERGELD_2025_ANNUAL_EUR]
+value = "3060"
+authority = "§ 6 Abs. 2 BKGG (12 × monthly)"
+citation_url = "https://www.gesetze-im-internet.de/bkgg_1996/__6.html"

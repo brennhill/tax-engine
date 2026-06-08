@@ -1,0 +1,31 @@
+# Anlage Vorsorgeaufwand 2025 — Vorsorgeaufwendungen
+# Authority: § 10 Abs. 1 Nr. 2, Nr. 3, Nr. 3a, Abs. 3, Abs. 4 EStG.
+# https://www.gesetze-im-internet.de/estg/__10.html
+#
+# Y2 / P5 form-schema-as-data. Three statutory buckets, each backed
+# by a declared DE25-05 / DE25-06 scalar output:
+#   - Zeilen 4-9: Beiträge zur Altersvorsorge (§ 10 Abs. 1 Nr. 2 / Abs. 3)
+#   - Zeilen 11-14: Krankenversicherung/Pflegeversicherung (§ 10 Abs. 1 Nr. 3)
+#   - Zeilen 31-37: sonstige Vorsorgeaufwendungen (§ 10 Abs. 1 Nr. 3a, Abs. 4)
+#
+# The Zeile groupings reflect the 2025 ELSTER form structure; ELSTER
+# Anlage Vorsorgeaufwand renumbered Zeile blocks for the unified BBG
+# in 2025 — a 2026 renumber is plausible.
+
+form_id = "anlage_vorsorgeaufwand"
+form_year = 2025
+display_name = "Anlage Vorsorgeaufwand"
+canonical_form_name = "Anlage Vorsorgeaufwand"
+authority_url = "https://www.gesetze-im-internet.de/estg/__10.html"
+
+[[lines]]
+line_id = "zeilen_4_9"
+label = "Anlage Vorsorgeaufwand Zeilen 4-9"
+
+[[lines]]
+line_id = "zeilen_11_14"
+label = "Anlage Vorsorgeaufwand Zeilen 11-14"
+
+[[lines]]
+line_id = "zeilen_31_37"
+label = "Anlage Vorsorgeaufwand Zeilen 31-37"

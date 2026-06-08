@@ -1,0 +1,48 @@
+## {{ rule.title }}
+
+{% if rule.language == "de" -%}
+Der deutsche Einkommensteuertarif für 2025 hängt von der Veranlagungsart ab. [§ 32a Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32a.html) ist der **Grundtarif** für Einzelveranlagung; [§ 32a Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32a.html) kombiniert mit [§ 26b EStG](https://www.gesetze-im-internet.de/estg/__26b.html) ergibt den **Splittingtarif** für Zusammenveranlagung: Einkommensteuer = 2 × Grundtarif(zvE / 2). Der **BMF-Programmablaufplan 2025** legt die exakte Cent-genaue Implementierung fest.
+
+Für 2025:
+
+- Veranlagungsart: **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**
+- Zu versteuerndes Einkommen (DE25-07): **{{ rule.inputs_by_key["de.ordinary.joint_taxable_income_eur"].value }}**
+- **Tarifliche Einkommensteuer (Anlage Vorsorgeaufwand-folgender ESt-Wert):** **{{ rule.outputs[0].value }}**
+
+Mit der Splittingformel zahlen Ehepaare bei stark unterschiedlichen Einkommen weniger als zwei einzelne Steuerpflichtige mit dem jeweiligen Einkommen — der Vorteil ergibt sich aus der Progressionskurve.
+{% else -%}
+The German income tax tariff for 2025 depends on the filing posture. [§ 32a Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32a.html) is the **basic tariff** for single assessment; [§ 32a Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32a.html) combined with [§ 26b EStG](https://www.gesetze-im-internet.de/estg/__26b.html) produces the **splitting tariff** for joint assessment: income tax = 2 × basic_tariff(zvE / 2). The **BMF Programmablaufplan 2025** specifies the exact cent-level implementation.
+
+For 2025:
+
+- Filing posture: **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**
+- Taxable income (DE25-07): **{{ rule.inputs_by_key["de.ordinary.joint_taxable_income_eur"].value }}**
+- **Assessed income tax:** **{{ rule.outputs[0].value }}**
+
+The splitting formula means a married couple with unequal incomes pays less than two single filers with those same incomes — the benefit comes from flattening the progressive bracket curve.
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

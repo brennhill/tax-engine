@@ -1,0 +1,34 @@
+# Anlage Kind 2025 — Kinderfreibetrag + BEA + § 33b Abs. 5 transferral
+# Authority: § 32 Abs. 6 EStG; § 31 EStG; § 33b Abs. 3 / Abs. 5 EStG;
+# BKGG § 6.
+# https://www.gesetze-im-internet.de/estg/__32.html
+# https://www.gesetze-im-internet.de/estg/__31.html
+# https://www.gesetze-im-internet.de/estg/__33b.html
+#
+# Y2 / P5 form-schema-as-data. Renderer surfaces:
+#   - Zeilen 6-15: Kinderfreibetrag + BEA household total.
+#   - Audit-only Kindergeld erhalten (cross-check).
+#   - Audit-only § 31 Günstigerprüfung tariff saving (cross-check).
+#   - Zeile 65: § 33b Abs. 5 transferred Pauschbetrag.
+
+form_id = "anlage_kind"
+form_year = 2025
+display_name = "Anlage Kind"
+canonical_form_name = "Anlage Kind"
+authority_url = "https://www.gesetze-im-internet.de/estg/__32.html"
+
+[[lines]]
+line_id = "zeilen_6_15"
+label = "Anlage Kind Zeilen 6-15"
+
+[[lines]]
+line_id = "kindergeld_audit"
+label = "Anlage Kind (audit) Kindergeld erhalten"
+
+[[lines]]
+line_id = "guenstigerpruefung_audit"
+label = "Anlage Kind (audit) § 31 Günstigerprüfung tariff saving"
+
+[[lines]]
+line_id = "zeile_65"
+label = "Anlage Kind Zeile 65"

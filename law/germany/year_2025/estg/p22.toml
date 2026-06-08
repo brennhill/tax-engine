@@ -1,0 +1,10 @@
+# § 22 Nr. 3 EStG (Sonstige Einkünfte aus Leistungen)
+#
+# Authority root: https://www.gesetze-im-internet.de/estg/__22.html
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[OTHER_INCOME_22NR3_FREIGRENZE_2025_EUR]
+value = "256.00"
+authority = "§ 22 Nr. 3 Satz 2 EStG: €256 Freigrenze for sonstige Einkünfte from Leistungen, including modeled staking-style receipts. Note this is a Freigrenze (cliff), not a Freibetrag (allowance) — once crossed, the full amount is taxable."
+citation_url = "https://www.gesetze-im-internet.de/estg/__22.html"

@@ -1,0 +1,15 @@
+# DBA-USA Art. 11 (Zinsen / Interest)
+#
+# Authority root: https://www.irs.gov/pub/irs-trty/germany.pdf
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+#
+# Scope note: no numeric constant is declared here today. The Art. 11(1)
+# 0 % source-state interest rate was removed in W1.A / T1.1
+# (2026-05-11) because the 2025 engine does not emit treaty-eligible
+# interest positions and the constant had no working-tree consumer.
+# When a future return adds a treaty-interest pathway, declare the
+# rate here with its citation and wire it into the rule that applies
+# it so it never lives as a cite-only orphan. The sibling
+# ``art11.py`` shadow file keeps the Article 11 citation URL surface
+# even without a numeric constant attached.

@@ -1,0 +1,38 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 55(d)](https://www.law.cornell.edu/uscode/text/26/55) provides the AMT exemption ($88,100 single / $137,000 MFJ / $68,650 MFS for 2025 per [Rev. Proc. 2024-40](https://www.irs.gov/pub/irs-drop/rp-24-40.pdf) § 3.13). [§ 55(d)(3)](https://www.law.cornell.edu/uscode/text/26/55) phases the exemption out at $0.25 per $1.00 of AMTI above $626,350 (single / MFS) or $1,252,700 (MFJ). [§ 55(b)](https://www.law.cornell.edu/uscode/text/26/55) then taxes the post-exemption AMTI at 26% up to a $232,600 break (or $116,300 for MFS, halved by [§ 55(b)(1)(A)(ii)(II)](https://www.law.cornell.edu/uscode/text/26/55)) and 28% above. [§ 55(b)(3)](https://www.law.cornell.edu/uscode/text/26/55) preserves [§ 1(h)](https://www.law.cornell.edu/uscode/text/26/1) preferential rates on long-term capital gain and qualified dividends inside AMT — the tentative minimum is the smaller of the flat 26/28 schedule and a § 1(h)-style decomposition of preferential AMTI.
+
+{% set amti = rule.inputs_by_key["us.stage.amt_amti"].value | from_json -%}
+{% set out = rule.outputs[0].value | from_json -%}
+For 2025:
+
+- AMTI (Form 6251 line 4): **{{ amti.amti_usd | money(currency="USD") }}**
+- § 55(d) exemption after phase-out (Form 6251 line 5): **{{ out.exemption_usd | money(currency="USD") }}**
+- AMTI after exemption (Form 6251 line 6): **{{ out.amti_after_exemption_usd | money(currency="USD") }}**
+- Preferential AMTI inside AMT (§ 55(b)(3)): **{{ out.preferential_amti_after_exemption_usd | money(currency="USD") }}**
+- Tentative minimum tax (Form 6251 line 7): **{{ out.tentative_min_tax_usd | money(currency="USD") }}**
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

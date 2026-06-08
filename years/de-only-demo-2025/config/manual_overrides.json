@@ -1,0 +1,38 @@
+{
+  "treaty_resourcing": {
+    "enabled": false,
+    "non_us_source_symbols": [],
+    "notes": "DE-only synthetic demo: the U.S. pathway is disabled via elections.us_filing_required=false (26 U.S.C. § 6012), so DBA-USA Art. 23(2) treaty re-sourcing has no U.S.-side computation to feed."
+  },
+  "fund_classification": {
+    "_note": "Per-symbol classifications now live in tax_pipeline/data/german_fund_classification.csv. The demo's VTI is covered by the repo seed; fund_types here is left empty.",
+    "aktienfonds": [],
+    "non_aktienfonds": [],
+    "fund_types": {}
+  },
+  "equity_comp": {
+    "rsu_wage_in_payroll": true,
+    "include_capital_sales": false,
+    "basis_overrides": []
+  },
+  "deductions": {
+    "persons": {
+      "person_1": {
+        "home_office_days_without_first_workplace_visit": 0,
+        "home_office_days_with_first_workplace_visit": 0,
+        "home_office_first_workplace_visit_days_have_no_other_workplace": false,
+        "manual_work_equipment_deduction_eur": "0.00",
+        "telecom_deduction_eur": "0.00",
+        "employment_legal_insurance_deduction_eur": "0.00",
+        "cross_border_tax_help_deduction_eur": "0.00",
+        "health_insurance_sick_pay_reduction_rate": "0.04",
+        "work_equipment_items": []
+      }
+    },
+    "work_use_percentages": {}
+  },
+  "carryovers": {
+    "german": {},
+    "us_ftc": {}
+  }
+}

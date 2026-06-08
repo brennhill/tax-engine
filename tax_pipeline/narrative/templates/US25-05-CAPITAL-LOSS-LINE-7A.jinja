@@ -1,0 +1,39 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 1211(b)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1211&num=0&edition=prelim) caps an individual's annual deductible net capital loss at **{{ rule.inputs_by_key["us.constants.capital_loss_limit"].value | money(currency="USD") }}** (`$3,000` normally, `$1,500` for married filing separately). Any net loss above that cap doesn't disappear — [§ 1212](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1212&num=0&edition=prelim) carries it forward to next year, where it preserves its short-term or long-term character. Net capital gain, in contrast, is taxed in full at this stage and the preferential-rate logic at US25-09 sorts the long-term portion onto the qualified-dividends/cap-gain worksheet.
+
+{% set capital = rule.outputs[0].value | from_json -%}
+Combining the [Schedule D](https://www.irs.gov/forms-pubs/about-schedule-d-form-1040) buckets from US25-03 with the [§ 1256](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1256&num=0&edition=prelim) split from US25-04, the net capital position **after [§ 1256](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1256&num=0&edition=prelim) mark-to-market** is **{{ capital.net_capital_after_1256_usd | money(currency="USD") }}**.
+
+Applying [§ 1211](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1211&num=0&edition=prelim) / § 1212:
+
+- [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 7a (the amount that flows into AGI): **{{ capital.form_1040_line_7a_usd | money(currency="USD") }}**
+- Capital loss deduction taken in 2025 (capped at the [§ 1211(b)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1211&num=0&edition=prelim) limit): **{{ capital.capital_loss_deduction_2025_usd | money(currency="USD") }}**
+- Tentative capital-loss carryforward to 2026 under § 1212: **{{ capital.tentative_capital_loss_carryforward_2026_usd | money(currency="USD") }}**
+
+Line 7a feeds AGI (US25-07); the carryforward is preserved for next year's return; the long-term gain piece (if any) drives the preferential-rate worksheet at US25-09.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

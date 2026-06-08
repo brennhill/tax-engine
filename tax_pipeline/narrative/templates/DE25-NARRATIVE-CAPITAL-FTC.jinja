@@ -1,0 +1,67 @@
+{# Audit note: the ``inputs_by_key`` keys consumed below
+   (``de.capital.capital_income_tax_with_teilfreistellung_eur``,
+   ``de.capital.explicit_foreign_tax_total_eur``,
+   ``de.capital.net_creditable_foreign_tax_total_eur``,
+   ``de.capital.foreign_tax_credit_cap_eur``) are NOT first-class rule
+   outputs — they are synthesized by the
+   ``rule_narrative_packets._germany_capital_ftc`` builder from
+   ``forms["results"]["capital"]`` JSON paths. Readers looking for
+   these scalars in ``legal-execution-graph.json`` will not find them;
+   they ride through the renderer's ``LegalValue`` envelope via
+   ``legal_value_from_dict``. R-A finding F-DE-13. #}
+## {{ rule.title }}
+
+{% if rule.language == "de" -%}
+[§ 32d Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32d.html) begrenzt die anrechenbare ausländische Quellensteuer auf den Anteil deutscher Steuer, der auf denselben Posten entfällt. Anrechnung wird also **pro Posten** geführt: ausländische Steuer auf einer einzelnen Dividendenposition kann nur bis zur deutschen Steuer auf dieselbe Position angerechnet werden. Der **Anrechnungshöchstbetrag** ist die Summe der Pro-Posten-Caps; der tatsächlich angerechnete Betrag ist `min(Höchstbetrag, gesamte ausländische Steuer nach Erstattungsanspruch, deutsche Brutto-Kapitalertragsteuer)`.
+
+Für 2025:
+
+- Brutto-Kapitalertragsteuer mit Teilfreistellung (DE25-17): **{{ rule.inputs_by_key["de.capital.capital_income_tax_with_teilfreistellung_eur"].value }}**
+- Bezahlte ausländische Quellensteuer: **{{ rule.inputs_by_key["de.capital.explicit_foreign_tax_total_eur"].value }}**
+- Netto anrechenbare ausländische Steuer (nach Erstattungsanspruch): **{{ rule.inputs_by_key["de.capital.net_creditable_foreign_tax_total_eur"].value }}**
+- Anrechnungshöchstbetrag (Pro-Posten-Caps summiert): **{{ rule.inputs_by_key["de.capital.foreign_tax_credit_cap_eur"].value }}**
+
+Ergebnis:
+
+- **Tatsächlich angerechnete ausländische Steuer:** **{{ rule.outputs[0].value }}**
+- **Kapitalsteuer nach Anrechnung und Treaty-Prüfung:** **{{ rule.outputs[1].value }}**
+{% else -%}
+[§ 32d Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32d.html) limits the creditable foreign withholding tax to the German tax attributable to the same item. So the credit is computed **per item**: foreign tax on a single dividend position can be credited only up to the German tax on that same position. The **credit cap** is the sum of per-item caps; the actually applied credit is `min(cap, net foreign tax after refund entitlement, German gross capital tax)`.
+
+For 2025:
+
+- Gross capital tax with Teilfreistellung (DE25-17): **{{ rule.inputs_by_key["de.capital.capital_income_tax_with_teilfreistellung_eur"].value }}**
+- Foreign withholding tax paid: **{{ rule.inputs_by_key["de.capital.explicit_foreign_tax_total_eur"].value }}**
+- Net creditable foreign tax (after refund entitlement): **{{ rule.inputs_by_key["de.capital.net_creditable_foreign_tax_total_eur"].value }}**
+- Credit cap (sum of per-item caps): **{{ rule.inputs_by_key["de.capital.foreign_tax_credit_cap_eur"].value }}**
+
+Result:
+
+- **Foreign tax actually credited:** **{{ rule.outputs[0].value }}**
+- **Capital tax after credit and treaty check:** **{{ rule.outputs[1].value }}**
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

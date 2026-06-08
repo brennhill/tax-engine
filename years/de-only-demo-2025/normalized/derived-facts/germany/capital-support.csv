@@ -1,0 +1,8 @@
+section,key,value,source,note
+germany,foreign_tax_1099_eur,0.00,synthetic_demo,No generic Germany foreign-tax row is claimed for the U.S.-source treaty dividend; the Article 10/23 amount is modeled only through outputs/tax-positions/de-us-treaty-dividend-items.csv.
+germany,treaty_dividend_credit_eur,0.00,synthetic_demo,Separate Germany treaty-level dividend credits are unsupported unless modeled through the §32d(5) per-item foreign-tax credit cap.
+germany,person_2_bank_certificate_foreign_tax_credit_eur,0.00,synthetic_demo,Single-person demo has no spouse bank certificate.
+germany,person_2_bank_certificate_kap_income_eur,0.00,synthetic_demo,Single-person demo has no spouse bank certificate income.
+germany,person_2_bank_certificate_kest_withheld_eur,0.00,synthetic_demo,Single-person demo has no spouse bank certificate withholding.
+germany,person_2_bank_certificate_soli_withheld_eur,0.00,synthetic_demo,Single-person demo has no spouse bank certificate withholding.
+germany,private_sale_gains_2025_eur,0.00,synthetic_demo,No Germany private-sale gains are modeled in the demo.

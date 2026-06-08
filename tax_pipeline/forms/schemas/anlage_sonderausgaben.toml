@@ -1,0 +1,30 @@
+# Anlage Sonderausgaben 2025 — Spenden / Unterhalt / Pauschbetrag
+# Authority: § 10b Abs. 1 EStG (Spendenabzug); § 33a Abs. 1 EStG
+# (Unterhaltsleistungen); § 10c EStG (Sonderausgaben-Pauschbetrag).
+# https://www.gesetze-im-internet.de/estg/__10b.html
+# https://www.gesetze-im-internet.de/estg/__33a.html
+# https://www.gesetze-im-internet.de/estg/__10c.html
+#
+# Y2 / P5 form-schema-as-data. Three rows under the Sonderausgaben
+# renderer (§ 10b Spenden, § 33a Unterhalt, § 10c Pauschbetrag —
+# audit-only). The Pauschbetrag row carries the "(audit)" label
+# prefix so the I3 scanner skips it (no FormLineRef expected on the
+# Finanzamt-applied row).
+
+form_id = "anlage_sonderausgaben"
+form_year = 2025
+display_name = "Anlage Sonderausgaben"
+canonical_form_name = "Anlage Sonderausgaben"
+authority_url = "https://www.gesetze-im-internet.de/estg/__10b.html"
+
+[[lines]]
+line_id = "spenden_zeilen_5_7"
+label = "Anlage Sonderausgaben Zeilen 5-7"
+
+[[lines]]
+line_id = "unterhalt_zeile_7"
+label = "Anlage Unterhalt Zeile 7"
+
+[[lines]]
+line_id = "pauschbetrag_audit"
+label = "Anlage Sonderausgaben (audit) — § 10c Pauschbetrag"

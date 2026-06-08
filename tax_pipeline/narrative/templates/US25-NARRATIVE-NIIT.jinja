@@ -1,0 +1,42 @@
+## {{ rule.title }}
+
+The Net Investment Income Tax under [26 U.S.C. § 1411](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1411&num=0&edition=prelim) is a 3.8 % surtax on the lesser of (a) net investment income and (b) modified AGI minus the filing-status threshold. It is *separate* from regular income tax and is *not* offset by the foreign tax credit or treaty re-sourcing — it stacks on top.
+
+For 2025:
+
+- AGI (= modified AGI in this configuration): **{{ rule.inputs_by_key["us.income.adjusted_gross_income_usd"].value | money(currency="USD") }}**
+- [§ 1411](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1411&num=0&edition=prelim) threshold for your filing status: **{{ rule.inputs_by_key["us.filing_assumptions.niit_threshold_usd"].value | money(currency="USD") }}**
+- Net investment income (dividends + interest + net capital gain + the elected substitute payments / staking inclusions): **{{ rule.inputs_by_key["us.tax.net_investment_income_usd"].value | money(currency="USD") }}**
+
+Because NIIT is `3.8 % × min(net investment income, max(0, modified AGI − threshold))`:
+
+- If AGI is at or below the threshold, the modified-AGI excess is zero and NIIT is zero — even with positive investment income.
+- If investment income is below the modified-AGI excess, NIIT is `3.8 % × investment income`.
+- Otherwise NIIT is `3.8 % × (modified AGI − threshold)`.
+
+For your numbers, NIIT is **{{ rule.outputs[0].value | money(currency="USD") }}**. This appears on [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) Schedule 2 line 12 and [Form 8960](https://www.irs.gov/forms-pubs/about-form-8960) line 17.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

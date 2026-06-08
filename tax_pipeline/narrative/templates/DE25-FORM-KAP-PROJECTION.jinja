@@ -1,0 +1,83 @@
+{# BMF-VERIFIED 2026-05-13 — Anlage KAP 2025 Zeile 19 sum (20+22+23) reflects JStG 2024 deletion of § 20 Abs. 6 Sätze 5/6 EStG; former 2024 Zeilen 21/24/25 (Termingeschäfte gains/losses + Uneinbringlichkeit) dropped, against BMF 16.05.2025 Steuerbescheinigung-Schreiben https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Abgeltungsteuer/2025-05-16-kapitalertragSt-steuerbescheinigung.pdf #}
+## {{ rule.title }}
+
+{% if rule.language == "de" -%}
+Diese Stufe projiziert die nach [§ 20 Abs. 1 / Abs. 2 EStG](https://www.gesetze-im-internet.de/estg/__20.html) klassifizierten Kapitalerträge auf die einzelnen Zeilen der Anlage KAP / KAP-INV. Die Eingangsgrößen kommen aus den typisierten Verkaufs- und Ertragsfakten der Pipeline (``de.capital.sale_facts`` / ``de.capital.income_facts``), aus der InvStG § 20-Fondsklassifikation (``de.capital.fund_classification``), aus dem Shareworks Equity-Comp Sidecar (``de.capital.dher_stock_gain``) sowie aus dem 1099-Brutto-Quellensteuerbetrag (``de.kap.foreign_tax_1099_eur``). Die Stufe ersetzt die frühere Skript-Arithmetik in ``germany_projections.py:113`` durch eine fingerabdruckgesicherte Regel, sodass jede gerenderte Zeile auf einen ``StageResult.output_fingerprint`` zurückführbar ist (Invariante I2 / I5 in ``docs/invariant-migration-plan.md``).
+
+Das JStG 2024 (Empfehlung Nr. 4a des Finanzausschusses, in Kraft 06.12.2024) hat [§ 20 Abs. 6 Sätze 5 und 6 EStG](https://www.gesetze-im-internet.de/estg/__20.html) ohne Ersatz gestrichen. Die früheren 2024er Vordruck-Zeilen für Termingeschäft-Gewinne, Termingeschäft-Verluste und Uneinbringlichkeit von Kapitalforderungen entfallen daher für VZ 2025; ihre wirtschaftliche Wirkung fließt vollständig in die [§ 20 Abs. 6 Sätze 1–4 EStG](https://www.gesetze-im-internet.de/estg/__20.html) Verrechnung und damit in den Zeile-19-Saldo. Die Aktien-spezifische Verlustverrechnung nach Satz 4 bleibt unverändert.
+
+Eingaben:
+
+- **1099-Brutto-Quellensteuer (Anlage KAP Zeile 41)**: **{{ rule.inputs_by_key["de.kap.foreign_tax_1099_eur"].value | money(currency="EUR") }}**
+- **DHER Equity-Comp Aktiengewinn** ([§ 19a EStG](https://www.gesetze-im-internet.de/estg/__19a.html) → [§ 20 Abs. 2 EStG](https://www.gesetze-im-internet.de/estg/__20.html)): **{{ rule.inputs_by_key["de.capital.dher_stock_gain"].value | money(currency="EUR") }}**
+
+Projektionsergebnisse — Anlage KAP - Person 1:
+
+{# BMF-VERIFIED 2026-05-13 — VZ 2025 Anlage KAP surviving line numbers (19, 20, 23, 41) confirmed against BMF 16.05.2025 Steuerbescheinigung-Schreiben. #}
+- **Zeile 19** (netto Nicht-Fonds-Kapitalerträge nach [§ 20 Abs. 1 / Abs. 2 EStG](https://www.gesetze-im-internet.de/estg/__20.html); option_pos / option_neg fließen nach JStG 2024 hier direkt ein): **{{ rule.outputs[0].value | money(currency="EUR") }}**
+- **Zeile 20** (Aktien-Brutto-Veräußerungsgewinne, [§ 20 Abs. 2 Nr. 1 EStG](https://www.gesetze-im-internet.de/estg/__20.html)): **{{ rule.outputs[1].value | money(currency="EUR") }}**
+- **Zeile 23** (Aktienverluste, [§ 20 Abs. 2 Nr. 1 EStG](https://www.gesetze-im-internet.de/estg/__20.html)): **{{ rule.outputs[2].value | money(currency="EUR") }}**
+- **Zeile 41** (1099-Quellensteuer in EUR vor § 32d(5)-Cap, [§ 32d Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32d.html)): **{{ rule.outputs[3].value | money(currency="EUR") }}**
+
+Anlage KAP-INV (InvStG § 20 Aktien- vs. sonstige Investmentfonds):
+
+{# BMF-VERIFIED 2026-05-13 — VZ 2025 Anlage KAP-INV line numbers (4, 8, 14, 26) confirmed against BMF 16.05.2025 Steuerbescheinigung-Schreiben. #}
+- **Zeile 4** (Aktienfonds-Erträge): **{{ rule.outputs[4].value | money(currency="EUR") }}**
+- **Zeile 8** (sonstige Investmentfonds-Erträge): **{{ rule.outputs[5].value | money(currency="EUR") }}**
+- **Zeile 14** (Aktienfonds-Veräußerungsergebnisse): **{{ rule.outputs[7].value | money(currency="EUR") }}**
+- **Zeile 26** (sonstige Investmentfonds-Veräußerungsergebnisse): **{{ rule.outputs[8].value | money(currency="EUR") }}**
+
+Die Per-Symbol-Aufschlüsselung (``de.kap_inv.fund_rows``) versorgt die KAP-INV-Stütztabelle ``germany-kap-inv-fund-summary.csv``.
+{% else -%}
+This stage projects the capital-income facts classified under [§ 20 Abs. 1 / Abs. 2 EStG](https://www.gesetze-im-internet.de/estg/__20.html) onto the individual Zeilen of Anlage KAP / KAP-INV. Inputs come from the typed sale and income facts (``de.capital.sale_facts`` / ``de.capital.income_facts``), the InvStG § 20 fund classification (``de.capital.fund_classification``), the Shareworks equity-comp sidecar (``de.capital.dher_stock_gain``), and the gross 1099 foreign-tax amount (``de.kap.foreign_tax_1099_eur``). The stage replaces the prior script-level arithmetic at ``germany_projections.py:113`` with a fingerprinted rule so every rendered Zeile traces to a ``StageResult.output_fingerprint`` (invariants I2 / I5 in ``docs/invariant-migration-plan.md``).
+
+The JStG 2024 (Empfehlung Nr. 4a des Finanzausschusses, in force 06.12.2024) deleted [§ 20 Abs. 6 Sätze 5 und 6 EStG](https://www.gesetze-im-internet.de/estg/__20.html) without replacement. The former 2024 Vordruck lines for Termingeschäft positives, Termingeschäft losses, and Uneinbringlichkeit von Kapitalforderungen are therefore dropped for VZ 2025; their economic effect flows entirely through the surviving [§ 20 Abs. 6 Sätze 1–4 EStG](https://www.gesetze-im-internet.de/estg/__20.html) netting and lands in the Zeile-19 sum. The Aktien-specific loss-netting under Satz 4 is unchanged.
+
+Inputs:
+
+- **1099 gross foreign tax (Anlage KAP Zeile 41)**: **{{ rule.inputs_by_key["de.kap.foreign_tax_1099_eur"].value | money(currency="EUR") }}**
+- **DHER equity-comp stock gain** ([§ 19a EStG](https://www.gesetze-im-internet.de/estg/__19a.html) → [§ 20 Abs. 2 EStG](https://www.gesetze-im-internet.de/estg/__20.html)): **{{ rule.inputs_by_key["de.capital.dher_stock_gain"].value | money(currency="EUR") }}**
+
+Projection outputs — Anlage KAP - Person 1:
+
+{# BMF-VERIFIED 2026-05-13 — VZ 2025 Anlage KAP surviving line numbers (19, 20, 23, 41) confirmed against BMF 16.05.2025 Steuerbescheinigung-Schreiben. #}
+- **Zeile 19** (net non-fund foreign capital income per [§ 20 Abs. 1 / Abs. 2 EStG](https://www.gesetze-im-internet.de/estg/__20.html); option_pos / option_neg fold here directly post-JStG-2024): **{{ rule.outputs[0].value | money(currency="EUR") }}**
+- **Zeile 20** (gross stock-sale gains, [§ 20 Abs. 2 Nr. 1 EStG](https://www.gesetze-im-internet.de/estg/__20.html)): **{{ rule.outputs[1].value | money(currency="EUR") }}**
+- **Zeile 23** (stock-sale losses, [§ 20 Abs. 2 Nr. 1 EStG](https://www.gesetze-im-internet.de/estg/__20.html)): **{{ rule.outputs[2].value | money(currency="EUR") }}**
+- **Zeile 41** (1099 foreign tax in EUR, gross before § 32d(5) cap, [§ 32d Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32d.html)): **{{ rule.outputs[3].value | money(currency="EUR") }}**
+
+Anlage KAP-INV (InvStG § 20 Aktienfonds vs. sonstige Investmentfonds):
+
+{# BMF-VERIFIED 2026-05-13 — VZ 2025 Anlage KAP-INV line numbers (4, 8, 14, 26) confirmed against BMF 16.05.2025 Steuerbescheinigung-Schreiben. #}
+- **Zeile 4** (Aktienfonds distributions / income): **{{ rule.outputs[4].value | money(currency="EUR") }}**
+- **Zeile 8** (sonstige Investmentfonds distributions / income): **{{ rule.outputs[5].value | money(currency="EUR") }}**
+- **Zeile 14** (Aktienfonds sale results): **{{ rule.outputs[7].value | money(currency="EUR") }}**
+- **Zeile 26** (sonstige Investmentfonds sale results): **{{ rule.outputs[8].value | money(currency="EUR") }}**
+
+The per-symbol breakdown (``de.kap_inv.fund_rows``) feeds the KAP-INV per-fund support table at ``germany-kap-inv-fund-summary.csv``.
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }} {{ fl.line }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }} {{ fl.line }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

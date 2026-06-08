@@ -1,0 +1,15 @@
+# 26 U.S.C. § 1211 (Limitation on capital losses)
+#
+# Authority root: https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1211&num=0&edition=prelim
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[MFS_CAPITAL_LOSS_LIMIT_USD]
+value = "1500.00"
+authority = "26 U.S.C. § 1211(b) — individual capital-loss deduction limited to $3,000 ($1,500 MFS) of net capital loss against ordinary income. Statutory constants; not inflation-indexed."
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1211"
+
+[STANDARD_CAPITAL_LOSS_LIMIT_USD]
+value = "3000.00"
+authority = "26 U.S.C. § 1211 (Limitation on capital losses)"
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1211&num=0&edition=prelim"

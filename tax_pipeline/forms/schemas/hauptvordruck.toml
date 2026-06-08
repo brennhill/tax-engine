@@ -1,0 +1,69 @@
+# Hauptvordruck (ESt 1A 2025) — Mantelbogen
+# Authority: § 25 EStG, § 26 / § 26a / § 26b EStG (Veranlagungswahl);
+# § 139b AO (Steuer-IdNr); § 36 Abs. 4 EStG (Erstattungskonto); BMF
+# Steuerformular ESt 1A 2025.
+# https://www.gesetze-im-internet.de/estg/__26.html
+# https://www.gesetze-im-internet.de/estg/__36.html
+# https://www.gesetze-im-internet.de/ao_1977/__139b.html
+#
+# Y2 / P5 form-schema-as-data. Identity rows (Z7-9), Veranlagungswahl
+# (Z23-25), Erstattungs-Kontoangaben (Z75-78), audit-only refund
+# estimation row, audit-only prepayment note.
+
+form_id = "hauptvordruck"
+form_year = 2025
+display_name = "Hauptvordruck"
+canonical_form_name = "Hauptvordruck"
+authority_url = "https://www.gesetze-im-internet.de/estg/__26.html"
+
+[[lines]]
+line_id = "identifikation"
+label = "Hauptvordruck (Identifikation)"
+
+[[lines]]
+line_id = "zeile_7_steuer_idnr_taxpayer"
+label = "Hauptvordruck Zeile 7 (Steuer-IdNr Steuerpflichtiger)"
+
+[[lines]]
+line_id = "zeile_8_name_spouse"
+label = "Hauptvordruck Zeile 8 (Name Ehegatte/Lebenspartner)"
+
+[[lines]]
+line_id = "zeile_9_steuer_idnr_spouse"
+label = "Hauptvordruck Zeile 9 (Steuer-IdNr Ehegatte/Lebenspartner)"
+
+[[lines]]
+line_id = "zeile_23_veranlagungsart"
+label = "Hauptvordruck Zeile 23 (Veranlagungsart)"
+
+[[lines]]
+line_id = "zeile_24_wahl_taxpayer"
+label = "Hauptvordruck Zeile 24 (Wahl Steuerpflichtige:r)"
+
+[[lines]]
+line_id = "zeile_25_wahl_spouse"
+label = "Hauptvordruck Zeile 25 (Wahl Ehegatte/Lebenspartner)"
+
+[[lines]]
+line_id = "zeile_75_iban"
+label = "Hauptvordruck Zeile 75 (IBAN — Erstattungskonto)"
+
+[[lines]]
+line_id = "zeile_76_bic"
+label = "Hauptvordruck Zeile 76 (BIC — Erstattungskonto)"
+
+[[lines]]
+line_id = "zeile_77_account_holder"
+label = "Hauptvordruck Zeile 77 (Kontoinhaber:in)"
+
+[[lines]]
+line_id = "zeile_78_institution"
+label = "Hauptvordruck Zeile 78 (Geldinstitut)"
+
+[[lines]]
+line_id = "estimation"
+label = "Estimation"
+
+[[lines]]
+line_id = "prepayment_note"
+label = "Prepayment note"

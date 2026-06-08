@@ -1,0 +1,73 @@
+## {{ rule.title }}
+
+{% set net = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 20 Abs. 6 EStG](https://www.gesetze-im-internet.de/estg/__20.html) erlaubt die Verlustverrechnung innerhalb der Kapitaleinkünfte nur eingeschränkt: **Aktienverluste** dürfen nur mit **Aktiengewinnen** verrechnet werden (auch jahresübergreifend per Verlustvortrag), nicht mit anderen Kapitaleinkünften. Andere Kapitalverluste (Fonds, Optionen, Zinsen) verrechnen sich untereinander. Das BMF-Schreiben zur Abgeltungsteuer (Rn. 120, 122, 228-230) konkretisiert die Reihenfolge.
+
+Diese Stufe nimmt den Aktiengewinn von DE25-13, verrechnet einen Verlustvortrag aus 2024 (bis maximal zum aktuellen Aktiengewinn), und sortiert die übrigen positiven Kapitaleinkünfte (Fonds nach Teilfreistellung, Optionen, Zinsen, Substitutpayments) in den "Nicht-Aktien"-Topf, der dem Sparer-Pauschbetrag in DE25-16 zur Verfügung steht.
+
+Für 2025:
+
+- Aktiengewinn nach Verlustvortrag ([§ 20 Abs. 6 EStG](https://www.gesetze-im-internet.de/estg/__20.html)): **{{ net.stock_gain_after_carryforward | money(currency="EUR") }}**
+- Aufgebrauchter Verlustvortrag aus 2024: **{{ net.stock_loss_carryforward_used | money(currency="EUR") }}**
+- Verbleibender Verlustvortrag in 2026: **{{ net.stock_loss_carryforward_remaining | money(currency="EUR") }}**
+- Ausländische Steuer pro Posten (für die Anrechnung in DE25-18 pro Item gepoolt):
+{% for item, value in net.foreign_tax_by_item.items() -%}
+  - {{ item }}: **{{ value | money(currency="EUR") }}**
+{% endfor -%}
+- Ausländische Steuer-Erstattungsansprüche pro Posten:
+{% for item, value in net.foreign_tax_refund_by_item.items() -%}
+  - {{ item }}: **{{ value | money(currency="EUR") }}**
+{% endfor -%}
+- Steuerpflichtige Beträge je Item (vor Sparer-Pauschbetrag, für die Anrechnungs-Cap-Berechnung):
+{% for item, value in net.foreign_taxable_item_by_key_before_allowance.items() -%}
+  - {{ item }}: **{{ value | money(currency="EUR") }}**
+{% endfor %}
+{% else -%}
+[§ 20 Abs. 6 EStG](https://www.gesetze-im-internet.de/estg/__20.html) restricts loss-netting within capital income: **stock losses** may only offset **stock gains** (including across years via a loss carryforward), never other capital income. Other capital losses (funds, options, interest) net against each other. The BMF Abgeltungsteuer letter (margin numbers 120, 122, 228-230) governs the ordering.
+
+This stage takes the stock gain from DE25-13, applies any 2024 stock-loss carryforward (capped by the current stock gain), and gathers the remaining positive capital income (funds after Teilfreistellung, options, interest, substitute payments) into the "non-stock" pool that the saver allowance at DE25-16 will reduce.
+
+For 2025:
+
+- Stock gain after applying carryforward ([§ 20 Abs. 6 EStG](https://www.gesetze-im-internet.de/estg/__20.html)): **{{ net.stock_gain_after_carryforward | money(currency="EUR") }}**
+- Stock loss carryforward consumed from 2024: **{{ net.stock_loss_carryforward_used | money(currency="EUR") }}**
+- Stock loss carryforward remaining for 2026: **{{ net.stock_loss_carryforward_remaining | money(currency="EUR") }}**
+- Foreign tax per item (pooled by item ID for the DE25-18 per-item credit cap):
+{% for item, value in net.foreign_tax_by_item.items() -%}
+  - {{ item }}: **{{ value | money(currency="EUR") }}**
+{% endfor -%}
+- Foreign-tax refund entitlement per item:
+{% for item, value in net.foreign_tax_refund_by_item.items() -%}
+  - {{ item }}: **{{ value | money(currency="EUR") }}**
+{% endfor -%}
+- Taxable amount per item before the saver allowance (used to cap per-item credits):
+{% for item, value in net.foreign_taxable_item_by_key_before_allowance.items() -%}
+  - {{ item }}: **{{ value | money(currency="EUR") }}**
+{% endfor %}
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

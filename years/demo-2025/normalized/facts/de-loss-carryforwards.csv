@@ -1,0 +1,3 @@
+section,key,value,source,note
+germany,stock_loss_carryforward_2024_eur,0.00,synthetic_demo,No prior-year Germany stock-loss carryforward in the demo.
+germany,private_sale_loss_carryforward_2024_eur,0.00,synthetic_demo,No prior-year Germany private-sale carryforward in the demo.

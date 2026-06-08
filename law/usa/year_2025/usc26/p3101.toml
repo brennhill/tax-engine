@@ -1,0 +1,25 @@
+# 26 U.S.C. § 3101 (FICA tax — Additional Medicare 0.9 %)
+#
+# Authority root: https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section3101&num=0&edition=prelim
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[ADDITIONAL_MEDICARE_RATE]
+value = "0.009"
+authority = "26 U.S.C. § 3101(b)(2) / § 1401(b)(2) — 0.9 % Additional Medicare Tax."
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section3101&num=0&edition=prelim"
+
+[ADDITIONAL_MEDICARE_THRESHOLD_SINGLE_2025_USD]
+value = "200000"
+authority = "§ 3101(b)(2)(A)-(C) — statutory thresholds; NOT inflation-indexed."
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section3101&num=0&edition=prelim"
+
+[ADDITIONAL_MEDICARE_THRESHOLD_MFJ_2025_USD]
+value = "250000"
+authority = "26 U.S.C. § 3101 (FICA tax — Additional Medicare 0.9 %)"
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section3101&num=0&edition=prelim"
+
+[ADDITIONAL_MEDICARE_THRESHOLD_MFS_2025_USD]
+value = "125000"
+authority = "26 U.S.C. § 3101 (FICA tax — Additional Medicare 0.9 %)"
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section3101&num=0&edition=prelim"

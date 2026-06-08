@@ -1,0 +1,39 @@
+## {{ rule.title }}
+
+IRS Publication 514's treaty re-sourcing worksheet uses Germany's actual tax and credit on the same U.S.-source dividend stack to cap the additional U.S. credit. Lines 19 and 20c clamp by the *greater of* the 15 % treaty source-country floor and Germany's residence-country credit on the same dividends. The net effect: the U.S. additional credit will not exceed the residual German tax that survives Germany's own foreign tax credit on the dividends.
+
+{% set cap = rule.outputs[0].value | from_json -%}
+For 2025:
+
+- Germany's pre-credit tax on the U.S.-source dividend stack (computed by Germany's [§ 32d Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32d.html) flat 25 % capital tax, translated to USD): **{{ cap.german_precredit_tax_on_us_source_dividends_usd | money(currency="USD") }}**
+- Germany's residence-country credit on the same dividends ([DBA-USA Article 23](https://www.irs.gov/pub/irs-trty/germtech.pdf), routed through [§ 32d Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32d.html)): **{{ cap.german_residence_credit_for_us_tax_usd | money(currency="USD") }}**
+- [Pub. 514](https://www.irs.gov/publications/p514) worksheet **line 19** — `max(0, line 16 − max(line 17, residence credit))`, the maximum additional U.S. credit before the German cap: **{{ cap.worksheet_line_19_maximum_credit_usd | money(currency="USD") }}**
+- [Pub. 514](https://www.irs.gov/publications/p514) worksheet **line 20c** — `max(0, german_precredit − max(line 17, residence credit))`, the residual German tax: **{{ cap.worksheet_line_20c_residual_residence_country_tax_usd | money(currency="USD") }}**
+- Net German residual tax surviving German FTC: **{{ cap.german_residual_tax_on_us_source_dividends_usd | money(currency="USD") }}**
+
+US25-18 will take the lesser of line 19 and line 20c as the additional FTC.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

@@ -1,0 +1,218 @@
+{# Bilingual high-level summary — companion to the per-rule narratives.
+   Renderer: tax_pipeline/pipelines/y2025/bilingual_summary.py
+   Authoritative source: DE-de-narrative.md / DE-en-narrative.md / US-en-narrative.md
+   in the same analysis-steps/ directory; cross-links here use bare filenames so a
+   zipped analysis-steps/ folder remains self-contained for share.
+#}
+# {{ workspace_label }} — Bilingual Summary
+
+> **Companion document.** Audit-trail authority lives in [DE-de-narrative.md](DE-de-narrative.md), [DE-en-narrative.md](DE-en-narrative.md), and [US-en-narrative.md](US-en-narrative.md). This summary aggregates already-computed values from `germany-model-results.json` and `us-tax-estimate.json` — it performs no legal math.
+
+---
+
+## Headline / Endergebnis
+
+| Result | Value |
+|---|---:|
+| Germany filing — refund / Erstattung | **{{ de.refund_eur }} EUR** |
+| U.S. base (no treaty) refund | **{{ us.refund_base_usd }} USD** |
+| U.S. with treaty re-sourcing refund ← recommended | **{{ us.refund_treaty_usd }} USD** |
+| Filing posture | {{ de.filing_posture }} (DE) · MFS with NRA spouse (US) |
+| IRS yearly-average rate used | EUR/USD {{ us.irs_rate }} |
+
+---
+
+## Inputs — Schwab (USD)
+
+{# IRS-VERIFIED 2026-05-14 — 2025 Form 1099-DIV box 1a/1b/2a/3/7, Form 1099-INT box 1, Form 1099-MISC box 8 against https://www.irs.gov/forms-pubs/about-form-1099-div and the corresponding 1099 instructions on irs.gov #}
+
+### 1099 composite (Schwab)
+| Document field | Amount (USD) | What it is |
+|---|---:|---|
+| 1099-DIV 1a Total Ordinary Dividends | **{{ schwab.ordinary_dividends_usd }}** | gross ordinary dividends |
+| 1099-DIV 1b Qualified Dividends | **{{ schwab.qualified_dividends_usd }}** | qualifying for preferential rate |
+| 1099-DIV 2a Capital Gain Distributions | **{{ schwab.capital_gain_distributions_usd }}** | RIC / REIT cap-gain distributions |
+| 1099-DIV 3 Nondividend Distributions | {{ schwab.nondividend_distributions_usd }} | **basis-reducing, not income** |
+| 1099-DIV 7 Foreign Tax Paid | {{ schwab.foreign_tax_paid_usd }} | feeds Form 1116 passive |
+{# IRS-VERIFIED 2026-05-14 — Form 1099-INT box 1 (interest), Form 1099-MISC box 8 (substitute payments) labels against https://www.irs.gov/forms-pubs/about-form-1099-int and https://www.irs.gov/forms-pubs/about-form-1099-misc #}
+| 1099-INT box 1 Interest Income | {{ schwab.interest_income_usd }} | |
+| 1099-MISC box 8 Substitute Payments | {{ schwab.substitute_payments_usd }} | substitute payments in lieu of dividends |
+| Foreign source income (year-end summary) | {{ schwab.foreign_source_income_usd }} | Form 1116 numerator |
+
+{# IRS-VERIFIED 2026-05-14 — 2025 Form 8949 Part I Boxes A/B/H, Part II Boxes D/K and Form 6781 section 1256 categories against https://www.irs.gov/instructions/i8949 and https://www.irs.gov/pub/irs-pdf/f6781.pdf #}
+
+### Schwab capital buckets (Form 8949 / Schedule D)
+| Bucket | Amount (USD) | Note |
+|---|---:|---|
+| Short-term Box A (broker-reported, covered) | **{{ us.short_box_a_usd }}** | covered short-term |
+| Short-term Box B (broker-reported, noncovered) | {{ us.short_box_b_usd }} | |
+| Short-term Box H (digital assets, not reported) | {{ us.short_box_h_usd }} | crypto short-term |
+| Long-term Box D (broker, covered) | **{{ us.long_box_d_usd }}** | covered long-term |
+| Long-term Box K (digital assets, not reported) | {{ us.long_box_k_usd }} | crypto long-term |
+| Section 1256 total (Form 6781) | {{ us.section_1256_total_usd }} | regulated futures / non-equity options |
+| **Net capital before 1256** | **{{ us.net_capital_before_1256_usd }}** | sum across 8949 + cap-gain dist |
+| **Net capital after 1256** | **{{ us.net_capital_after_1256_usd }}** | with Form 6781 overlay |
+| 2025 capital-loss deduction taken | {{ us.capital_loss_deduction_2025_usd }} | MFS limit per 26 U.S.C. § 1211(b) |
+| **Carryforward into 2026** | **{{ us.capital_loss_carryforward_2026_usd }}** | 26 U.S.C. § 1212(b) |
+
+### Other US-side income
+{# IRS-VERIFIED 2026-05-14 — 2025 Schedule 1 (Form 1040) line 8z (digital-asset staking + substitute payments) against https://www.irs.gov/pub/irs-pdf/f1040s1.pdf #}
+- Digital-asset staking (Coinbase, Schedule 1 line 8z): **${{ us.staking_income_usd }}**
+- Schedule 1 line 8z subtotal (substitute payments + staking): ${{ us.schedule_1_other_income_usd }}
+
+---
+
+## Inputs — Germany (EUR)
+
+{# BMF-VERIFIED 2026-05-14 — Lohnsteuerbescheinigung 2025 Zeilen 3/4/5/10/22/23/25/26/27 against the BMF Muster der Lohnsteuerbescheinigung 2025 (DStV / ELSTER specification) https://www.elster.de/eportal/helpGlobal?themaGlobal=help_est_ufa_10_2025 #}
+
+### Wages (Lohnsteuerbescheinigung 2025)
+| Field | Person 1 | Person 2 |
+|---:|---:|---:|
+| Bruttoarbeitslohn (Z 3) | **{{ de.person_1_gross_wage_eur }}** | **{{ de.person_2_gross_wage_eur }}** |
+| Lohnsteuer einbehalten (Z 4) | {{ de.person_1_withheld_wage_tax_eur }} | {{ de.person_2_withheld_wage_tax_eur }} |
+| Solidaritätszuschlag (Z 5) | {{ de.person_1_withheld_soli_eur }} | {{ de.person_2_withheld_soli_eur }} |
+| Mehrjährige Bezüge (Z 10) | {{ de.person_1_multiannual_wage_eur }} | {{ de.person_2_multiannual_wage_eur }} |
+| Arbeitgeberanteil RV (Z 22) | {{ de.person_1_employer_pension_eur }} | {{ de.person_2_employer_pension_eur }} |
+| Arbeitnehmeranteil RV (Z 23) | {{ de.person_1_employee_pension_eur }} | {{ de.person_2_employee_pension_eur }} |
+| AN-Beitrag Krankenvers. (Z 25) | {{ de.person_1_employee_health_eur }} | {{ de.person_2_employee_health_eur }} |
+| AN-Beitrag Pflegevers. (Z 26) | {{ de.person_1_employee_nursing_eur }} | {{ de.person_2_employee_nursing_eur }} |
+| AN-Beitrag Arbeitslosenvers. (Z 27) | {{ de.person_1_employee_unemployment_eur }} | {{ de.person_2_employee_unemployment_eur }} |
+| Period | {{ de.person_1_period }} | {{ de.person_2_period }} |
+
+**Household gross wage (from model): {{ de.gross_wages_eur }} EUR**
+
+{# BMF-VERIFIED 2026-05-14 — Anlage KAP 2025 Zeilen 4/17/19/20/23/41 (Sparer-Pauschbetrag, ausländische Nicht-Fonds-Kapitalerträge, Aktiengewinne/-verluste, ausländische Steuer) against ELSTER 2025 instructions https://www.elster.de/eportal/helpGlobal?themaGlobal=help_est_ufa_10_2025 #}
+
+### Anlage KAP — foreign Schwab capital
+{% for row in kap_brenn_rows %}- **{{ row.label }}** — {{ row.amount_eur }} EUR — {{ row.note }}
+{% endfor %}
+
+{# BMF-VERIFIED 2026-05-14 — Anlage KAP 2025 Zeilen 4/5/7/8/17/37/38/40/41 (German bank certificate fields) against ELSTER 2025 instructions https://www.elster.de/eportal/helpGlobal?themaGlobal=help_est_ufa_10_2025 #}
+
+### Anlage KAP — German bank certificate (person 2)
+{% for row in kap_lien_rows %}- **{{ row.label }}** — {{ row.amount_eur }} EUR — {{ row.note }}
+{% endfor %}
+
+> **Note on Sparer-Pauschbetrag (Z4):** Each spouse's Anlage KAP shows **2,000 EUR** on Z4, but under [§ 20 Abs. 9 Satz 2 EStG](https://www.gesetze-im-internet.de/estg/__20.html) this is the **joint household allowance** for `Zusammenveranlagung` — it does NOT stack to 4,000 EUR. ELSTER convention is that each spouse's form shows the full joint cap; the actual allocation between spouses is on Z17 under § 20 Abs. 9 Satz 3 EStG. The engine consumes it once at the household level (model output `capital.saver_allowance_used_eur: {{ de.saver_allowance_used_eur }}`).
+
+{# BMF-VERIFIED 2026-05-14 — Anlage KAP-INV 2025 Zeilen 4/8/9-13/14/26 (Aktienfonds / sonstige Investmentfonds Ausschüttungen + Veräußerungsergebnis; Vorabpauschale-Block) against ELSTER 2025 instructions https://www.elster.de/eportal/helpGlobal?themaGlobal=help_est_ufa_10_2025 #}
+
+### Anlage KAP-INV (investment funds)
+{% for row in kap_inv_rows %}- **{{ row.label }}** — {{ row.amount_eur }} EUR — {{ row.note }}
+{% endfor %}
+
+### Per-fund classification (Schwab portfolio, § 20 InvStG)
+
+**Aktienfonds (30 % Teilfreistellung):** {{ funds.aktienfonds_symbols | join(", ") }}
+
+**Sonstige Investmentfonds (keine Teilfreistellung):** {{ funds.sonstige_symbols | join(", ") }}
+
+**Top per-fund 2025 capital results (combined income + sale):**
+
+| Symbol | Type | Combined (EUR) |
+|---|---|---:|
+{% for fund in funds.top_results %}| {{ fund.symbol }}{% if fund.label %} ({{ fund.label }}){% endif %} | {{ fund.fund_type }} | **{{ fund.combined_eur }}** |
+{% endfor %}
+
+### Anlage SO — private-sale and other income (§ 23, § 22 Nr. 3 EStG)
+- **§ 23 EStG Kryptoverkäufe 2025 (Coinbase, < 1 Jahr Haltedauer):** **{{ private_sales.result_eur }} EUR**
+- Carryforward 2024 → 2025: {{ private_sales.prior_carryforward_eur }} EUR (not used because 2025 already net negative)
+- Carryforward forward into 2026: **{{ private_sales.updated_carryforward_eur }} EUR**
+- **§ 22 Nr. 3 EStG Staking-Einnahmen:** **{{ de.other_income_22nr3_taxable_eur }} EUR** (Coinbase staking)
+
+### DHER equity comp (Delivery Hero RSU / ESPP) — capital sidecar
+- Total 2025 result: **{{ de.dher_stock_gain_eur }} EUR**
+
+### Carryforwards from 2024
+- Stock-loss carryforward 2024 used in 2025: **{{ de.stock_loss_carryforward_used_eur }} EUR**
+- 2024 ESt-Bescheid prepayment for 2025: **{{ de.prepayments_eur }} EUR**
+
+---
+
+## Computation walk-through
+
+### Deutsche Seite (DE)
+
+Die deutsche Veranlagung ist eine **{{ de.filing_posture_de }}** nach § 26b EStG.
+
+**Schritt 1 — Ordentliches Einkommen (§ 2 Abs. 2 Nr. 1 + 2 EStG):**
+- Bruttoarbeitslohn Haushalt (aus Modell): {{ de.gross_wages_eur }} EUR
+- Werbungskosten Anlage N (gesamt): {{ de.work_expenses_eur }} EUR
+- Sonderausgaben (Renten- + Kranken- + Pflege-Pauschbetrag insgesamt): {{ de.total_special_expenses_eur }} EUR
+- § 22 Nr. 3 EStG sonstige Einkünfte: {{ de.other_income_22nr3_taxable_eur }} EUR (Staking)
+- **Zu versteuerndes Einkommen Haushalt: {{ de.joint_taxable_income_eur }} EUR**
+
+**Schritt 2 — Tariflicher Einkommensteuer (§ 32a EStG, Splittingverfahren):**
+- ESt: **{{ de.joint_income_tax_eur }} EUR**
+- Soli: **{{ de.joint_solidarity_surcharge_eur }} EUR** (Splittingtarif § 4 SolZG, oberhalb Freigrenze)
+
+**Schritt 3 — Kapitaleinkommen (§ 20 / § 32d EStG, getrennt verrechnet):**
+- Sondertarif § 32d Abs. 1 EStG mit günstiger Aktienfonds-Teilfreistellung: **{{ de.capital_tax_with_teilfreistellung_before_treaty_eur }} EUR Kapitalertragsteuer**
+- Inländische Bankabzugssteuer (§ 36 EStG): {{ de.domestic_capital_withholding_credit_eur }} EUR Anrechnung
+- 2024-Aktienverlust-Vortrag verbraucht: {{ de.stock_loss_carryforward_used_eur }} EUR
+- Equity-comp Sidecar: {{ de.dher_stock_gain_eur }} EUR
+
+**Schritt 4 — JStG 2024 Änderung (NEU für 2025):**
+Das Jahressteuergesetz 2024 hat [§ 20 Abs. 6 Sätze 5 und 6 EStG](https://www.gesetze-im-internet.de/estg/__20.html) ohne Ersatz gestrichen. Verluste aus Termingeschäften und Uneinbringlichkeit von Kapitalforderungen sind nicht mehr auf 20.000 EUR begrenzt — sie fließen vollständig in die allgemeine § 20 Abs. 6 Sätze 1–4 Verrechnung. Anlage KAP 2025 hat dafür die früheren 2024er Zeilen für Termingeschäft-Gewinne, Termingeschäft-Verluste und Uneinbringlichkeit gestrichen; siehe Detail in [DE-de-narrative.md](DE-de-narrative.md) Abschnitt DE25-15.
+
+**Schritt 5 — Anrechnung und Endsaldo:**
+- Wage-side Lohnsteuer einbehalten gesamt: {{ de.withheld_wage_tax_eur }} EUR
+- Soli einbehalten: {{ de.withheld_wage_solidarity_surcharge_eur }} EUR
+- Vorauszahlung Finanzamt: {{ de.prepayments_eur }} EUR
+- **→ {{ de.refund_eur }} EUR Erstattung**
+
+### US side (EN)
+
+U.S. filing posture is **MFS with NRA spouse not included** on the U.S. return.
+
+**Step 1 — Income side ([26 U.S.C. § 61](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section61&num=0&edition=prelim), [§ 62](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section62&num=0&edition=prelim)):**
+- Wages translated at IRS yearly-average rate {{ us.irs_rate }}: **{{ us.wages_usd }} USD** (only person 1 wages — NRA spouse excluded)
+- Ordinary dividends Schwab 1099-DIV: {{ us.ordinary_dividends_usd }}
+- Interest 1099-INT: {{ us.interest_income_usd }}
+- Capital gain distributions (Schedule D): {{ us.capital_gain_distributions_usd }}
+- Schedule 1 other income subtotal: {{ us.schedule_1_other_income_usd }}
+- Net capital loss after Schedule D netting, capped at **${{ us.capital_loss_deduction_2025_usd }}** ([26 U.S.C. § 1211(b)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1211&num=0&edition=prelim)) — carryforward {{ us.capital_loss_carryforward_2026_usd }} into 2026
+- **AGI: {{ us.adjusted_gross_income_usd }} USD**
+
+**Step 2 — Deductions and taxable income ([26 U.S.C. § 63](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section63&num=0&edition=prelim)):**
+- Taxable income: **{{ us.taxable_income_usd }} USD**
+
+**Step 3 — Tax ([26 U.S.C. § 1](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1&num=0&edition=prelim)):**
+- Regular tax before credits: **{{ us.regular_tax_usd }} USD**
+- NIIT ([26 U.S.C. § 1411](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1411&num=0&edition=prelim)): {{ us.niit_usd }} USD
+
+**Step 4 — Foreign tax credit ([26 U.S.C. § 904](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim)):**
+- 2025 passive foreign tax (Schwab 1099-DIV foreign tax): {{ us.foreign_tax_paid_usd }} USD
+- General FTC carryover from 2024: {{ us.general_ftc_carryover_2024_usd }} USD
+- Passive FTC carryover from 2024: {{ us.passive_ftc_carryover_2024_usd }} USD
+- **Total allowed FTC: {{ us.total_allowed_ftc_usd }} USD** — almost wipes the entire regular tax
+- Tax after FTC: {{ us.total_tax_usd }} USD
+
+**Step 5 — Treaty re-sourcing (DBA-USA Art. 23(3) / [IRS Publication 514](https://www.irs.gov/publications/p514)):**
+- U.S.-source dividends in the treaty analysis: {{ us.us_source_dividends_usd }} USD
+- Extra U.S. tax above the treaty's 15% Art. 10(2)(b) floor: {{ us.treaty_resourcing_us_limitation_usd }} USD
+- Germany already credits {{ us.german_residual_tax_on_us_source_dividends_usd }} USD residual on that same dividend stack
+- Additional FTC modeled by re-sourcing those dividends as German-source: **{{ us.treaty_resourcing_additional_ftc_usd }} USD**
+- Total tax with treaty: **{{ us.total_tax_with_treaty_resourcing_usd }} USD**
+
+**Step 6 — Payments and refund:**
+- Estimated payment made: {{ us.estimated_payment_usd }} USD
+- Base path: **{{ us.refund_base_usd }} refund**
+- Treaty path: **{{ us.refund_treaty_usd }} refund** (recommended)
+
+---
+
+## Where the authoritative version lives
+
+- Full bilingual per-rule narratives:
+  - [DE-de-narrative.md](DE-de-narrative.md) — Germany 2025 Berechnungsnarrativ
+  - [DE-en-narrative.md](DE-en-narrative.md) — Germany 2025 Calculation Narrative
+  - [US-en-narrative.md](US-en-narrative.md) — U.S. 2025 Calculation Narrative
+- [germany-elster-entry-sheet.md](germany-elster-entry-sheet.md) — ELSTER form-entry summary
+- [germany-summary.md](germany-summary.md) / [us-tax-estimate.md](us-tax-estimate.md) — model results in prose
+- [germany-kap-inv-fund-summary.csv](germany-kap-inv-fund-summary.csv) — per-fund Teilfreistellung detail
+- [us-capital-summary.md](us-capital-summary.md) — U.S. capital workpaper
+- [de-us-treaty-dividend-packet.md](de-us-treaty-dividend-packet.md) — per-item treaty packet
+- [crypto-private-sales-summary.md](crypto-private-sales-summary.md) — § 23 EStG crypto workpaper
+- [germany-dher-summary.md](germany-dher-summary.md) — Delivery Hero RSU / ESPP sidecar

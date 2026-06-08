@@ -1,0 +1,15 @@
+# 26 U.S.C. § 1256 (Section 1256 contracts marked to market)
+#
+# Authority root: https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1256&num=0&edition=prelim
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[SECTION_1256_SHORT_RATIO]
+value = "0.40"
+authority = "26 U.S.C. § 1256(a)(3) — statutory 40 % short-term / 60 % long-term character split for § 1256 contracts."
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1256&num=0&edition=prelim"
+
+[SECTION_1256_LONG_RATIO]
+value = "0.60"
+authority = "26 U.S.C. § 1256 (Section 1256 contracts marked to market)"
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1256&num=0&edition=prelim"

@@ -1,0 +1,41 @@
+## {{ rule.title }}
+
+The total allowed Foreign Tax Credit on [Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) line 33 (and Schedule 3 line 1) is the baseline credit under [§ 901](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section901&num=0&edition=prelim) / [§ 904](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim) plus the [Pub. 514](https://www.irs.gov/publications/p514) worksheet line 21 treaty re-sourcing add-on, reconciled under [DBA-USA Art. 23](https://www.irs.gov/pub/irs-trty/germtech.pdf). This stage promotes the post-treaty sum to a top-level rule-graph fact so every downstream renderer reads a fingerprinted, audited value rather than recomputing the addition outside the graph.
+
+{% set base = rule.inputs_by_key["us.stage.baseline_allowed_ftc"].value | from_json -%}
+{% set add = rule.inputs_by_key["us.stage.treaty_additional_ftc"].value | from_json -%}
+{% set allowed = rule.inputs_by_key["us.stage.allowed_ftc"].value | from_json -%}
+{% set out = rule.outputs[0].value | from_json -%}
+For 2025:
+
+- Baseline allowed FTC from US25-14 (lesser of available foreign tax and [§ 904](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim) limit, summed across baskets): **{{ base.total_allowed_ftc_usd | money(currency="USD") }}**
+- Treaty re-sourcing additional FTC from US25-18 ([Pub. 514](https://www.irs.gov/publications/p514) worksheet line 21, capped by [Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) line 33): **{{ add.treaty_resourcing_additional_ftc_usd | money(currency="USD") }}**
+- US25-19 reconciled value (must equal the promoted sum): **{{ allowed.total_allowed_ftc_after_treaty_resourcing_usd | money(currency="USD") }}**
+- **Promoted post-treaty allowed FTC ([Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) line 33):** **{{ out.total_allowed_ftc_after_treaty_resourcing_usd | money(currency="USD") }}**
+
+This is the value the orchestrator (`tax_pipeline/pipelines/y2025/us_model.py`) reads from the rule-graph's final facts; the Schedule 3 line 1 / Form 1040 line 20 entries flow from this stage's fingerprinted output.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

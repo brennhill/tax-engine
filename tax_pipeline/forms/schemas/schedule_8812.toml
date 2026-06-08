@@ -1,0 +1,93 @@
+# Schedule 8812 (Form 1040) — Credits for Qualifying Children and Other Dependents
+# Authority: 26 U.S.C. § 24 (CTC + ODC + refundable ACTC); IRS Schedule 8812
+# (2025) instructions.
+# https://www.irs.gov/forms-pubs/about-schedule-8812-form-1040
+#
+# Y2 / P5 form-schema-as-data: line numbers track the 2025 Schedule
+# 8812. Lines 1-14 cover Part I (CTC + ODC + nonrefundable allocation);
+# lines 16a-21 + 27 cover Part II-A (refundable ACTC). The 2024 / 2025
+# revisions of Schedule 8812 reshuffled the line layout from the 2021
+# emergency-relief structure, so a 2026 reshuffle is plausible — keep
+# line_id and label aligned with the rendered form.
+
+form_id = "schedule_8812"
+form_year = 2025
+display_name = "Schedule 8812 — Credits for Qualifying Children and Other Dependents"
+canonical_form_name = "Schedule 8812"
+authority_url = "https://www.irs.gov/forms-pubs/about-schedule-8812-form-1040"
+
+[[lines]]
+line_id = "4"
+label = "Line 4"
+
+[[lines]]
+line_id = "5"
+label = "Line 5"
+
+[[lines]]
+line_id = "6"
+label = "Line 6"
+
+[[lines]]
+line_id = "7"
+label = "Line 7"
+
+[[lines]]
+line_id = "8"
+label = "Line 8"
+
+[[lines]]
+line_id = "9"
+label = "Line 9"
+
+[[lines]]
+line_id = "10"
+label = "Line 10"
+
+[[lines]]
+line_id = "11"
+label = "Line 11"
+
+[[lines]]
+line_id = "12"
+label = "Line 12"
+
+[[lines]]
+line_id = "13"
+label = "Line 13"
+
+[[lines]]
+line_id = "14"
+label = "Line 14"
+
+[[lines]]
+line_id = "16a"
+label = "Line 16a"
+
+[[lines]]
+line_id = "16b"
+label = "Line 16b"
+
+[[lines]]
+line_id = "18a"
+label = "Line 18a"
+
+[[lines]]
+line_id = "19"
+label = "Line 19"
+
+[[lines]]
+line_id = "20"
+label = "Line 20"
+
+[[lines]]
+line_id = "21"
+label = "Line 21"
+
+[[lines]]
+line_id = "27"
+label = "Line 27"
+
+[[lines]]
+line_id = "total_credit"
+label = "Total credit"

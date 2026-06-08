@@ -1,0 +1,39 @@
+## {{ rule.title }}
+
+[Pub. 514](https://www.irs.gov/publications/p514) worksheet line 21 ends the treaty re-sourcing computation: the additional [Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) credit equals `min(line 19, line 20c)`. [Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) line 33 then caps the credit at the remaining nonrefundable room (you can't reduce U.S. tax below zero with a nonrefundable FTC).
+
+For 2025:
+
+- [Pub. 514](https://www.irs.gov/publications/p514) line 19 (max additional credit before German cap, from TREATY25-17): **{{ rule.inputs_by_key["treaty.worksheet_line_19_maximum_credit"].value | money(currency="USD") }}**
+- [Pub. 514](https://www.irs.gov/publications/p514) line 20c (residual German tax cap, from TREATY25-17): **{{ rule.inputs_by_key["treaty.german_residual_cap"].value | money(currency="USD") }}**
+- Regular tax after baseline FTC (US25-14): **{{ rule.inputs_by_key["us.stage.regular_tax_after_ftc"].value | money(currency="USD") }}**
+- [Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) line 33 remaining nonrefundable cap: **{{ rule.inputs_by_key["us.stage.remaining_form_1116_line_33_cap"].value | money(currency="USD") }}**
+
+[Pub. 514](https://www.irs.gov/publications/p514) **line 21** — `min(line 19, line 20c)`: **{{ rule.outputs[0].value | money(currency="USD") }}**
+
+After applying the [Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) line 33 cap, the **additional FTC** is **{{ rule.outputs[1].value | money(currency="USD") }}**. Regular tax after baseline FTC and treaty re-sourcing is **{{ rule.outputs[2].value | money(currency="USD") }}** — this is the figure US25-19 will use as the final FTC and US25-21 will use to compute total tax.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

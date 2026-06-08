@@ -1,0 +1,42 @@
+# Form 8833 — Treaty-Based Return Position Disclosure
+# Authority: 26 U.S.C. § 6114; 26 C.F.R. § 301.6114-1; IRS Form 8833
+# instructions.
+# https://www.irs.gov/forms-pubs/about-form-8833
+#
+# Y2 / P5 form-schema-as-data. Form 8833 carries no Decimal amounts —
+# every row is a plain disclosure entry — but the line labels are
+# still statically known and worth schema-binding.
+
+form_id = "form_8833"
+form_year = 2025
+display_name = "Form 8833 - Treaty-Based Return Position Disclosure"
+canonical_form_name = "Form 8833"
+authority_url = "https://www.irs.gov/forms-pubs/about-form-8833"
+
+[[lines]]
+line_id = "1a_treaty_country"
+label = "Line 1a (Treaty country)"
+
+[[lines]]
+line_id = "1b_treaty_articles"
+label = "Line 1b (Treaty article(s))"
+
+[[lines]]
+line_id = "2_irc_provisions"
+label = "Line 2 (IRC provisions)"
+
+[[lines]]
+line_id = "3_payer"
+label = "Line 3 (Name / EIN of Form 8833 payer, if any)"
+
+[[lines]]
+line_id = "4_position_provided_by_reg"
+label = "Line 4 (Treaty-based return position is provided by Reg. § 301.6114-1(b))"
+
+[[lines]]
+line_id = "5_subject_to_penalty"
+label = "Line 5 (Subject to penalty under § 6712)"
+
+[[lines]]
+line_id = "6_explanation"
+label = "Line 6 (Explanation)"

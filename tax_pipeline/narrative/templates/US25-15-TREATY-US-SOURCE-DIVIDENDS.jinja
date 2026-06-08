@@ -1,0 +1,38 @@
+## {{ rule.title }}
+
+The U.S.-Germany income tax treaty (Article 10) sources dividends paid by a U.S. corporation to U.S. source. For a U.S. citizen who is a German tax resident, those U.S.-source dividends are also taxed by Germany — but the treaty's relief mechanism is the "treaty resourcing" worksheet in IRS Publication 514. The mechanic is: identify the U.S.-source dividend stack here, then in later stages compare U.S. tax on that stack to the 15 % treaty source-country floor, then to Germany's residual tax, and grant an additional [Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) credit equal to the lesser excess.
+
+This stage just identifies the U.S.-source dividend amounts that go into [Pub. 514](https://www.irs.gov/publications/p514) worksheet line 15.
+
+{% set src = rule.outputs[0].value | from_json -%}
+For 2025:
+
+- **U.S.-source ordinary dividends** ([Pub. 514](https://www.irs.gov/publications/p514) worksheet line 15a): **{{ src.us_source_dividends_usd | money(currency="USD") }}**
+- **U.S.-source qualified dividends** ([Pub. 514](https://www.irs.gov/publications/p514) worksheet line 15b, taxed at preferential rates per § 1(h)): **{{ src.us_source_qualified_dividends_usd | money(currency="USD") }}**
+
+If the U.S.-source dividend stack is zero, there is nothing for the treaty re-sourcing worksheet to act on and the additional credit at US25-18 will also be zero.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

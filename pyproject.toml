@@ -1,0 +1,38 @@
+[build-system]
+requires = []
+build-backend = "local_backend"
+backend-path = ["."]
+
+[project]
+name = "tax-year-pipeline"
+version = "0.1.0"
+description = "Public 2025 Germany/U.S. cross-border tax engine with a synthetic demo workspace."
+readme = "README.md"
+requires-python = ">=3.14"
+authors = [
+  { name = "OpenAI Codex + repository contributors" }
+]
+license = { text = "AGPL-3.0-or-later" }
+license-files = ["LICENSE.md"]
+classifiers = [
+  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Office/Business :: Financial",
+]
+dependencies = [
+    "jinja2>=3.1.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+tax-pipeline-run = "tax_pipeline.run_year:main"
+tax-pipeline-scaffold = "tax_pipeline.scaffold_year:main"
+tax-pipeline-validate = "tax_pipeline.validate_workspace:main"
+tax-pipeline-demo = "tax_pipeline.demo_workspace:main"
+tax-pipeline-intake = "tax_pipeline.intake_app:main"
+tax-pipeline-migrate-buckets = "tax_pipeline.migrate_buckets:main"

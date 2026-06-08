@@ -1,0 +1,55 @@
+## {{ rule.title }}
+
+{% set tax = rule.inputs_by_key["de.ordinary.income_tax"].value | from_json -%}
+{% set soli = rule.inputs_by_key["de.ordinary.solidarity_surcharge"].value | from_json -%}
+{% set out = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 36 Abs. 2 EStG](https://www.gesetze-im-internet.de/estg/__36.html) zählt Lohnsteuer, Kapitalertragsteuer-Anrechnung und Vorauszahlungen auf die festgesetzte Einkommensteuer + SolZ an. [§ 36 Abs. 3 EStG](https://www.gesetze-im-internet.de/estg/__36.html) schreibt vor, dass die einbehaltenen Lohnsteuer-Beträge auf volle Euro **aufgerundet** zur Anrechnung kommen (Vorauszahlungen bleiben dagegen exakt). Daraus ergibt sich der ESt-Erstattungs- bzw. Nachzahlungsbetrag *vor* Kapitalertragsteuer.
+
+Für 2025 (Veranlagungsart **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**):
+
+- Festgesetzte Einkommensteuer (DE25-08): **{{ tax.joint_income_tax_eur | money(currency="EUR") }}**
+- Festgesetzter SolZ (DE25-09): **{{ soli.joint_solidarity_surcharge_eur | money(currency="EUR") }}**
+- Einbehaltene Lohnsteuer (gerundet auf volle Euro nach [§ 36](https://www.gesetze-im-internet.de/estg/__36.html) Abs. 3): **{{ out.withheld_wage_tax_eur | money(currency="EUR") }}**
+- Einbehaltener SolZ (gerundet): **{{ out.withheld_solidarity_surcharge_eur | money(currency="EUR") }}**
+- Vorauszahlungen (cent-genau): **{{ out.prepayments_eur | money(currency="EUR") }}**
+
+**Erstattung/Nachzahlung vor Kapital:** **{{ out.refund_or_balance_eur | money(currency="EUR") }}** — positive Werte = Erstattung, negative = Nachzahlung. Diese Größe wird in der Endabrechnung mit der Kapitalertragsteuer-Komponente (DE25-21) zusammengeführt.
+{% else -%}
+[§ 36 Abs. 2 EStG](https://www.gesetze-im-internet.de/estg/__36.html) credits withheld wage tax, capital-tax credits, and estimated prepayments against assessed income tax + SolZ. [§ 36 Abs. 3 EStG](https://www.gesetze-im-internet.de/estg/__36.html) requires that withheld amounts be **rounded up to full euros** by credit type (prepayments stay exact). The result is the income-tax refund/balance position *before* the capital tax computation joins in.
+
+For 2025 (filing posture **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**):
+
+- Assessed income tax (DE25-08): **{{ tax.joint_income_tax_eur | money(currency="EUR") }}**
+- Assessed solidarity surcharge (DE25-09): **{{ soli.joint_solidarity_surcharge_eur | money(currency="EUR") }}**
+- Withheld wage tax (rounded up to full euros per [§ 36](https://www.gesetze-im-internet.de/estg/__36.html) Abs. 3): **{{ out.withheld_wage_tax_eur | money(currency="EUR") }}**
+- Withheld SolZ (rounded): **{{ out.withheld_solidarity_surcharge_eur | money(currency="EUR") }}**
+- Estimated prepayments (cent-exact): **{{ out.prepayments_eur | money(currency="EUR") }}**
+
+**Refund / balance before capital:** **{{ out.refund_or_balance_eur | money(currency="EUR") }}** — positive = refund, negative = balance owed. This combines with the capital tax piece (DE25-21) for the final household result.
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

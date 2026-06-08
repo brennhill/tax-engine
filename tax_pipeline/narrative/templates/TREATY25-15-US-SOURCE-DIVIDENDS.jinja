@@ -1,0 +1,37 @@
+## {{ rule.title }}
+
+The U.S.-Germany income tax treaty ([DBA-USA Article 10](https://www.irs.gov/pub/irs-trty/germtech.pdf)) sources dividends paid by a U.S. corporation to U.S. source. For a U.S. citizen who is a German tax resident, those dividends are taxable by both countries — and IRS Publication 514's *treaty re-sourcing* worksheet is the mechanism that determines how much additional U.S. foreign tax credit can be claimed to avoid double taxation. This rule graph (TREATY25-15 through TREATY25-18) executes that worksheet.
+
+This stage performs [Pub. 514](https://www.irs.gov/publications/p514) worksheet line 15: subtract the foreign-source dividend split from the total dividend totals to get the U.S.-source slice.
+
+For 2025:
+
+- **U.S.-source ordinary dividends** (worksheet line 15a): **{{ rule.outputs[0].value | money(currency="USD") }}**
+- **U.S.-source qualified dividends** (worksheet line 15b): **{{ rule.outputs[1].value | money(currency="USD") }}**
+
+If both numbers are zero, there is nothing for the treaty worksheet to act on; later stages will produce zero additional FTC. The same numbers are also surfaced into the U.S. graph at US25-15 so the U.S.-side flow can consume them without crossing the treaty graph boundary.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

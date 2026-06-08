@@ -1,0 +1,2 @@
+section,key,value,source,note
+carryover,capital_loss_carryforward_into_2026_usd,0.00,outputs/analysis-steps/final-legal-output.json,26 U.S.C. §§ 1211-1212 tentative capital-loss carryforward into 2026 (auto-exported from US25 capital rule graph). https://www.law.cornell.edu/uscode/text/26/1212

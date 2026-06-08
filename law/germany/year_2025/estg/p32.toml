@@ -1,0 +1,30 @@
+# § 32 EStG (Kinder, Kinderfreibetrag, BEA-Freibetrag)
+#
+# Authority root: https://www.gesetze-im-internet.de/estg/__32.html
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[KINDERFREIBETRAG_2025_EUR]
+value = "6672"
+authority = "§ 32 Abs. 6 EStG — Kinderfreibetrag (€6,672 total per child) plus BEA-Freibetrag (€2,928 total per child) for the assessment year 2025. Each parent claims half by default (€3,336 + €1,464 = €4,800 per spouse in married_separate); single parents and married_joint claim the full €9,600 combined deduction. Authority: - § 32 Abs. 6 Satz 1 EStG (Kinderfreibetrag €3,336 / Elternteil), - § 32 Abs. 6 Satz 2 EStG (BEA €1,464 / Elternteil), - § 32 Abs. 6 Satz 3 EStG (full transfer to one parent / single parent). Effective from BGBl. I 2024 (Steuerfortentwicklungsgesetz)."
+citation_url = "https://www.gesetze-im-internet.de/estg/__32.html"
+
+[BEA_FREIBETRAG_2025_EUR]
+value = "2928"
+authority = "§ 32 EStG (Kinder, Kinderfreibetrag, BEA-Freibetrag)"
+citation_url = "https://www.gesetze-im-internet.de/estg/__32.html"
+
+[COMBINED_KINDERFREIBETRAG_2025_EUR]
+value = "9600"
+authority = "§ 32 EStG (Kinder, Kinderfreibetrag, BEA-Freibetrag)"
+citation_url = "https://www.gesetze-im-internet.de/estg/__32.html"
+
+[KINDERFREIBETRAG_PER_PARENT_2025_EUR]
+value = "3336"
+authority = "Per-parent half-amounts under § 32 Abs. 6 Satz 1 EStG. Surfaced as named constants so callers can reason about married-separate per-spouse deductions explicitly."
+citation_url = "https://www.gesetze-im-internet.de/estg/__32.html"
+
+[BEA_FREIBETRAG_PER_PARENT_2025_EUR]
+value = "1464"
+authority = "§ 32 EStG (Kinder, Kinderfreibetrag, BEA-Freibetrag)"
+citation_url = "https://www.gesetze-im-internet.de/estg/__32.html"

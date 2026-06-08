@@ -1,0 +1,43 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 61](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section61&num=0&edition=prelim) defines gross income broadly: compensation for services, interest, dividends, rents, royalties, business income, gains from property, and so on. Wages were translated at the prior stage; this stage collects the other income components your AGI will need.
+
+{% set side = rule.outputs[0].value | from_json -%}
+{# IRS-VERIFIED 2026-05-12 — 2025 Form 1040 fields 2b/3a/3b + 1099-DIV box 2a + 1099-MISC box 8 + 1099-B box 1f category labels against https://www.irs.gov/pub/irs-pdf/f1040.pdf and the respective 1099 instructions on irs.gov #}
+The non-wage income picked up here is:
+
+- Ordinary dividends ([Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 3b): **{{ side.ordinary_dividends_usd | money(currency="USD") }}**
+- Qualified dividends ([Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 3a, taxed at preferential rates per § 1(h)): **{{ side.qualified_dividends_usd | money(currency="USD") }}**
+- Interest income ([Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 2b): **{{ side.interest_income_usd | money(currency="USD") }}**
+- Capital gain distributions reported on 1099-DIV box 2a: **{{ side.capital_gain_distributions_usd | money(currency="USD") }}**
+- Substitute payments in lieu of dividends (1099-MISC box 8 / 1099-B box 1f): **{{ side.substitute_payments_usd | money(currency="USD") }}**
+{# IRS-VERIFIED 2026-05-12 — 2025 Schedule 1 (Form 1040) fields 8/9/10 (Other income / Total other income / additional income to Form 1040) against https://www.irs.gov/pub/irs-pdf/f1040s1.pdf #}
+- Staking rewards or other Schedule 1 line 8 income: **{{ side.staking_income_usd | money(currency="USD") }}**
+- Schedule 1 line 9 / line 10 other income totalled: **{{ side.schedule_1_other_income_usd | money(currency="USD") }}**
+
+These flow into AGI at US25-07; the qualified-dividend portion also drives the preferential-rate worksheet at US25-09.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

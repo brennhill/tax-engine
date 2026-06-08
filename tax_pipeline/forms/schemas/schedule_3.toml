@@ -1,0 +1,28 @@
+# Schedule 3 (Form 1040) — Additional Credits and Payments
+# Authority: 26 U.S.C. §§ 901, 904; § 904(d)(6) treaty re-sourcing basket;
+#            IRS Pub. 514 worksheet line 21.
+# https://www.irs.gov/pub/irs-pdf/f1040s3.pdf
+#
+# Y2 / P5 form-schema-as-data: each [[lines]] entry declares the rendered
+# label string that the renderer emits to the "Line" column of
+# 2025_schedule_3.md.
+#
+# Only the populated lines for the supported U.S. cross-border posture
+# are declared (line 1 FTC and line 8 Part I total — both backed by
+# `us.tax.schedule_3_line_1_ftc_total_usd`). Other Schedule 3 lines
+# (CDCC, education, retirement, residential energy, etc.) are not
+# modeled and not declared here.
+
+form_id = "schedule_3"
+form_year = 2025
+display_name = "Schedule 3 — Additional Credits and Payments"
+canonical_form_name = "Schedule 3"
+authority_url = "https://www.irs.gov/pub/irs-pdf/f1040s3.pdf"
+
+[[lines]]
+line_id = "1"
+label = "Line 1"
+
+[[lines]]
+line_id = "8"
+label = "Line 8"

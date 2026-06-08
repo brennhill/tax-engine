@@ -1,0 +1,45 @@
+## {{ rule.title }}
+
+{% set out = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 10c EStG](https://www.gesetze-im-internet.de/estg/__10c.html) gewährt einen **Sonderausgaben-Pauschbetrag** auch dann, wenn keine oder nur niedrige Sonderausgaben nachgewiesen werden — **{{ rule.inputs_by_key["de.constants.sonderausgaben_pauschbetrag_single"].value | money(currency="EUR") }}** für Einzelveranlagung, **{{ rule.inputs_by_key["de.constants.sonderausgaben_pauschbetrag_joint"].value | money(currency="EUR") }}** für Zusammenveranlagung. Diese Stufe addiert die in DE25-05 (Rente) und DE25-06 (Kranken/Vorsorge) ermittelten Beträge und legt den [§ 10c](https://www.gesetze-im-internet.de/estg/__10c.html)-Pauschbetrag obendrauf, bevor in DE25-07 das zu versteuernde Einkommen gebildet wird.
+
+Für 2025 (Veranlagungsart **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**):
+
+- Sonderausgaben je Person ohne Pauschbetrag: {% for v in out.by_person_no_pauschbetrag %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Angesetzter [§ 10c](https://www.gesetze-im-internet.de/estg/__10c.html) Sonderausgaben-Pauschbetrag (postureabhängig): **{{ out.pauschbetrag_applied_eur | money(currency="EUR") }}**
+- **Gesamte Sonderausgaben:** **{{ out.total_eur | money(currency="EUR") }}** — ist der Subtrahend bei der Bildung des zu versteuernden Einkommens (DE25-07).
+{% else -%}
+[§ 10c EStG](https://www.gesetze-im-internet.de/estg/__10c.html) grants a **Sonderausgaben-Pauschbetrag** (Sonderausgaben lump sum) even when no or low deductible expenses are documented — **{{ rule.inputs_by_key["de.constants.sonderausgaben_pauschbetrag_single"].value | money(currency="EUR") }}** for single assessment and **{{ rule.inputs_by_key["de.constants.sonderausgaben_pauschbetrag_joint"].value | money(currency="EUR") }}** for joint assessment. This stage adds the amounts produced at DE25-05 (retirement) and DE25-06 (health/Vorsorge) and stacks the [§ 10c](https://www.gesetze-im-internet.de/estg/__10c.html) lump sum on top, before DE25-07 builds taxable income.
+
+For 2025 (filing posture **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**):
+
+- Sonderausgaben per person before the lump sum: {% for v in out.by_person_no_pauschbetrag %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- [§ 10c](https://www.gesetze-im-internet.de/estg/__10c.html) Sonderausgaben-Pauschbetrag applied (posture-driven): **{{ out.pauschbetrag_applied_eur | money(currency="EUR") }}**
+- **Total Sonderausgaben:** **{{ out.total_eur | money(currency="EUR") }}** — this is the subtrahend when taxable income is built at DE25-07.
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

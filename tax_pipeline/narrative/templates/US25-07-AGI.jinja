@@ -1,0 +1,43 @@
+## {{ rule.title }}
+
+{# IRS-VERIFIED 2026-05-12 — 2025 Form 1040 fields 2b/3b/7a/11a/11b + Schedule 1 fields 9/10 against https://www.irs.gov/pub/irs-pdf/f1040.pdf and https://www.irs.gov/pub/irs-pdf/f1040s1.pdf #}
+[26 U.S.C. § 61](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section61&num=0&edition=prelim) defines gross income; [§ 62](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section62&num=0&edition=prelim) lays out the above-the-line adjustments that turn gross income into Adjusted Gross Income (AGI). For [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 11a, the engine simply sums the components computed by the prior stages.
+
+{% set side = rule.inputs_by_key["us.stage.income_side_inputs"].value | from_json -%}
+{% set capital = rule.inputs_by_key["us.stage.capital_loss_result"].value | from_json -%}
+For 2025:
+
+{# IRS-VERIFIED 2026-05-12 — 2025 Form 1040 fields 2b/3b/7a + Schedule 1 fields 9/10 against https://www.irs.gov/pub/irs-pdf/f1040.pdf and https://www.irs.gov/pub/irs-pdf/f1040s1.pdf #}
+- Wages translated to USD (US25-01): **{{ rule.inputs_by_key["us.stage.wages_usd"].value | money(currency="USD") }}**
+- Interest ([Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 2b): **{{ side.interest_income_usd | money(currency="USD") }}**
+- Ordinary dividends ([Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 3b): **{{ side.ordinary_dividends_usd | money(currency="USD") }}**
+- Capital gain/loss from [Schedule D](https://www.irs.gov/forms-pubs/about-schedule-d-form-1040) ([Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 7a, after [§ 1211(b)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1211&num=0&edition=prelim) cap): **{{ capital.form_1040_line_7a_usd | money(currency="USD") }}**
+- Schedule 1 line 9 / line 10 other income: **{{ side.schedule_1_other_income_usd | money(currency="USD") }}**
+
+{# IRS-VERIFIED 2026-05-12 — 2025 Form 1040 fields 11a/11b (AGI split row + page-2 carry-over) against https://www.irs.gov/pub/irs-pdf/f1040.pdf #}
+Adding these gives **AGI = {{ rule.outputs[0].value | money(currency="USD") }}**, which appears on [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 11a (the 2025 form splits AGI between line 11a, the computation row, and line 11b, the page-2 carry-over). AGI is the base for the standard deduction subtraction (US25-08) and for the NIIT modified-AGI threshold comparison (US25-20).
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

@@ -1,0 +1,5 @@
+section,key,value,source,note
+usa,estimated_payment_2025_usd,1000.00,synthetic_demo,Synthetic U.S. estimated payment for the demo.
+usa,passive_ftc_carryover_2024_usd,0.00,synthetic_demo,No passive FTC carryover in the demo.
+usa,general_ftc_carryover_2024_usd,0.00,synthetic_demo,No general FTC carryover in the demo.
+usa,german_2024_redetermination_paid_2025_eur,0.00,synthetic_demo,No German prior-year redetermination payment in the demo.

@@ -1,0 +1,30 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 63](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section63&num=0&edition=prelim) defines taxable income as adjusted gross income minus the standard deduction (or, if you itemize, minus itemized deductions plus the qualified business income deduction). For [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 15, the engine subtracts the standard deduction from AGI and floors at zero — you can't have negative taxable income.
+
+Your AGI from US25-07 is **{{ rule.inputs_by_key["us.stage.adjusted_gross_income"].value | money(currency="USD") }}**. The 2025 standard deduction for your filing posture is **{{ rule.inputs_by_key["us.constants.standard_deduction"].value | money(currency="USD") }}**. Subtracting gives **taxable income of {{ rule.outputs[0].value | money(currency="USD") }}** — the base for both regular tax (US25-09) and the [§ 904](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim) foreign tax credit limitation fraction (US25-12).
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

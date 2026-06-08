@@ -1,0 +1,7 @@
+section,key,value,source,note
+niit,include_staking_in_niit,0,synthetic_demo,Synthetic demo excludes staking from NIIT because staking income is zero.
+ftc,ftc_denominator_positive_income_only,1,synthetic_demo,Use the documented positive-income FTC denominator posture.
+ftc,allocate_joint_german_tax_by_wage_share,1,synthetic_demo,Use wage-share allocation for the Germany wage-side tax input.
+treaty,us_source_direct_equity_dividends_usd,316.03,synthetic_demo,Synthetic U.S.-source direct-equity dividends matched to the Germany treaty dividend sidecar.
+treaty,us_source_equity_fund_dividends_usd,0.00,synthetic_demo,Synthetic demo has no U.S.-source equity-fund dividends in the treaty sidecar.
+treaty,us_source_non_equity_fund_dividends_usd,0.00,synthetic_demo,Synthetic demo has no U.S.-source non-equity-fund dividends in the treaty sidecar.

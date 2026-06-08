@@ -1,0 +1,47 @@
+## {{ rule.title }}
+
+{% set out = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 33b Abs. 3 EStG](https://www.gesetze-im-internet.de/estg/__33b.html) gewährt einen Pauschbetrag wegen Behinderung gestaffelt nach dem Grad der Behinderung (GdB). Für hilflose oder blinde Personen gilt der Sonderbetrag in Höhe von 7 400 EUR ([§ 33b Abs. 3 Satz 3 EStG](https://www.gesetze-im-internet.de/estg/__33b.html)). Pauschbeträge werden je Person beansprucht und im Haushalt addiert.
+
+Für 2025:
+
+- GdB je Person: {{ out.by_person_gdb }}
+- Hilflos/blind je Person: {{ out.by_person_hilflos_or_blind }}
+- Pauschbetrag je Person: {% for v in out.by_person %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Haushaltssumme: **{{ out.total_eur | money(currency="EUR") }}** — wird in DE25-07 vom zvE abgezogen.
+{% else -%}
+[§ 33b Abs. 3 EStG](https://www.gesetze-im-internet.de/estg/__33b.html) grants a flat allowance based on the Grad der Behinderung (GdB). Hilflose/blinde Menschen claim the special amount of EUR 7,400 ([§ 33b Abs. 3 Satz 3 EStG](https://www.gesetze-im-internet.de/estg/__33b.html)). The allowance is per person; the household sums the per-person amounts.
+
+For 2025:
+
+- Per-person GdB: {{ out.by_person_gdb }}
+- Per-person hilflos/blind status: {{ out.by_person_hilflos_or_blind }}
+- Per-person Pauschbetrag: {% for v in out.by_person %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Household total: **{{ out.total_eur | money(currency="EUR") }}** — subtracted at DE25-07 from zvE.
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

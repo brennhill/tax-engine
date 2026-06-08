@@ -1,0 +1,55 @@
+## {{ rule.title }}
+
+{% set rb = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 20 EStG](https://www.gesetze-im-internet.de/estg/__20.html) erfasst Einkünfte aus Kapitalvermögen (Dividenden, Zinsen, Veräußerungsgewinne aus Aktien, Fondsanteile, Optionen). [InvStG §§ 16, 19, 20](https://www.gesetze-im-internet.de/invstg_2018/__16.html) gelten ergänzend für Investmentfonds und steuern z. B. die Teilfreistellung. Diese Stufe klassifiziert jede Verkaufstransaktion und jeden Kapitalertrag in **Aktien-**, **Fonds-**, **Options-** und **positive-Einkünfte-Töpfe** und legt für jeden Posten eine Spur an, damit [§ 32d Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32d.html) (DE25-18) später Anrechnungs-Caps pro Posten bilden kann.
+
+Für 2025:
+
+- Aktiengewinn ([§ 20 Abs. 2 Nr. 1 EStG](https://www.gesetze-im-internet.de/estg/__20.html), einschl. DHER-Equity-Comp): **{{ rb.stock_gain | money(currency="EUR") }}**
+- Fondsgewinn (vor Teilfreistellung, [InvStG § 20](https://www.gesetze-im-internet.de/invstg_2018/__20.html)): **{{ rb.fund_gain | money(currency="EUR") }}**
+- Optionsgewinn / Termingeschäfte ([§ 20 Abs. 2 Nr. 3 EStG](https://www.gesetze-im-internet.de/estg/__20.html)): **{{ rb.option_gain | money(currency="EUR") }}**
+- Positive Einnahmen gesamt (Dividenden, Zinsen, Substitut-Zahlungen): **{{ rb.positive_income_total | money(currency="EUR") }}**
+- Davon nicht Fondseinkünfte (für die [§ 20 Abs. 6](https://www.gesetze-im-internet.de/estg/__20.html) Verlustverrechnung): **{{ rb.non_fund_positive_income_total | money(currency="EUR") }}**
+- Bezahlte ausländische Quellensteuer (über alle Posten): **{{ rb.explicit_foreign_tax_total | money(currency="EUR") }}**
+
+Diese strukturierten Töpfe werden in DE25-14 (Teilfreistellung), DE25-15 (Verlustverrechnung), DE25-16 (Sparer-Pauschbetrag), DE25-17 (Brutto-Steuer) und DE25-18 (Anrechnung ausländischer Steuer) konsumiert.
+{% else -%}
+[§ 20 EStG](https://www.gesetze-im-internet.de/estg/__20.html) taxes income from capital (dividends, interest, gains from selling stock, fund interests, options). [InvStG §§ 16, 19, 20](https://www.gesetze-im-internet.de/invstg_2018/__16.html) supplement those rules for investment funds and govern Teilfreistellung. This stage classifies every sale and income event into **stock**, **fund**, **option**, and **positive-income** buckets and tracks each item so [§ 32d Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32d.html) (DE25-18) can later compute per-item foreign-tax credit caps.
+
+For 2025:
+
+- Stock gain ([§ 20 Abs. 2 Nr. 1 EStG](https://www.gesetze-im-internet.de/estg/__20.html), including DHER equity-comp): **{{ rb.stock_gain | money(currency="EUR") }}**
+- Fund gain (before Teilfreistellung, [InvStG § 20](https://www.gesetze-im-internet.de/invstg_2018/__20.html)): **{{ rb.fund_gain | money(currency="EUR") }}**
+- Option / derivative gain ([§ 20 Abs. 2 Nr. 3 EStG](https://www.gesetze-im-internet.de/estg/__20.html)): **{{ rb.option_gain | money(currency="EUR") }}**
+- Total positive capital income (dividends, interest, substitute payments): **{{ rb.positive_income_total | money(currency="EUR") }}**
+- Non-fund positive income (used for [§ 20 Abs. 6](https://www.gesetze-im-internet.de/estg/__20.html) loss-netting at DE25-15): **{{ rb.non_fund_positive_income_total | money(currency="EUR") }}**
+- Foreign withholding tax paid across all items: **{{ rb.explicit_foreign_tax_total | money(currency="EUR") }}**
+
+These structured buckets feed DE25-14 (Teilfreistellung), DE25-15 (loss-netting), DE25-16 (Sparer-Pauschbetrag), DE25-17 (gross capital tax), and DE25-18 (foreign tax credit).
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

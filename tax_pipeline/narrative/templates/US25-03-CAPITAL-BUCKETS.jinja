@@ -1,0 +1,48 @@
+## {{ rule.title }}
+
+[Form 8949](https://www.irs.gov/forms-pubs/about-form-8949) and [Schedule D](https://www.irs.gov/forms-pubs/about-schedule-d-form-1040) organize every sale of a capital asset by holding period and by reporting box. Box A and Box B hold short-term sales reported by a broker (covered and noncovered); Box H holds short-term sales not reported on a 1099-B (most digital-asset trades). Box D and Box K mirror the long-term side. [26 U.S.C. § 1211](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1211&num=0&edition=prelim) and [§ 1212](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1212&num=0&edition=prelim) then key off these buckets to apply the annual loss limit and the carryforward.
+
+{% set buckets = rule.outputs[0].value | from_json -%}
+For 2025 the engine sums each bucket as:
+
+- Box A (short-term, covered broker reporting): **{{ buckets.short_box_a_usd | money(currency="USD") }}**
+- Box B (short-term, noncovered broker reporting): **{{ buckets.short_box_b_usd | money(currency="USD") }}**
+- Box H (short-term, no 1099-B; mostly digital-asset trades): **{{ buckets.short_box_h_usd | money(currency="USD") }}**
+- Box D (long-term, covered broker reporting): **{{ buckets.long_box_d_usd | money(currency="USD") }}**
+- Box K (long-term, no 1099-B): **{{ buckets.long_box_k_usd | money(currency="USD") }}**
+- 1099-DIV box 2a capital-gain distributions (long-term character per [Schedule D](https://www.irs.gov/forms-pubs/about-schedule-d-form-1040) line 13): **{{ buckets.capital_gain_distributions_usd | money(currency="USD") }}**
+
+Aggregating those bands gives short-term **{{ buckets.short_term_total_usd | money(currency="USD") }}** and long-term **{{ buckets.long_term_total_with_cgd_usd | money(currency="USD") }}**, for a pre-[§ 1256](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1256&num=0&edition=prelim) net of **{{ buckets.net_capital_before_1256_usd | money(currency="USD") }}**.
+
+{% if buckets.digital_asset_transaction_present -%}
+At least one digital-asset transaction is present, so the [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) digital-asset checkbox must be answered "Yes".
+{% else -%}
+No digital-asset transactions are present in this run, so the [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) digital-asset checkbox is "No".
+{% endif %}
+
+These bucket totals feed the [§ 1256](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1256&num=0&edition=prelim) character split at US25-04, the [§ 1211(b)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1211&num=0&edition=prelim) annual cap at US25-05, and the [§ 1(h)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1&num=0&edition=prelim) preferential base at US25-06.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

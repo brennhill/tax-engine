@@ -1,0 +1,124 @@
+# Form 1040 — U.S. Individual Income Tax Return
+# Authority: 26 U.S.C. §§ 1, 2, 6012; IRS Form 1040 instructions.
+# https://www.irs.gov/forms-pubs/about-form-1040
+#
+# Y2 / P5 form-schema-as-data: line numbers track the 2024 revision
+# (2025 retains the same line numbering at publication time —
+# confirm against the official IRS 2025 PDF before filing).
+# Schedule 8812 reshuffled lines in 2022 and 2024; Form 1040 lines
+# 26/27/28 ordering tweaked in 2023 — the schema makes a 2026
+# renumber a TOML edit rather than a Python-string edit hunt.
+#
+# Only the populated lines for the supported U.S. cross-border
+# posture are declared (the ~22 lines the renderer touches; lines
+# 4-6, 9-10, 13-14, 18, 21, 24-25, 27, 29-34, 35b-c, 36, 38 are not
+# modeled and not declared here).
+
+form_id = "form_1040"
+form_year = 2025
+display_name = "Form 1040"
+canonical_form_name = "Form 1040"
+authority_url = "https://www.irs.gov/forms-pubs/about-form-1040"
+
+# Header / posture labels (non-line, non-statutory) — declared so the
+# renderer can read every visible label from the schema. These rows
+# are not statutory form lines (filing status, spouse name fields,
+# digital-assets checkbox).
+
+[[lines]]
+line_id = "filing_status_label"
+label = "Filing status"
+
+[[lines]]
+line_id = "spouse_name_mfs_label"
+label = "Spouse name on MFS line"
+
+[[lines]]
+line_id = "joint_return_spouse_label"
+label = "Joint-return spouse"
+
+[[lines]]
+line_id = "digital_assets_checkbox_label"
+label = "Digital assets checkbox"
+
+# Statutory form-line labels.
+
+[[lines]]
+line_id = "1h"
+label = "Line 1h"
+
+[[lines]]
+line_id = "1z"
+label = "Line 1z"
+
+[[lines]]
+line_id = "2b"
+label = "Line 2b"
+
+[[lines]]
+line_id = "3a"
+label = "Line 3a"
+
+[[lines]]
+line_id = "3b"
+label = "Line 3b"
+
+[[lines]]
+line_id = "7"
+label = "Line 7"
+
+[[lines]]
+line_id = "8"
+label = "Line 8"
+
+[[lines]]
+line_id = "11"
+label = "Line 11"
+
+[[lines]]
+line_id = "12"
+label = "Line 12"
+
+[[lines]]
+line_id = "15"
+label = "Line 15"
+
+[[lines]]
+line_id = "16"
+label = "Line 16"
+
+[[lines]]
+line_id = "17"
+label = "Line 17"
+
+[[lines]]
+line_id = "19"
+label = "Line 19"
+
+[[lines]]
+line_id = "20"
+label = "Line 20"
+
+[[lines]]
+line_id = "22"
+label = "Line 22"
+
+[[lines]]
+line_id = "23"
+label = "Line 23"
+
+[[lines]]
+line_id = "26"
+label = "Line 26"
+
+[[lines]]
+line_id = "28"
+label = "Line 28"
+
+[[lines]]
+line_id = "35a"
+label = "Line 35a"
+
+[[lines]]
+line_id = "37"
+label = "Line 37"

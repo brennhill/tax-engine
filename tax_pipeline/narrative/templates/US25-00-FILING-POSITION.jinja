@@ -1,0 +1,49 @@
+## {{ rule.title }}
+
+{% set position = rule.outputs[0].value | from_json -%}
+You are filing as **{{ position.filing_status_label }}** for tax year 2025. The Internal Revenue Code keys several thresholds to filing status, and this stage resolves those thresholds before any income or credit math runs.
+
+For your status, the engine reads the following constants:
+
+- The [26 U.S.C. § 63](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section63&num=0&edition=prelim) standard deduction is **{{ position.standard_deduction_2025_usd | money(currency="USD") }}**. It is subtracted from your AGI to produce taxable income at stage US25-08.
+- The [26 U.S.C. § 1211(b)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1211&num=0&edition=prelim) annual capital-loss deduction limit is **{{ position.capital_loss_limit_usd | money(currency="USD") }}**. Any net capital loss above this cap rolls forward under [§ 1212](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1212&num=0&edition=prelim) and is reflected on [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 7a at stage US25-05.
+- The [26 U.S.C. § 1411](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1411&num=0&edition=prelim) net investment income tax (NIIT) threshold is **{{ position.niit_threshold_usd | money(currency="USD") }}** of modified AGI. NIIT applies at 3.8 % to investment income above this threshold (stage US25-20).
+- The IRS yearly average exchange rate for 2025 is **{{ position.eur_per_usd_yearly_average_2025 }} EUR per USD**. Every later euro-to-dollar conversion uses this rate.
+
+{% if position.use_treaty_resourcing -%}
+You **elected treaty re-sourcing** under the U.S.-Germany income tax treaty ([Pub. 514](https://www.irs.gov/publications/p514) worksheet). Stages US25-15 through US25-18 layer the treaty additional credit onto the baseline [§ 904](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim) foreign tax credit.
+{% else -%}
+You **did not elect treaty re-sourcing**; the U.S. graph stops at the baseline [§ 904](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim) foreign tax credit and treaty stages produce zero additional credit.
+{% endif %}
+{% if position.include_staking_in_niit -%}
+Per your explicit position, **staking income is included in NIIT** at stage US25-20. Treatment of staking under [§ 1411](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1411&num=0&edition=prelim) is unsettled, so this is a documented manual position rather than a default.
+{% else -%}
+Per your explicit position, **staking income is excluded from NIIT** at stage US25-20.
+{% endif %}
+
+These constants flow into every later U.S. stage. Their fingerprints lock the audit chain so a downstream stage cannot quietly substitute a different threshold.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

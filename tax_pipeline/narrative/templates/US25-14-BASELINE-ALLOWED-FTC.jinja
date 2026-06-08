@@ -1,0 +1,42 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 901](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section901&num=0&edition=prelim) lets you credit foreign tax against your U.S. tax; [26 U.S.C. § 904](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim) caps that credit. The "allowed" credit per basket is `min(available foreign tax, [§ 904](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim) limit)`. Excess available foreign tax that can't be used this year rolls forward under [§ 904(c)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim). This stage computes the baseline credit before any treaty re-sourcing add-on (which is layered on at US25-15 to US25-19).
+
+{% set base = rule.outputs[0].value | from_json -%}
+For 2025:
+
+- Available general-basket foreign tax (US25-13): **{{ base.general_available_foreign_tax_usd | money(currency="USD") }}**
+- Available passive-basket foreign tax: **{{ base.passive_available_foreign_tax_usd | money(currency="USD") }}**
+
+Applying `min(available, [§ 904](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim) limit)` per basket:
+
+- **Allowed general-basket FTC:** **{{ base.allowed_general_ftc_usd | money(currency="USD") }}**
+- **Allowed passive-basket FTC:** **{{ base.allowed_passive_ftc_usd | money(currency="USD") }}**
+- **Total baseline allowed FTC** (sum across baskets): **{{ base.total_allowed_ftc_usd | money(currency="USD") }}**
+
+After applying baseline FTC to regular tax, **remaining U.S. tax = {{ base.regular_tax_after_ftc_usd | money(currency="USD") }}**, and the remaining nonrefundable cap from [Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) line 33 is **{{ base.remaining_form_1116_line_33_cap_usd | money(currency="USD") }}**. Both numbers feed the treaty re-sourcing worksheet at US25-15 onward.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

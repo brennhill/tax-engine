@@ -1,0 +1,51 @@
+# Form 8959 — Additional Medicare Tax
+# Authority: 26 U.S.C. § 3101(b)(2) (wages), § 1401(b)(2) (SE earnings);
+# IRS Form 8959 instructions.
+# https://www.irs.gov/forms-pubs/about-form-8959
+#
+# Y2 / P5 form-schema-as-data. Only the lines the renderer surfaces in
+# the supported posture are declared (Part I lines 1/4/5/6/7, Part II
+# lines 8/11/13, and Part IV total line 18). Part III RRTA (lines 14-
+# 17) is not modeled.
+
+form_id = "form_8959"
+form_year = 2025
+display_name = "Form 8959 — Additional Medicare Tax"
+canonical_form_name = "Form 8959"
+authority_url = "https://www.irs.gov/forms-pubs/about-form-8959"
+
+[[lines]]
+line_id = "1"
+label = "Line 1"
+
+[[lines]]
+line_id = "4"
+label = "Line 4"
+
+[[lines]]
+line_id = "5"
+label = "Line 5"
+
+[[lines]]
+line_id = "6"
+label = "Line 6"
+
+[[lines]]
+line_id = "7"
+label = "Line 7"
+
+[[lines]]
+line_id = "8"
+label = "Line 8"
+
+[[lines]]
+line_id = "11"
+label = "Line 11"
+
+[[lines]]
+line_id = "13"
+label = "Line 13"
+
+[[lines]]
+line_id = "18"
+label = "Line 18"

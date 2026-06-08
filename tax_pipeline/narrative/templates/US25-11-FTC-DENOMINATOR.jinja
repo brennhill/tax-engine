@@ -1,0 +1,42 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 904](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim) caps the foreign tax credit at U.S. tax on foreign-source taxable income, and computes that fraction separately for each FTC basket (general, passive, GILTI, etc.). [Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) partitions your gross income by basket, then allocates the standard deduction across baskets in proportion to gross income. This stage produces the per-basket denominator (foreign-source taxable income for that basket) that the limitation fraction at US25-12 will use.
+
+{% set denom = rule.outputs[0].value | from_json -%}
+For 2025:
+
+- Total gross income for FTC apportionment: **{{ denom.total_gross_income_for_ftc_usd | money(currency="USD") }}**
+- General-basket gross income (e.g., foreign wages): **{{ denom.total_gross_income_for_ftc_usd | money(currency="USD") }}** minus the passive piece
+- Passive-basket gross income (foreign-source passive dividends, interest, etc.): **{{ denom.passive_category_gross_income_usd | money(currency="USD") }}**
+- Standard deduction allocated to the general basket (by gross-income share per [Pub. 514](https://www.irs.gov/publications/p514)): **{{ denom.general_standard_deduction_alloc_usd | money(currency="USD") }}**
+- Standard deduction allocated to the passive basket: **{{ denom.passive_standard_deduction_alloc_usd | money(currency="USD") }}**
+
+Subtracting allocated deductions from each basket's gross income gives the per-basket foreign-source taxable income that becomes the [§ 904](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim) numerator at US25-12:
+
+- General basket foreign-source taxable income: **{{ denom.general_taxable_income_for_ftc_usd | money(currency="USD") }}**
+- Passive basket foreign-source taxable income: **{{ denom.passive_taxable_income_for_ftc_usd | money(currency="USD") }}**
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

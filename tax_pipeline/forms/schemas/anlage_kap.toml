@@ -1,0 +1,80 @@
+# Anlage KAP 2025 — Capital Income (per-person)
+# Authority: § 20 EStG, § 32d EStG, § 43 EStG; ELSTER Anlage KAP
+# instructions.
+# https://www.gesetze-im-internet.de/estg/__20.html
+# https://www.gesetze-im-internet.de/estg/__32d.html
+#
+# Y2 / P5 form-schema-as-data. Per-person Anlage KAP is rendered from
+# a configurable kap_lines list per person_slot in profile.json. The
+# schema declares every Zeile the renderer might surface; the
+# renderer looks up labels by line_id. Adding a new KAP Zeile to a
+# workspace requires a [[lines]] entry here AND a kap_lines entry in
+# profile.json.
+
+form_id = "anlage_kap"
+form_year = 2025
+display_name = "Anlage KAP"
+canonical_form_name = "Anlage KAP"
+authority_url = "https://www.gesetze-im-internet.de/estg/__20.html"
+
+# Lines the brenn-2025 / demo-2025 person_1 + person_2 + de-only-demo
+# postures touch. Each label is the rendered string the renderer
+# emits — "Anlage KAP Zeile <N>".
+
+[[lines]]
+line_id = "4"
+label = "Anlage KAP Zeile 4"
+
+[[lines]]
+line_id = "5"
+label = "Anlage KAP Zeile 5"
+
+[[lines]]
+line_id = "7"
+label = "Anlage KAP Zeile 7"
+
+[[lines]]
+line_id = "8"
+label = "Anlage KAP Zeile 8"
+
+[[lines]]
+line_id = "17"
+label = "Anlage KAP Zeile 17"
+
+[[lines]]
+line_id = "19"
+label = "Anlage KAP Zeile 19"
+
+[[lines]]
+line_id = "20"
+label = "Anlage KAP Zeile 20"
+
+# JStG 2024 (Empfehlung Nr. 4a des Finanzausschusses, in Kraft 06.12.2024)
+# gestrichen § 20 Abs. 6 Sätze 5 und 6 EStG ohne Ersatz. The 2024
+# Vordruck-Zeilen for Termingeschäfte positives, Termingeschäfte
+# losses, and Uneinbringlichkeit von Kapitalforderungen are removed
+# for VZ 2025. option_pos / option_neg components fold into Zeile 19
+# inside DE25-FORM-KAP-PROJECTION. BMF-VERIFIED 2026-05-13 against
+# https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Abgeltungsteuer/2025-05-16-kapitalertragSt-steuerbescheinigung.pdf
+# and the post-JStG-2024 § 20 Abs. 6 EStG text at
+# https://www.gesetze-im-internet.de/estg/__20.html .
+
+[[lines]]
+line_id = "23"
+label = "Anlage KAP Zeile 23"
+
+[[lines]]
+line_id = "37"
+label = "Anlage KAP Zeile 37"
+
+[[lines]]
+line_id = "38"
+label = "Anlage KAP Zeile 38"
+
+[[lines]]
+line_id = "40"
+label = "Anlage KAP Zeile 40"
+
+[[lines]]
+line_id = "41"
+label = "Anlage KAP Zeile 41"

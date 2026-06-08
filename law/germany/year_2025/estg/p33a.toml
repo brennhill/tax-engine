@@ -1,0 +1,10 @@
+# § 33a EStG (Außergewöhnliche Belastungen in besonderen Fällen)
+#
+# Authority root: https://www.gesetze-im-internet.de/estg/__33a.html
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[UNTERHALTSLEISTUNGEN_2025_RECIPIENT_INCOME_FREIBETRAG_EUR]
+value = "624.00"
+authority = "§ 33a Abs. 1 Satz 1 EStG: maximum deductible Unterhaltsleistungen tracks the Grundfreibetrag (= TARIFF_2025_GROUND_ALLOWANCE_EUR for 2025). § 33a Abs. 1 Satz 5 EStG: recipient's own income/maintenance above €624 (\"Eigenbezüge und Bezüge\") reduces the cap euro for euro."
+citation_url = "https://www.gesetze-im-internet.de/estg/__33a.html"

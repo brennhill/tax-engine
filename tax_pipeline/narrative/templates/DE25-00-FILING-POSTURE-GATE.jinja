@@ -1,0 +1,48 @@
+## {{ rule.title }}
+
+{% if rule.language == "de" -%}
+[§ 26 EStG](https://www.gesetze-im-internet.de/estg/__26.html) regelt, welche Ehegatten gemeinsam veranlagt werden können (Zusammenveranlagung) — grundsätzlich unbeschränkt steuerpflichtige Ehegatten ohne dauernde Trennung. [§ 26b EStG](https://www.gesetze-im-internet.de/estg/__26b.html) fügt die Einkünfte beider Ehegatten zur gemeinsamen Bemessungsgrundlage zusammen; [§ 26a EStG](https://www.gesetze-im-internet.de/estg/__26a.html) erlaubt die getrennte Veranlagung mit ausdrücklicher Aufteilung. Diese Stufe validiert die gewählte Veranlagungsart, bevor irgendeine Tarifrechnung läuft.
+
+Eingaben:
+
+- Beantragte Veranlagungsart: **{{ rule.inputs_by_key["de.profile.filing_posture"].value }}**
+- Voraussetzungen für die Zusammenveranlagung ([§ 26 EStG](https://www.gesetze-im-internet.de/estg/__26.html)): {{ rule.inputs_by_key["de.profile.joint_assessment_prerequisites"].value }}
+- Aufteilung der getrennten Veranlagung ([§ 26a EStG](https://www.gesetze-im-internet.de/estg/__26a.html), falls einschlägig): {{ rule.inputs_by_key["de.profile.separate_assessment_allocations"].value }}
+
+Ergebnis: Die validierte Veranlagungsart ist **{{ rule.outputs[0].value }}**. Die nachfolgenden Stufen (Einkommensermittlung, Tarif, SolZ) verzweigen intern auf diesen Wert; der Tarifschritt [§ 32a Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32a.html) kann nur greifen, wenn die Posture hier `married_joint` ist.
+{% else -%}
+[§ 26 EStG](https://www.gesetze-im-internet.de/estg/__26.html) governs which married couples may file jointly (Zusammenveranlagung): generally those with unlimited German tax liability who are not permanently separated. [§ 26b EStG](https://www.gesetze-im-internet.de/estg/__26b.html) aggregates spouses' incomes for the joint assessment; [§ 26a EStG](https://www.gesetze-im-internet.de/estg/__26a.html) allows separate assessment with explicit per-spouse allocations. This stage validates the chosen filing posture before any tariff math runs.
+
+Inputs:
+
+- Requested filing posture: **{{ rule.inputs_by_key["de.profile.filing_posture"].value }}**
+- Joint-assessment prerequisites ([§ 26 EStG](https://www.gesetze-im-internet.de/estg/__26.html)): {{ rule.inputs_by_key["de.profile.joint_assessment_prerequisites"].value }}
+- Separate-assessment allocations ([§ 26a EStG](https://www.gesetze-im-internet.de/estg/__26a.html), when applicable): {{ rule.inputs_by_key["de.profile.separate_assessment_allocations"].value }}
+
+Result: the validated posture is **{{ rule.outputs[0].value }}**. Later stages (income, tariff, SolZ) branch internally on this value; the splitting tariff under [§ 32a Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32a.html) only applies when this posture is `married_joint`.
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

@@ -1,0 +1,3 @@
+section,key,value,source,note
+treaty,treaty_dividend_credit_eur,0.00,synthetic_demo,Separate Germany treaty-level dividend credits are unsupported unless modeled through the §32d(5) per-item foreign-tax credit cap.
+capital,capital_guenstigerpruefung_requested,0,synthetic_demo,§32d(6) Günstigerprüfung is not requested in the demo; nonzero values fail closed until that branch is implemented.

@@ -1,0 +1,51 @@
+## {{ rule.title }}
+
+{% set out = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 4 SolzG](https://www.gesetze-im-internet.de/solzg_1995/__4.html) 1995 erhebt den **Solidaritätszuschlag** mit **5,5 %** auf die *festgesetzte* Kapitalertragsteuer **nach** Anrechnung der ausländischen Quellensteuer. Anders als bei der ordentlichen Einkommensteuer gibt es keine Freigrenze und keine Milderungszone für Kapitalerträge — der Aufschlag greift sofort.
+
+Für 2025:
+
+- SolZ-Satz ([§ 4 SolzG](https://www.gesetze-im-internet.de/solzg_1995/__4.html) 1995): **{{ rule.inputs_by_key["de.capital.soli_rate"].value }}** = 5,5 %
+- Kapitalsteuer mit Teilfreistellung nach Anrechnung (Bemessungsgrundlage): **{{ out.capital_tax_total_with_teilfreistellung_before_treaty | money(currency="EUR") }}**
+- **Solidaritätszuschlag mit Teilfreistellung:** **{{ out.solidarity_surcharge_with_teilfreistellung | money(currency="EUR") }}**
+- Vergleichsrechnung ohne Teilfreistellung: SolZ **{{ out.solidarity_surcharge_no_teilfreistellung | money(currency="EUR") }}**, Gesamtsteuer **{{ out.capital_tax_total_no_teilfreistellung | money(currency="EUR") }}**
+
+Diese Werte gehen in DE25-20 (Treaty-Prüfung) und DE25-21 (Endabrechnung Kapital) ein.
+{% else -%}
+[§ 4 SolzG](https://www.gesetze-im-internet.de/solzg_1995/__4.html) 1995 imposes the **solidarity surcharge** at **5.5 %** on the *assessed* capital tax **after** the foreign tax credit has been applied. Unlike ordinary income tax, capital income has no Freigrenze or Milderungszone for SolZ — the surcharge applies immediately.
+
+For 2025:
+
+- SolZ rate ([§ 4 SolzG](https://www.gesetze-im-internet.de/solzg_1995/__4.html) 1995): **{{ rule.inputs_by_key["de.capital.soli_rate"].value }}** = 5.5 %
+- Capital tax with Teilfreistellung after foreign tax credit (the SolZ base): **{{ out.capital_tax_total_with_teilfreistellung_before_treaty | money(currency="EUR") }}**
+- **Solidarity surcharge with Teilfreistellung:** **{{ out.solidarity_surcharge_with_teilfreistellung | money(currency="EUR") }}**
+- Comparison run without Teilfreistellung: SolZ **{{ out.solidarity_surcharge_no_teilfreistellung | money(currency="EUR") }}**, total tax **{{ out.capital_tax_total_no_teilfreistellung | money(currency="EUR") }}**
+
+These values feed DE25-20 (treaty check) and DE25-21 (final capital settlement).
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

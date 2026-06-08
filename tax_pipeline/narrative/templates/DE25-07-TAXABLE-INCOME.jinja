@@ -1,0 +1,58 @@
+## {{ rule.title }}
+
+{% set net = rule.inputs_by_key["de.ordinary.net_employment_income"].value | from_json -%}
+{% set other = rule.inputs_by_key["de.ordinary.other_income_22nr3_taxable"].value | from_json -%}
+{% set sa = rule.inputs_by_key["de.ordinary.total_special_expenses"].value | from_json -%}
+{% set tax = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 2 Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__2.html): zu versteuerndes Einkommen (zvE) = Summe der Einkünfte − Sonderausgaben − außergewöhnliche Belastungen − Freibeträge. [§ 26b EStG](https://www.gesetze-im-internet.de/estg/__26b.html) addiert bei Zusammenveranlagung die Einkünfte beider Ehegatten zur gemeinsamen Bemessungsgrundlage.
+
+Für 2025 (Veranlagungsart **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**):
+
+- Einkünfte aus [§ 19](https://www.gesetze-im-internet.de/estg/__19.html) (DE25-03): **{{ net.total_eur | money(currency="EUR") }}**
+- Sonstige Einkünfte [§ 22 Nr. 3](https://www.gesetze-im-internet.de/estg/__22.html) nach Freigrenze (DE25-04): **{{ other.total_eur | money(currency="EUR") }}**
+- Sonderausgaben (Rente + Vorsorge + [§ 10c](https://www.gesetze-im-internet.de/estg/__10c.html)-Pauschbetrag, DE25-06B): **{{ sa.total_eur | money(currency="EUR") }}**
+
+**Zu versteuerndes Einkommen (DE25-08-Tarifgrundlage):** **{{ tax.joint_taxable_income_eur | money(currency="EUR") }}**
+{% if tax.by_person and (tax.by_person | length) > 1 -%}
+Pro Person: {% for v in tax.by_person %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+{%- endif %}
+{% else -%}
+[§ 2 Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__2.html): taxable income (*zu versteuerndes Einkommen*) = sum of income − Sonderausgaben − außergewöhnliche Belastungen − Freibeträge. [§ 26b EStG](https://www.gesetze-im-internet.de/estg/__26b.html) aggregates spouses' income into the joint base when filing jointly.
+
+For 2025 (filing posture **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**):
+
+- [§ 19](https://www.gesetze-im-internet.de/estg/__19.html) employment income (DE25-03): **{{ net.total_eur | money(currency="EUR") }}**
+- [§ 22 Nr. 3](https://www.gesetze-im-internet.de/estg/__22.html) other income after Freigrenze (DE25-04): **{{ other.total_eur | money(currency="EUR") }}**
+- Sonderausgaben (retirement + Vorsorge + [§ 10c](https://www.gesetze-im-internet.de/estg/__10c.html) lump sum, DE25-06B): **{{ sa.total_eur | money(currency="EUR") }}**
+
+**Taxable income (the tariff base for DE25-08):** **{{ tax.joint_taxable_income_eur | money(currency="EUR") }}**
+{% if tax.by_person and (tax.by_person | length) > 1 -%}
+Per person: {% for v in tax.by_person %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+{%- endif %}
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

@@ -1,0 +1,42 @@
+# Anlage SO 2025 — Sonstige Einkünfte / Private Veräußerungsgeschäfte
+# Authority: § 22 Nr. 3 EStG; § 23 EStG; ELSTER Anlage SO instructions.
+# https://www.gesetze-im-internet.de/estg/__22.html
+# https://www.gesetze-im-internet.de/estg/__23.html
+#
+# Y2 / P5 form-schema-as-data. Three rows:
+#  - Zeilen 14-21: sonstige Einkünfte § 22 Nr. 3 (occasional activities).
+#  - Zeilen 41-47: § 23 private Veräußerungsgeschäfte at "Einheiten
+#    virtueller Währungen und/oder sonstige Token" (cryptocurrencies),
+#    which is where the engine's documented private-sale result (Coinbase
+#    crypto bucket) is reported on the 2025 Anlage SO. Non-crypto private
+#    sales of "andere Wirtschaftsgüter" travel on Zeilen 48-53; the
+#    engine surfaces a single private-sale row today and points it at
+#    the crypto block.
+#  - Zeile 62: Verlustvortrag handling (whether to defer current-year
+#    losses against future gains rather than offsetting against prior
+#    gains; left blank when the bucket is already net negative).
+#
+# Pre-fix labels read "Zeilen 45-49 / 56-57" (which crossed the crypto
+# block boundary and continued into Gemeinschaftsbeteiligungen rows
+# 56-61, which the engine does not model) and "Zeile 66" (which is
+# Anlage Kind, not Anlage SO). Sources: steuern.de Ausfüllhilfe Anlage
+# SO; lohnsteuer-kompakt 2025 (virtuelle Währungen → Zeilen 41-47);
+# 2025 ELSTER Anlage SO field references.
+
+form_id = "anlage_so"
+form_year = 2025
+display_name = "Anlage SO"
+canonical_form_name = "Anlage SO"
+authority_url = "https://www.gesetze-im-internet.de/estg/__22.html"
+
+[[lines]]
+line_id = "zeilen_14_21"
+label = "Anlage SO Zeilen 14-21"
+
+[[lines]]
+line_id = "zeilen_41_47"
+label = "Anlage SO Zeilen 41-47"
+
+[[lines]]
+line_id = "zeile_62"
+label = "Anlage SO Zeile 62"

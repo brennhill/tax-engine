@@ -1,0 +1,48 @@
+# Schedule SE (Form 1040) — Self-Employment Tax
+# Authority: 26 U.S.C. § 1401, § 1402(a)(12); IRS Schedule SE
+# instructions.
+# https://www.irs.gov/forms-pubs/about-schedule-se-form-1040
+#
+# Y2 / P5 form-schema-as-data.
+
+form_id = "schedule_se"
+form_year = 2025
+display_name = "Schedule SE — Self-Employment Tax"
+canonical_form_name = "Schedule SE"
+authority_url = "https://www.irs.gov/forms-pubs/about-schedule-se-form-1040"
+
+[[lines]]
+line_id = "2"
+label = "Line 2"
+
+[[lines]]
+line_id = "3"
+label = "Line 3"
+
+[[lines]]
+line_id = "4a"
+label = "Line 4a"
+
+[[lines]]
+line_id = "4c"
+label = "Line 4c"
+
+[[lines]]
+line_id = "6"
+label = "Line 6"
+
+[[lines]]
+line_id = "8a"
+label = "Line 8a"
+
+[[lines]]
+line_id = "10"
+label = "Line 10"
+
+[[lines]]
+line_id = "11"
+label = "Line 11"
+
+[[lines]]
+line_id = "12"
+label = "Line 12"

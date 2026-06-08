@@ -1,0 +1,42 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 56](https://www.law.cornell.edu/uscode/text/26/56) defines Alternative Minimum Taxable Income (AMTI) as regular taxable income plus the § 56 add-backs (state/local-tax itemized deduction, depreciation timing differences, ISO bargain element, NOL adjustments). [§ 55(b)(3)](https://www.law.cornell.edu/uscode/text/26/55) preserves the [§ 1(h)](https://www.law.cornell.edu/uscode/text/26/1) preferential rates on long-term capital gain and qualified dividends inside AMT, so AMTI is partitioned into ordinary AMTI and preferential AMTI for the tentative-minimum-tax computation downstream.
+
+For 2025 the supported posture is a standard-deduction filer with no ISO bargain element, no accelerated depreciation, no private-activity-bond interest, and no itemized SALT; the loader at `tax_pipeline/y2025/us_inputs.py` rejects any non-zero preference item with a `NotImplementedError` (F-US-1). Under that posture AMTI equals taxable income; the preferential AMTI is the regular [§ 1(h)](https://www.law.cornell.edu/uscode/text/26/1) preferential capital base plus qualified dividends.
+
+{% set ti = rule.inputs_by_key["us.stage.taxable_income"].value -%}
+{% set pref_base = rule.inputs_by_key["us.stage.preferential_capital_base"].value -%}
+{% set qd = rule.inputs_by_key["us.capital.qualified_dividends"].value -%}
+{% set out = rule.outputs[0].value | from_json -%}
+For 2025:
+
+- Regular taxable income (Form 1040 line 15): **{{ ti | money(currency="USD") }}**
+- § 56 add-backs in the supported posture: **{{ out.amti_addbacks_usd | money(currency="USD") }}** (zero — F-US-1 gates reject ISO / SALT / depreciation prefs)
+- AMTI (Form 6251 line 4): **{{ out.amti_usd | money(currency="USD") }}**
+- Preferential AMTI (§ 55(b)(3) — net capital gain + qualified dividends portion): **{{ out.preferential_amti_usd | money(currency="USD") }}**
+- Filing status: **{{ out.filing_status_label }}**
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

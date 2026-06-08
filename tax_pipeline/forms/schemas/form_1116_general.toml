@@ -1,0 +1,32 @@
+# Form 1116 (General Category) — Foreign Tax Credit
+# Authority: 26 U.S.C. § 901, § 904(d)(1)(A); IRS Form 1116 instructions.
+# https://www.irs.gov/forms-pubs/about-form-1116
+#
+# Y2 / P5 form-schema-as-data. Form 1116 — General Category basket per
+# § 904(d)(1)(A); the German wage basket in the saved 2025 model.
+
+form_id = "form_1116_general"
+form_year = 2025
+display_name = "Form 1116 - General Category"
+canonical_form_name = "Form 1116 General"
+authority_url = "https://www.irs.gov/forms-pubs/about-form-1116"
+
+[[lines]]
+line_id = "1a_germany_wages"
+label = "Line 1a (Germany wage basket income)"
+
+[[lines]]
+line_id = "8"
+label = "Line 8 (foreign taxes paid current year)"
+
+[[lines]]
+line_id = "10"
+label = "Line 10 (carryover from prior year)"
+
+[[lines]]
+line_id = "21"
+label = "Line 21 (general FTC limitation)"
+
+[[lines]]
+line_id = "22"
+label = "Line 22 (allowed general credit)"

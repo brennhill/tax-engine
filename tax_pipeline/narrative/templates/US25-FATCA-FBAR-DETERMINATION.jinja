@@ -1,0 +1,67 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 6038D](https://www.law.cornell.edu/uscode/text/26/6038D) and [26 CFR § 1.6038D-2](https://www.law.cornell.edu/cfr/text/26/1.6038D-2) require U.S. individuals holding "specified foreign financial assets" above filing-status- and residency-dependent thresholds to file [Form 8938](https://www.irs.gov/forms-pubs/about-form-8938) ("Statement of Specified Foreign Financial Assets") with the income tax return. [31 U.S.C. § 5314](https://www.law.cornell.edu/uscode/text/31/5314) and [31 CFR § 1010.350](https://www.law.cornell.edu/cfr/text/31/1010.350) require U.S. persons whose aggregate foreign financial accounts exceed $10,000 at any point during the year to file [FinCEN Form 114 (FBAR)](https://bsaefiling.fincen.treas.gov/) — separately, with FinCEN, NOT with the IRS.
+
+These two regimes are determinations only — they do NOT change tax owed. The engine surfaces REQUIRED / NOT REQUIRED for each regime so the user can confirm whether to attach Form 8938 to Form 1040 and/or file FBAR with FinCEN.
+
+For 2025:
+
+{% set status_value = "" -%}
+{% set reason_value = "" -%}
+{% set form_8938_required_value = "" -%}
+{% set fincen_114_required_value = "" -%}
+{% set sffa_max_value = "" -%}
+{% set sffa_eoy_value = "" -%}
+{% set threshold_eoy_value = "" -%}
+{% set threshold_anytime_value = "" -%}
+{% set fbar_max_value = "" -%}
+{% for output in rule.outputs -%}
+{% if output.key == "us.fatca.determination_status" -%}
+{% set _ = status_value -%}
+{% set status_value = output.value -%}
+{% elif output.key == "us.fatca.determination_reason" -%}
+{% set reason_value = output.value -%}
+{% elif output.key == "us.fatca.form_8938_required" -%}
+{% set form_8938_required_value = output.value -%}
+{% elif output.key == "us.fbar.fincen_114_required" -%}
+{% set fincen_114_required_value = output.value -%}
+{% elif output.key == "us.fatca.foreign_specified_assets_max_usd" -%}
+{% set sffa_max_value = output.value -%}
+{% elif output.key == "us.fatca.foreign_specified_assets_eoy_usd" -%}
+{% set sffa_eoy_value = output.value -%}
+{% elif output.key == "us.fatca.form_8938_threshold_eoy_usd" -%}
+{% set threshold_eoy_value = output.value -%}
+{% elif output.key == "us.fatca.form_8938_threshold_anytime_usd" -%}
+{% set threshold_anytime_value = output.value -%}
+{% elif output.key == "us.fbar.aggregate_max_balance_usd" -%}
+{% set fbar_max_value = output.value -%}
+{% endif -%}
+{% endfor %}
+- Determination status: **{{ status_value }}**
+{% if reason_value -%}
+- Reason: {{ reason_value }}
+{% endif -%}
+- Form 8938 EOY threshold (Reg. § 1.6038D-2(b)): **{{ threshold_eoy_value | money(currency="USD") }}**
+- Form 8938 anytime threshold: **{{ threshold_anytime_value | money(currency="USD") }}**
+- Specified foreign financial assets — max during year (§ 6038D scope): **{{ sffa_max_value | money(currency="USD") }}**
+- Specified foreign financial assets — EOY (§ 6038D scope): **{{ sffa_eoy_value | money(currency="USD") }}**
+- **Form 8938 required**: **{{ form_8938_required_value }}**
+- FBAR aggregate max balance during year (31 CFR § 1010.350 scope, broader): **{{ fbar_max_value | money(currency="USD") }}**
+- **FinCEN Form 114 (FBAR) required**: **{{ fincen_114_required_value }}**
+
+The renderer emits a separate `2025_form_8938_status.md` and `2025_fincen_114_status.md` per regime. FBAR is filed separately from the income tax return.
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

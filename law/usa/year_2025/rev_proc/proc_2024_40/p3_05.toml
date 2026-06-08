@@ -1,0 +1,10 @@
+# Rev. Proc. 2024-40 § 3.05
+#
+# Authority root: https://www.irs.gov/pub/irs-drop/rp-24-40.pdf
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[CTC_REFUNDABLE_CAP_PER_CHILD_2025_USD]
+value = "1700"
+authority = "Refundable Additional Child Tax Credit (ACTC) cap per qualifying child. 26 U.S.C. § 24(d)(1)(A) / § 24(h)(2) — Rev. Proc. 2024-40 § 3.05 sets the 2025 refundable cap at $1,700. Schedule 8812 (2025) instructions echo this value. If a future statute raises this cap, update this constant AND the law spec entry — the test suite pins the numeric value so a silent change cannot land."
+citation_url = "https://www.irs.gov/pub/irs-drop/rp-24-40.pdf"

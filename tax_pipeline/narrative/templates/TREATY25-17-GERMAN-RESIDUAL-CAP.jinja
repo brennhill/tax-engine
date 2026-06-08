@@ -1,0 +1,45 @@
+## {{ rule.title }}
+
+[Pub. 514](https://www.irs.gov/publications/p514) worksheet lines 19 and 20c clamp the additional credit by the residual German tax on the same U.S.-source dividend stack — the German tax that survives Germany's own foreign-tax credit (Article 23 / [§ 32d Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32d.html)). The maximum additional U.S. credit cannot exceed that residual.
+
+{% set ger = rule.inputs_by_key["de.treaty.us_source_dividend_tax_and_credit"].value | from_json -%}
+For 2025:
+
+- Germany's pre-credit tax on the U.S.-source dividend stack (from the German graph, translated to USD): **{{ ger.german_precredit_tax_on_us_source_dividends_usd | money(currency="USD") }}**
+- Germany's residence-country credit on the same dividends ([DBA-USA Article 23](https://www.irs.gov/pub/irs-trty/germtech.pdf), applied through [§ 32d Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32d.html)): **{{ ger.german_residence_credit_for_us_tax_usd | money(currency="USD") }}**
+
+[Pub. 514](https://www.irs.gov/publications/p514) **line 19** — `max(0, line 16 − max(line 17, residence credit))`: **{{ rule.outputs[0].value | money(currency="USD") }}**
+
+[Pub. 514](https://www.irs.gov/publications/p514) **line 20c** — `max(0, german_precredit − max(line 17, residence credit))`: **{{ rule.outputs[1].value | money(currency="USD") }}**
+
+For audit context, the engine also exposes the inputs that fed those clamps:
+
+- German pre-credit tax (line 20a equivalent): **{{ rule.outputs[2].value | money(currency="USD") }}**
+- German residence credit on U.S. tax (line 20b equivalent): **{{ rule.outputs[3].value | money(currency="USD") }}**
+
+The lesser of line 19 and line 20c becomes the additional FTC at TREATY25-18.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

@@ -1,0 +1,30 @@
+# 26 U.S.C. § 1401 (Self-Employment Contributions Act tax)
+#
+# Authority root: https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1401&num=0&edition=prelim
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[SECA_NET_EARNINGS_FACTOR]
+value = "0.9235"
+authority = "26 U.S.C. § 1402(a)(12) — only 92.35 % of net SE earnings is subject to SE tax (the residual approximates the employer-share deduction)."
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1401&num=0&edition=prelim"
+
+[OASDI_RATE]
+value = "0.124"
+authority = "§ 1401(a) — OASDI 12.4 % on net SE earnings up to SSA wage base."
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1401&num=0&edition=prelim"
+
+[MEDICARE_RATE]
+value = "0.029"
+authority = "§ 1401(b)(1) — Medicare 2.9 % on all net SE earnings (employee 1.45 % × 2 = 2.9 %)."
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1401&num=0&edition=prelim"
+
+[EMPLOYEE_MEDICARE_RATE]
+value = "0.0145"
+authority = "§ 3101(b)(1) — employee Medicare half-rate (used by Form 8959 wage-side computation that the assessment in ``p3101.py`` consumes)."
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1401&num=0&edition=prelim"
+
+[SS_WAGE_BASE_2025_USD]
+value = "176100"
+authority = "2025 Social Security (OASDI) wage base — SSA Press Release 2024-10-10. https://www.ssa.gov/oact/cola/cbb.html"
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1401&num=0&edition=prelim"

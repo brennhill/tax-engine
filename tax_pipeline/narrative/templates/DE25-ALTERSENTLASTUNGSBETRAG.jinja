@@ -1,0 +1,49 @@
+## {{ rule.title }}
+
+{% set out = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 24a EStG](https://www.gesetze-im-internet.de/estg/__24a.html) gewährt einen Altersentlastungsbetrag, sobald die steuerpflichtige Person das 64. Lebensjahr **vor** Beginn des Veranlagungszeitraums vollendet hat. Der Prozentsatz und der Höchstbetrag sind auf das Kalenderjahr fixiert, in dem die 64-Jahres-Schwelle erstmals erreicht wurde (§ 24a Satz 5 EStG, Anlage zum § 24a EStG). Der Betrag mindert den Gesamtbetrag der Einkünfte vor dem Sonderausgabenabzug.
+
+Für 2025:
+
+- Veranlagungsjahr (für die Schwellenprüfung): **{{ out.tax_year }}**
+- Geburtsjahre je Person: {{ out.by_person_birth_year }}
+- Anrechenbares Bemessungs­einkommen je Person (ohne § 19 Arbeitslohn): {% for v in out.by_person_eligible_base_eur %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Altersentlastungsbetrag je Person: {% for v in out.by_person %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Haushaltssumme: **{{ out.total_eur | money(currency="EUR") }}** — wird in DE25-07 vom Gesamtbetrag der Einkünfte abgezogen.
+{% else -%}
+[§ 24a EStG](https://www.gesetze-im-internet.de/estg/__24a.html) grants an Altersentlastungsbetrag (age-relief allowance) once the taxpayer has completed their 64th year of life **before** the start of the assessment year. The percentage rate and cap are fixed for life by the calendar year in which the 64-year threshold was first met (§ 24a Satz 5 EStG, Anlage to § 24a EStG). The allowance reduces the Gesamtbetrag der Einkünfte before Sonderausgaben.
+
+For 2025:
+
+- Assessment year (for the threshold check): **{{ out.tax_year }}**
+- Per-person birth years: {{ out.by_person_birth_year }}
+- Per-person eligible base (excludes § 19 wages): {% for v in out.by_person_eligible_base_eur %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Per-person Altersentlastungsbetrag: {% for v in out.by_person %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Household total: **{{ out.total_eur | money(currency="EUR") }}** — subtracted at DE25-07 from the Gesamtbetrag der Einkünfte.
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

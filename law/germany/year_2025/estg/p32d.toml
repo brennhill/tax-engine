@@ -1,0 +1,15 @@
+# § 32d EStG (Abgeltungsteuer auf Kapitalerträge)
+#
+# Authority root: https://www.gesetze-im-internet.de/estg/__32d.html
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[CAPITAL_TAX_RATE_2025]
+value = "0.25"
+authority = "§ 32d Abs. 1 Satz 1 EStG: 25% flat capital-income tax (Abgeltungsteuer)."
+citation_url = "https://www.gesetze-im-internet.de/estg/__32d.html"
+
+[GUENSTIGERPRUEFUNG_MATERIALITY_EUR]
+value = "10.00"
+authority = "F-DE-2 (audit-only): § 32d Abs. 6 EStG Günstigerprüfung shadow comparison threshold. Project-internal materiality, NOT a statutory amount. Authority context: § 32d Abs. 6 EStG (Antragsveranlagung):"
+citation_url = "https://www.gesetze-im-internet.de/estg/__32d.html"

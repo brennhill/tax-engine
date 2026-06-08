@@ -1,0 +1,52 @@
+# Anlage AUS 2025 — Foreign Income / Foreign-Tax Credit (per-country)
+# Authority: § 34c Abs. 1 EStG; § 32d Abs. 5 EStG; DBA-USA Art. 10 /
+# Art. 23; ELSTER Anlage AUS instructions; R 34c EStR.
+# https://www.gesetze-im-internet.de/estg/__34c.html
+# https://www.gesetze-im-internet.de/estg/__32d.html
+#
+# Y2 / P5 form-schema-as-data. Per-country block with seven Zeilen
+# (4 Land, 6 Art der Einkünfte, 8/9 Einkünfte EUR, 11 Steuer in
+# Quellenwährung, 13 Steuer EUR, 15 anrechenbare Steuer). The renderer
+# emits one block per country in by_country_rows.
+
+form_id = "anlage_aus"
+form_year = 2025
+display_name = "Anlage AUS"
+canonical_form_name = "Anlage AUS"
+authority_url = "https://www.gesetze-im-internet.de/estg/__34c.html"
+
+[[lines]]
+line_id = "status"
+label = "Anlage AUS — Status"
+
+[[lines]]
+line_id = "zeile_4"
+label = "Anlage AUS Zeile 4"
+
+[[lines]]
+line_id = "zeile_6"
+label = "Anlage AUS Zeile 6"
+
+[[lines]]
+line_id = "zeile_8"
+label = "Anlage AUS Zeile 8"
+
+[[lines]]
+line_id = "zeile_9"
+label = "Anlage AUS Zeile 9"
+
+[[lines]]
+line_id = "zeile_11"
+label = "Anlage AUS Zeile 11"
+
+[[lines]]
+line_id = "zeile_13"
+label = "Anlage AUS Zeile 13"
+
+[[lines]]
+line_id = "zeile_15"
+label = "Anlage AUS Zeile 15"
+
+[[lines]]
+line_id = "aggregate_cross_check"
+label = "Anlage AUS Aggregate (cross-check)"

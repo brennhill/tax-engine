@@ -1,0 +1,32 @@
+section,key,value,source,note
+irs,eur_per_usd_yearly_average_2025,0.886,irs_2025_yearly_average_rates,IRS yearly average Euro Zone exchange rate for 2025.
+irs,standard_deduction_single_2025_usd,15750.00,irs_2025_form_1040_instructions,Single-filer standard deduction for 2025.
+irs,niit_threshold_single_usd,200000.00,irc_1411,Single-filer NIIT threshold.
+irs,qualified_dividend_zero_rate_ceiling_single_2025_usd,48350.00,irs_2025_form_1040_instructions,Single-filer zero-rate ceiling used by the line 16 worksheet.
+irs,qualified_dividend_fifteen_rate_ceiling_single_2025_usd,533400.00,irs_2025_form_1040_instructions,Single-filer fifteen-percent ceiling used by the line 16 worksheet.
+irs,tax_bracket_10_ceiling_single_2025_usd,11925.00,irs_2025_form_1040_instructions,Single-filer ordinary tax bracket ceiling for 10 percent.
+irs,tax_bracket_12_ceiling_single_2025_usd,48475.00,irs_2025_form_1040_instructions,Single-filer ordinary tax bracket ceiling for 12 percent.
+irs,tax_bracket_22_ceiling_single_2025_usd,103350.00,irs_2025_form_1040_instructions,Single-filer ordinary tax bracket ceiling for 22 percent.
+irs,tax_bracket_24_ceiling_single_2025_usd,197300.00,irs_2025_form_1040_instructions,Single-filer ordinary tax bracket ceiling for 24 percent.
+irs,tax_bracket_32_ceiling_single_2025_usd,250525.00,irs_2025_form_1040_instructions,Single-filer ordinary tax bracket ceiling for 32 percent.
+irs,tax_bracket_35_ceiling_single_2025_usd,626350.00,irs_2025_form_1040_instructions,Single-filer ordinary tax bracket ceiling for 35 percent.
+irs,standard_deduction_mfs_2025_usd,15750.00,irs_2025_form_1040_instructions,Married-filing-separately standard deduction for 2025.
+irs,niit_threshold_mfs_usd,125000.00,irc_1411,Married-filing-separately NIIT threshold.
+irs,qualified_dividend_zero_rate_ceiling_mfs_2025_usd,48350.00,irs_2025_form_1040_instructions,Married-filing-separately zero-rate ceiling used by the line 16 worksheet.
+irs,qualified_dividend_fifteen_rate_ceiling_mfs_2025_usd,300000.00,irs_2025_form_1040_instructions,Married-filing-separately fifteen-percent ceiling used by the line 16 worksheet.
+irs,tax_bracket_10_ceiling_mfs_2025_usd,11925.00,irs_2025_form_1040_instructions,Married-filing-separately ordinary tax bracket ceiling for 10 percent.
+irs,tax_bracket_12_ceiling_mfs_2025_usd,48475.00,irs_2025_form_1040_instructions,Married-filing-separately ordinary tax bracket ceiling for 12 percent.
+irs,tax_bracket_22_ceiling_mfs_2025_usd,103350.00,irs_2025_form_1040_instructions,Married-filing-separately ordinary tax bracket ceiling for 22 percent.
+irs,tax_bracket_24_ceiling_mfs_2025_usd,197300.00,irs_2025_form_1040_instructions,Married-filing-separately ordinary tax bracket ceiling for 24 percent.
+irs,tax_bracket_32_ceiling_mfs_2025_usd,250525.00,irs_2025_form_1040_instructions,Married-filing-separately ordinary tax bracket ceiling for 32 percent.
+irs,tax_bracket_35_ceiling_mfs_2025_usd,375800.00,irs_2025_form_1040_instructions,Married-filing-separately ordinary tax bracket ceiling for 35 percent.
+irs,standard_deduction_married_joint_2025_usd,31500.00,irs_2025_form_1040_instructions,Married-filing-jointly standard deduction for 2025.
+irs,niit_threshold_married_joint_usd,250000.00,irc_1411,Married-filing-jointly NIIT threshold.
+irs,qualified_dividend_zero_rate_ceiling_married_joint_2025_usd,96700.00,irs_2025_form_1040_instructions,Married-filing-jointly zero-rate ceiling used by the line 16 worksheet.
+irs,qualified_dividend_fifteen_rate_ceiling_married_joint_2025_usd,600050.00,irs_2025_form_1040_instructions,Married-filing-jointly fifteen-percent ceiling used by the line 16 worksheet.
+irs,tax_bracket_10_ceiling_married_joint_2025_usd,23850.00,irs_2025_form_1040_instructions,Married-filing-jointly ordinary tax bracket ceiling for 10 percent.
+irs,tax_bracket_12_ceiling_married_joint_2025_usd,96950.00,irs_2025_form_1040_instructions,Married-filing-jointly ordinary tax bracket ceiling for 12 percent.
+irs,tax_bracket_22_ceiling_married_joint_2025_usd,206700.00,irs_2025_form_1040_instructions,Married-filing-jointly ordinary tax bracket ceiling for 22 percent.
+irs,tax_bracket_24_ceiling_married_joint_2025_usd,394600.00,irs_2025_form_1040_instructions,Married-filing-jointly ordinary tax bracket ceiling for 24 percent.
+irs,tax_bracket_32_ceiling_married_joint_2025_usd,501050.00,irs_2025_form_1040_instructions,Married-filing-jointly ordinary tax bracket ceiling for 32 percent.
+irs,tax_bracket_35_ceiling_married_joint_2025_usd,751600.00,irs_2025_form_1040_instructions,Married-filing-jointly ordinary tax bracket ceiling for 35 percent.

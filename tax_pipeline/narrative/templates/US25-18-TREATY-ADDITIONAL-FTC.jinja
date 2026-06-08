@@ -1,0 +1,41 @@
+## {{ rule.title }}
+
+IRS Publication 514's treaty re-sourcing worksheet ends at line 21: the additional [Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) credit equals `min(line 19, line 20c)` — the lesser of the U.S. tax above the treaty floor and the residual German tax on the same dividends. [Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) line 33 then caps the credit at the remaining nonrefundable room.
+
+{% set add = rule.outputs[0].value | from_json -%}
+{% set lim = rule.inputs_by_key["us.stage.treaty_us_limitation"].value | from_json -%}
+{% set cap = rule.inputs_by_key["us.stage.treaty_german_residual_cap"].value | from_json -%}
+For 2025:
+
+- [Pub. 514](https://www.irs.gov/publications/p514) line 19 (max additional credit before German cap, from US25-17): **{{ cap.worksheet_line_19_maximum_credit_usd | money(currency="USD") }}**
+- [Pub. 514](https://www.irs.gov/publications/p514) line 20c (residual German tax cap, from US25-17): **{{ cap.worksheet_line_20c_residual_residence_country_tax_usd | money(currency="USD") }}**
+- [Pub. 514](https://www.irs.gov/publications/p514) **line 21** — `min(line 19, line 20c)`: **{{ add.worksheet_line_21_additional_credit_usd | money(currency="USD") }}**
+- Final additional FTC after [Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) line 33 nonrefundable cap: **{{ add.treaty_resourcing_additional_ftc_usd | money(currency="USD") }}**
+- Regular tax after baseline FTC + treaty re-sourcing: **{{ add.regular_tax_after_ftc_and_treaty_resourcing_usd | money(currency="USD") }}**
+
+The additional credit feeds the final allowed FTC at US25-19 and reduces the regular tax that the payments calculation at US25-21 uses.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

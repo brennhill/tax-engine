@@ -1,0 +1,62 @@
+# Form 8938 — FATCA Filing Determination (Status Sheet)
+# Authority: 26 U.S.C. § 6038D; 26 CFR § 1.6038D-2; IRS Form 8938
+# instructions.
+# https://www.irs.gov/forms-pubs/about-form-8938
+#
+# Y2 / P5 form-schema-as-data. This is a determination-only status
+# sheet, NOT a fillable Form 8938 (Part V / Part VI per-account detail
+# is not modeled). Labels are descriptive rather than "Line N", so the
+# I3 scanner deliberately skips them. The dynamic per-account
+# "Discovered account: <id>" rows are NOT declared here (those are
+# runtime-driven, like Form 8949 boxes).
+#
+# Two title variants are supported via the renderer (manual vs.
+# determined branches). The schema's display_name pins the determined-
+# branch title; the renderer appends the " (Manual)" suffix
+# programmatically for the manual-determination branch.
+
+form_id = "form_8938_status"
+form_year = 2025
+display_name = "Form 8938 - Filing Determination"
+canonical_form_name = "Form 8938"
+authority_url = "https://www.irs.gov/forms-pubs/about-form-8938"
+
+[[lines]]
+line_id = "filing_status"
+label = "Filing status"
+
+[[lines]]
+line_id = "residency_basis"
+label = "Residency basis (§ 911(d)(1)(A) bona-fide test)"
+
+[[lines]]
+line_id = "determination_status_manual"
+label = "Determination status"
+
+[[lines]]
+line_id = "auto_discovered_accounts"
+label = "Auto-discovered foreign accounts"
+
+[[lines]]
+line_id = "threshold_eoy"
+label = "Threshold - end of year"
+
+[[lines]]
+line_id = "threshold_anytime"
+label = "Threshold - any time during year"
+
+[[lines]]
+line_id = "sffa_max"
+label = "Specified foreign financial assets - max during year"
+
+[[lines]]
+line_id = "sffa_eoy"
+label = "Specified foreign financial assets - end of year"
+
+[[lines]]
+line_id = "determination"
+label = "Determination"
+
+[[lines]]
+line_id = "account_count"
+label = "Account count enumerated"

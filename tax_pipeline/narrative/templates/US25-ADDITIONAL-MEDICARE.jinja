@@ -1,0 +1,44 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 3101(b)(2)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section3101) imposes a **0.9 % Additional Medicare Tax** on Medicare-taxable wages above the filing-status threshold; [§ 1401(b)(2)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1401) imposes the same 0.9 % on SE-taxable earnings. The threshold is **shared** across the two bases (single threshold across wages + SE) and is statutory (not inflation-indexed):
+
+- $200,000 — Single (and Head of Household)
+- $250,000 — Married Filing Jointly
+- $125,000 — Married Filing Separately
+
+[Form 8959](https://www.irs.gov/forms-pubs/about-form-8959) implements the combined wage/SE arithmetic. The result lands on Schedule 2 line 11.
+
+{% set out = rule.outputs[0].value | from_json -%}
+For 2025:
+
+- Filing-status threshold: **{{ out.threshold_usd | money(currency="USD") }}**
+- U.S.-source Medicare-taxable wages (Form 8959 line 1): **{{ out.medicare_wages_usd | money(currency="USD") }}**
+- § 1402(a)(12) SE-taxable earnings: **{{ out.se_taxable_earnings_usd | money(currency="USD") }}**
+- Combined base (wages + SE): **{{ out.combined_base_usd | money(currency="USD") }}**
+- Excess over threshold: **{{ out.excess_over_threshold_usd | money(currency="USD") }}**
+- Additional Medicare tax (0.9 %, Schedule 2 line 11): **{{ out.additional_medicare_tax_usd | money(currency="USD") }}**
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

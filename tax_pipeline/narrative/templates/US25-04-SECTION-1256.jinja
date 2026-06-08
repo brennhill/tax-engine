@@ -1,0 +1,36 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 1256](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1256&num=0&edition=prelim) contracts — regulated futures, foreign-currency contracts, broad-based index options, dealer equity options, and dealer securities futures — get special treatment. They are marked to market at year end (so unrealized gain/loss is recognized) and the resulting net is split 40 % short-term / 60 % long-term regardless of the actual holding period. [Form 6781](https://www.irs.gov/forms-pubs/about-form-6781) is the worksheet; the split numbers carry to [Schedule D](https://www.irs.gov/forms-pubs/about-schedule-d-form-1040).
+
+{% set split = rule.outputs[0].value | from_json -%}
+For 2025 the [§ 1256](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1256&num=0&edition=prelim) net mark-to-market total is **{{ split.total_usd | money(currency="USD") }}**. Applying the statutory split:
+
+- Short-term portion (40 % per § 1256(a)(3)(A)): **{{ split.short_term_usd | money(currency="USD") }}** — combines with Box A/B/H short-term gains and losses at US25-05.
+- Long-term portion (60 % per § 1256(a)(3)(B)): **{{ split.long_term_usd | money(currency="USD") }}** — combines with Box D/K long-term gains, losses, and 1099-DIV box 2a distributions.
+
+The [§ 1256](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1256&num=0&edition=prelim) split character does not depend on how long you actually held the contract; it is fixed by statute.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

@@ -1,0 +1,5 @@
+section,key,value,source,note
+law,other_income_22nr3_freigrenze_eur,256.00,synthetic_demo,Statutory threshold used by the Germany ordinary-income model.
+law,saver_allowance_eur,2000.00,synthetic_demo,Household saver allowance input; the engine halves it for a single-person filing posture.
+law,capital_tax_rate,0.25,synthetic_demo,Germany capital tax rate used by the saved 2025 model.
+law,soli_rate,0.055,synthetic_demo,Solidarity surcharge rate used by the saved 2025 model.

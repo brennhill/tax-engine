@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tax Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="wizard-shell">
+    <header class="wizard-header" role="banner">
+      <h1>Tax Engine</h1>
+      <p class="strapline">2025 Germany / U.S. cross-border tax pipeline.</p>
+      <p class="lede-paragraph">Local intake wizard. Save your inputs as you go; uploaded documents and generated outputs stay on this machine. <strong>This is not professional tax advice — audit every number before you file.</strong></p>
+    </header>
+
+    <nav class="wizard-nav" aria-label="Wizard sections">
+      <button data-nav-target="workspace">Workspace</button>
+      <button data-nav-target="household">Household</button>
+      <button data-nav-target="identity">Identity</button>
+      <button data-nav-target="bank_accounts">Bank accounts</button>
+      <button data-nav-target="payments">Payments</button>
+      <button data-nav-target="postures">Postures &amp; Elections</button>
+      <button data-nav-target="de_deductions">DE deductions</button>
+      <button data-nav-target="vorabpauschale">Vorabpauschale</button>
+      <button data-nav-target="carryovers">Carryovers</button>
+      <button data-nav-target="children">Children</button>
+      <button data-nav-target="documents">Documents</button>
+      <button data-nav-target="readiness">Readiness</button>
+      <button data-nav-target="run">Run</button>
+      <button data-nav-target="outputs">Outputs</button>
+    </nav>
+
+    <div class="progress-toolbar" role="region" aria-label="Save status">
+      <span id="progress-summary" class="progress-summary">Progress: – of – sections filled</span>
+      <span id="autosave-global-status" class="autosave-global-status" role="status">All saved</span>
+      <button id="save-all-button" type="button">Save all</button>
+      <span id="save-all-status" class="save-all-status" role="status"></span>
+    </div>
+
+    <div id="autosave-banner" class="autosave-banner" role="alert" hidden>
+      Unable to save. Reconnect to save your progress.
+    </div>
+
+    <main>
+      <section class="screen is-active" data-screen="workspace" aria-labelledby="screen-workspace-title">
+        <h2 id="screen-workspace-title">Workspace</h2>
+        <p class="screen-subtitle">Pick the tax year and the folder where its files will live.</p>
+        <p class="lede">Open or create a private workspace for one calendar year. The engine reads inputs and writes outputs under this folder; nothing is uploaded off your machine.</p>
+        <form id="workspace-form">
+          <label>
+            <span class="field-label-row">Year
+              <span class="info-marker" tabindex="0" data-tooltip="Type the 4-digit tax year you are filing for, like 2025. If you leave it blank, we use last calendar year. The tax year is the year the income happened, not the year you are filing in.">i</span>
+            </span>
+            <input name="year" placeholder="YYYY (defaults to prior calendar year)">
+          </label>
+          <label>
+            <span class="field-label-row">Workspace path
+              <span class="info-marker" tabindex="0" data-tooltip="Optional. Pick a folder on your computer where this tax year's files will live. Leave blank to use the default folder under this project. Useful if you want to keep tax data on an encrypted drive.">i</span>
+            </span>
+            <input name="workspace" placeholder="Optional custom folder path">
+          </label>
+          <button type="submit">Open workspace</button>
+        </form>
+        <pre id="workspace-output"></pre>
+      </section>
+
+      <section class="screen" data-screen="household" aria-labelledby="screen-household-title">
+        <h2 id="screen-household-title">Household</h2>
+        <p class="screen-subtitle">Marital status, filing postures, and the names that appear on each return.</p>
+        <p>Names and marital status drive filing-status logic on both sides. The Finanzamt and the IRS each compare names to your tax IDs, so the values here should match your government IDs exactly.</p>
+        <form id="household-form">
+          <label>
+            <span class="field-label-row">Marital status
+              <span class="info-marker" tabindex="0" data-tooltip="Pick whether you were married on December 31 of the tax year. Both Germany and the IRS use that single date to decide your status for the whole year, even if you got married or divorced during the year. (Legal: § 26 EStG; 26 U.S.C. § 7703)">i</span>
+            </span>
+            <select name="marital_status_on_dec_31">
+              <option value="single">Single</option>
+              <option value="married">Married</option>
+            </select>
+          </label>
+          <label>
+            <span class="field-label-row">Germany filing posture
+              <span class="info-marker" tabindex="0" data-tooltip="Pick how Germany should treat you: single, married filing together (Splittingtarif), or married filing separately. Married filing together usually saves money for couples with uneven incomes. See the Postures screen for the full explanation. (Legal: § 26, § 32a EStG)">i</span>
+            </span>
+            <select name="germany_filing_posture">
+              <option value="single">Single</option>
+              <option value="married_joint">Married joint</option>
+              <option value="married_separate">Married separate</option>
+            </select>
+          </label>
+          <label>
+            <span class="field-label-row">U.S. filing posture
+              <span class="info-marker" tabindex="0" data-tooltip="Pick how the IRS should treat you. 'MFS with NRA spouse' is the special category for U.S. citizens whose spouse is not a U.S. person and is not on the U.S. return. 'Married joint' folds both spouses' worldwide income into one U.S. return. (Legal: 26 U.S.C. § 1)">i</span>
+            </span>
+            <select name="usa_filing_posture">
+              <option value="single">Single</option>
+              <option value="mfs_nra_spouse">MFS with NRA spouse</option>
+              <option value="married_joint">Married joint</option>
+            </select>
+          </label>
+          <label>
+            <span class="field-label-row">Taxpayer name
+              <span class="info-marker" tabindex="0" data-tooltip="Type the primary taxpayer's full legal name as it appears on government IDs. The IRS and the German tax office both compare names to your tax ID; a typo can delay processing.">i</span>
+            </span>
+            <input name="taxpayer_name">
+          </label>
+          <label>
+            <span class="field-label-row">Spouse name
+              <span class="info-marker" tabindex="0" data-tooltip="Type your spouse's full legal name. Leave blank if you are filing as single. If your spouse is not a U.S. citizen and you are MFS-with-NRA-spouse, you still need their name on the return.">i</span>
+            </span>
+            <input name="spouse_name">
+          </label>
+          <button type="submit">Save household</button>
+        </form>
+        <pre id="household-output"></pre>
+      </section>
+
+      <section class="screen" data-screen="payments" aria-labelledby="screen-payments-title">
+        <h2 id="screen-payments-title">Payments</h2>
+        <p class="screen-subtitle">Prepayments and withholdings already credited to each authority.</p>
+        <form id="payments-form">
+          <label>
+            <span class="field-label-row">Germany prepayment <span class="currency-tag">EUR</span>
+              <span class="info-marker" tabindex="0" data-tooltip="Type the euros you already prepaid to the German Finanzamt this year (Vorauszahlungen). Look at your prepayment letters or your bank transfers labeled 'Einkommensteuer Vorauszahlung'. Enter 0.00 if you did not prepay anything. The amount is in euros (EUR).">i</span>
+            </span>
+            <span class="input-with-currency">
+              <span class="currency-prefix">€</span>
+              <input name="germany_prepayment" value="0.00" inputmode="decimal">
+              <span class="currency">EUR</span>
+            </span>
+          </label>
+          <label>
+            <span class="field-label-row">U.S. estimated payment <span class="currency-tag">USD</span>
+              <span class="info-marker" tabindex="0" data-tooltip="Type the U.S. dollars you sent to the IRS as quarterly estimated tax during the tax year (Form 1040-ES). Look at your IRS account or your bank transfers labeled 'IRS USATAXPYMT'. Enter 0.00 if you did not send any. The amount is in U.S. dollars (USD).">i</span>
+            </span>
+            <span class="input-with-currency">
+              <span class="currency-prefix">$</span>
+              <input name="usa_estimated_payment" value="0.00" inputmode="decimal">
+              <span class="currency">USD</span>
+            </span>
+          </label>
+          <button type="submit">Save payments</button>
+        </form>
+        <pre id="payments-output"></pre>
+      </section>
+
+      <section class="screen" data-screen="postures" aria-labelledby="screen-postures-title">
+        <h2 id="screen-postures-title">Postures &amp; Elections <span class="screen-status" data-screen-status="postures">Idle</span></h2>
+        <p class="screen-subtitle">Statutory elections and filing postures. Each choice has consequences.</p>
+        <p>
+          Every posture below is a legally-binding election. Hover the
+          <span class="info-marker" aria-hidden="true">i</span> beside each
+          field for the controlling §-citation and the alternative paths
+          that the choice forecloses. Postures marked
+          <span class="coming-soon-marker">coming soon</span> are not yet
+          wired into the engine; selecting the unsupported branch will fail
+          closed at run time.
+        </p>
+        <form id="postures-form">
+          <div id="postures-sections"></div>
+          <div id="postures-validation" class="postures-validation" role="alert"></div>
+          <button type="submit" class="save-now-button">Save elections</button>
+        </form>
+        <pre id="postures-output"></pre>
+      </section>
+
+      <section class="screen" data-screen="identity" aria-labelledby="screen-identity-title">
+        <h2 id="screen-identity-title">Identity &amp; Employment <span class="screen-status" data-screen-status="identity">Idle</span></h2>
+        <p class="screen-subtitle">Personal and employer details for the taxpayer and spouse.</p>
+        <p>
+          Personal details for the taxpayer and (if married) the spouse.
+          Hover the <span class="info-marker" aria-hidden="true">i</span>
+          beside each field for the controlling §-citation.
+        </p>
+        <form id="identity-form" data-screen-form="identity">
+          <div class="screen-sections" data-screen-sections="identity"></div>
+          <div class="screen-validation" data-screen-validation="identity" role="alert"></div>
+          <div class="screen-meta" data-screen-meta="identity"></div>
+          <button type="submit" class="save-now-button">Save identity</button>
+        </form>
+        <pre id="identity-output"></pre>
+      </section>
+
+      <section class="screen" data-screen="bank_accounts" aria-labelledby="screen-bank-title">
+        <h2 id="screen-bank-title">Bank Accounts <span class="screen-status" data-screen-status="bank_accounts">Idle</span></h2>
+        <p class="screen-subtitle">Non-U.S. accounts for Schedule B Part III and FBAR thresholds.</p>
+        <p>
+          Foreign accounts (non-US) trigger Schedule B Part III and the
+          FBAR threshold per 31 U.S.C. § 5314. Add one row per account.
+        </p>
+        <form id="bank_accounts-form" data-screen-form="bank_accounts">
+          <div class="screen-rows" data-screen-rows="bank_accounts"></div>
+          <button type="button" class="row-add-button" data-add-row="bank_accounts">Add account</button>
+          <div class="screen-validation" data-screen-validation="bank_accounts" role="alert"></div>
+          <div class="screen-meta" data-screen-meta="bank_accounts"></div>
+          <button type="submit" class="save-now-button">Save accounts</button>
+        </form>
+        <pre id="bank_accounts-output"></pre>
+      </section>
+
+      <section class="screen" data-screen="de_deductions" aria-labelledby="screen-dedeductions-title">
+        <h2 id="screen-dedeductions-title">DE Deductions <span class="screen-status" data-screen-status="de_deductions">Idle</span></h2>
+        <p class="screen-subtitle">German außergewöhnliche Belastungen, Sonderausgaben, and Arbeitszimmer.</p>
+        <p>
+          German außergewöhnliche Belastungen, Sonderausgaben, and the
+          § 4 Abs. 5 Satz 1 Nr. 6b Arbeitszimmer election.
+        </p>
+        <form id="de_deductions-form" data-screen-form="de_deductions">
+          <div class="screen-sections" data-screen-sections="de_deductions"></div>
+          <div class="screen-validation" data-screen-validation="de_deductions" role="alert"></div>
+          <div class="screen-meta" data-screen-meta="de_deductions"></div>
+          <button type="submit" class="save-now-button">Save deductions</button>
+        </form>
+        <pre id="de_deductions-output"></pre>
+      </section>
+
+      <section class="screen" data-screen="vorabpauschale" aria-labelledby="screen-vorab-title">
+        <h2 id="screen-vorab-title">Vorabpauschale <span class="screen-status" data-screen-status="vorabpauschale">Idle</span></h2>
+        <p class="screen-subtitle">Per-fund inputs for the InvStG § 18 advance lump-sum calculation.</p>
+        <p>
+          Per-fund inputs feeding InvStG § 18 Vorabpauschale. NAV at first
+          and last valuation, distributions, months held, and fund class
+          (drives the § 20 Teilfreistellung rate).
+        </p>
+        <form id="vorabpauschale-form" data-screen-form="vorabpauschale">
+          <div class="screen-rows" data-screen-rows="vorabpauschale"></div>
+          <button type="button" class="row-add-button" data-add-row="vorabpauschale">Add fund</button>
+          <div class="screen-validation" data-screen-validation="vorabpauschale" role="alert"></div>
+          <div class="screen-meta" data-screen-meta="vorabpauschale"></div>
+          <button type="submit" class="save-now-button">Save Vorabpauschale</button>
+        </form>
+        <pre id="vorabpauschale-output"></pre>
+      </section>
+
+      <section class="screen" data-screen="carryovers" aria-labelledby="screen-carryovers-title">
+        <h2 id="screen-carryovers-title">Prior-Year Carryovers <span class="screen-status" data-screen-status="carryovers">Idle</span></h2>
+        <p class="screen-subtitle">Foreign tax credit, capital loss, and § 20 Abs. 6 carryforwards.</p>
+        <p>
+          U.S. FTC carryovers per 26 U.S.C. § 904(c), capital-loss
+          carryovers per 26 U.S.C. § 1212(b), and German § 20 Abs. 6
+          loss carryforwards.
+        </p>
+        <form id="carryovers-form" data-screen-form="carryovers">
+          <div class="screen-sections" data-screen-sections="carryovers"></div>
+          <div class="screen-validation" data-screen-validation="carryovers" role="alert"></div>
+          <div class="screen-meta" data-screen-meta="carryovers"></div>
+          <button type="submit" class="save-now-button">Save carryovers</button>
+        </form>
+        <pre id="carryovers-output"></pre>
+      </section>
+
+      <section class="screen" data-screen="children" aria-labelledby="screen-children-title">
+        <h2 id="screen-children-title">Children &amp; Dependents <span class="screen-status" data-screen-status="children">Idle</span></h2>
+        <p class="screen-subtitle">One row per child or dependent, used by both U.S. and German credits.</p>
+        <p>
+          One row per child or dependent. The IRS uses these rows for the
+          Child Tax Credit and the Credit for Other Dependents
+          (26 U.S.C. § 24, § 152). Germany uses them for the
+          Kinderfreibetrag / Kindergeld Günstigerprüfung
+          (§ 31, § 32 EStG; BKGG § 6).
+        </p>
+        <form id="children-form" data-screen-form="children">
+          <div class="screen-rows" data-screen-rows="children"></div>
+          <button type="button" class="row-add-button" data-add-row="children">Add child</button>
+          <div class="screen-validation" data-screen-validation="children" role="alert"></div>
+          <div class="screen-meta" data-screen-meta="children"></div>
+          <button type="submit" class="save-now-button">Save dependents</button>
+        </form>
+        <pre id="children-output"></pre>
+      </section>
+
+      <section class="screen" data-screen="documents" aria-labelledby="screen-documents-title">
+        <h2 id="screen-documents-title">Documents</h2>
+        <p class="screen-subtitle">Upload supporting documents. Files stay on this machine.</p>
+        <p>Attach the paper that backs each line. Files stay on this machine; only their cryptographic hashes enter the audit trail.</p>
+        <form id="document-upload-form">
+          <label>
+            <span class="field-label-row">Choose file
+              <span class="info-marker" tabindex="0" data-tooltip="Pick a PDF, image, or CSV from your computer to upload as supporting evidence (a broker statement, a German tax certificate, a charity receipt, etc.). The file stays on your machine and is hashed for the audit trail.">i</span>
+            </span>
+            <input type="file" name="document">
+          </label>
+          <label>
+            <span class="field-label-row">Evidence-only bucket
+              <span class="info-marker" tabindex="0" data-tooltip="Pick which folder to drop the file into. 'Auto' lets us guess from the filename. 'Receipts' is for charity and medical receipts. 'Germany' is for ELSTER-related papers. 'U.S.' is for IRS forms and broker statements.">i</span>
+            </span>
+            <select name="manual_bucket">
+              <option value="">Auto</option>
+              <option value="receipts">Receipts</option>
+              <option value="germany">Germany</option>
+              <option value="us">U.S.</option>
+            </select>
+          </label>
+          <label class="inline-checkbox">
+            <input type="checkbox" name="evidence_only">
+            <span class="field-label-row">Store as evidence-only
+              <span class="info-marker" tabindex="0" data-tooltip="Check this if the file is just a record-keeping copy and should not be parsed for numbers (no auto-extraction). Useful for receipts and ID scans you want to keep in the audit trail without feeding them into the calculator.">i</span>
+            </span>
+          </label>
+          <button type="submit">Upload document</button>
+        </form>
+        <pre id="documents-output"></pre>
+      </section>
+
+      <section class="screen" data-screen="readiness" aria-labelledby="screen-readiness-title">
+        <h2 id="screen-readiness-title">Readiness</h2>
+        <p class="screen-subtitle">Check whether every required input is present before running.</p>
+        <p class="screen-help">Click the button to check whether all the inputs the calculator needs are present. Any missing or invalid inputs are listed with a plain-language hint of what to fix.</p>
+        <button id="readiness-button" type="button">Inspect inputs</button>
+        <pre id="readiness-output"></pre>
+      </section>
+
+      <section class="screen" data-screen="run" aria-labelledby="screen-run-title">
+        <h2 id="screen-run-title">Run</h2>
+        <p class="screen-subtitle">Run the pipeline and write the legal output package.</p>
+        <p>The pipeline runs the legal stages, writes a full audit trail, and persists the rendered filings to your workspace. After a successful run, use the Outputs section below to open or download the generated filing packages, legal audit files, final legal output JSON, and legal narratives.</p>
+        <button id="run-button" type="button">Run pipeline</button>
+        <pre id="run-output"></pre>
+        <div id="run-failure-card" class="run-failure-card" role="alert"></div>
+      </section>
+
+      <section class="screen" data-screen="outputs" aria-labelledby="screen-outputs-title">
+        <h2 id="screen-outputs-title">Outputs</h2>
+        <p class="screen-subtitle">Browse and download the files the pipeline produced.</p>
+        <p>The pipeline writes generated files under your workspace. The most important review files are the final legal output and the country narrative reports.</p>
+        <button id="outputs-button" type="button">Open outputs</button>
+        <div id="outputs-summary" class="outputs-summary"></div>
+        <div id="outputs-list" class="outputs-list"></div>
+        <pre id="outputs-output"></pre>
+      </section>
+    </main>
+
+    <footer class="wizard-foot" role="contentinfo">
+      <p class="disclaimer-banner">Not professional tax advice. Audit every number before you file.</p>
+      <p>
+        The author(s) and contributors are not tax accountants, attorneys, enrolled agents, or financial advisors. The engine is provided <em>as is</em>, with no warranty of correctness, completeness, fitness for filing, or compliance with any jurisdiction's law. The audit trail (<code>final-legal-output.json</code>, narratives, forms) exists so you can verify every number against authoritative sources before relying on it.
+      </p>
+      <p class="colophon">
+        Tax Engine &middot; distributed under <a href="https://www.gnu.org/licenses/agpl-3.0.html" rel="external">GNU AGPL-3.0-or-later</a>
+      </p>
+    </footer>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

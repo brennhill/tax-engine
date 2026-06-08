@@ -1,0 +1,61 @@
+# Form 8960 — Net Investment Income Tax — Individuals, Estates, and Trusts
+# Authority: 26 U.S.C. § 1411; IRS Form 8960 instructions.
+# https://www.irs.gov/forms-pubs/about-form-8960
+#
+# Y2 / P5 form-schema-as-data. Only the lines the renderer surfaces
+# in the supported posture are declared (Part I lines 1/2/5a/5b/5c/
+# 5d/7/8, Part II line 11, Part III line 12 + line 17 NIIT scalar).
+
+form_id = "form_8960"
+form_year = 2025
+display_name = "Form 8960 — Net Investment Income Tax"
+canonical_form_name = "Form 8960"
+authority_url = "https://www.irs.gov/forms-pubs/about-form-8960"
+
+[[lines]]
+line_id = "1"
+label = "Line 1"
+
+[[lines]]
+line_id = "2"
+label = "Line 2"
+
+[[lines]]
+line_id = "5a"
+label = "Line 5a"
+
+[[lines]]
+line_id = "5b"
+label = "Line 5b"
+
+[[lines]]
+line_id = "5c"
+label = "Line 5c"
+
+[[lines]]
+line_id = "5d"
+label = "Line 5d"
+
+[[lines]]
+line_id = "7"
+label = "Line 7"
+
+[[lines]]
+line_id = "8"
+label = "Line 8"
+
+[[lines]]
+line_id = "11"
+label = "Line 11"
+
+[[lines]]
+line_id = "12"
+label = "Line 12"
+
+[[lines]]
+line_id = "selected_niit_threshold"
+label = "Selected NIIT threshold"
+
+[[lines]]
+line_id = "17"
+label = "Line 17"

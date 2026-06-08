@@ -1,0 +1,44 @@
+# Form 6251 — Alternative Minimum Tax — Individuals
+# Authority: 26 U.S.C. § 55 (tentative minimum tax), § 56 (AMTI add-
+# backs), § 59 (AMTFTC); Rev. Proc. 2024-40 § 3.11 (2025 inflation
+# adjustments); IRS Form 6251 instructions.
+# https://www.irs.gov/forms-pubs/about-form-6251
+#
+# Y2 / P5 form-schema-as-data: line numbers track the 2024-revision
+# Form 6251 (the 2025 form retains the same line numbering as of
+# publication). The renderer reads each line label via
+# schema.label(line_id).
+
+form_id = "form_6251"
+form_year = 2025
+display_name = "Form 6251 — Alternative Minimum Tax (Individuals)"
+canonical_form_name = "Form 6251"
+authority_url = "https://www.irs.gov/forms-pubs/about-form-6251"
+
+[[lines]]
+line_id = "4"
+label = "Line 4"
+
+[[lines]]
+line_id = "preferential_amti"
+label = "Preferential AMTI (§ 55(b)(3))"
+
+[[lines]]
+line_id = "5"
+label = "Line 5"
+
+[[lines]]
+line_id = "6"
+label = "Line 6"
+
+[[lines]]
+line_id = "7"
+label = "Line 7"
+
+[[lines]]
+line_id = "8"
+label = "Line 8"
+
+[[lines]]
+line_id = "11"
+label = "Line 11"

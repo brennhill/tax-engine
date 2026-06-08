@@ -1,0 +1,106 @@
+## {{ rule.title }}
+
+{# rule.outputs[0].value is the packet-formatted "<Decimal> EUR" string
+   produced by the rule narrative builder; the existing ``money`` filter
+   accepts a bare Decimal-convertible value, so we strip the unit
+   suffix before passing it through. #}
+{% set transferred_eur = rule.outputs[0].value | replace(" EUR", "") -%}
+{% set en_amount = transferred_eur | money(currency="EUR") -%}
+{# § 33b Abs. 5 Satz 3 EStG narrative — German-locale sibling so the audit
+   reader sees both formattings. The English ``money`` filter renders e.g.
+   "2,120.00 EUR"; we hand-flip thousand/decimal separators for the German
+   variant ("2.120,00 EUR") because the existing money filter is single-
+   locale. Both pin the same Decimal scalar. #}
+{% set de_locale_swap = en_amount.replace(",", "_TMP_").replace(".", ",").replace("_TMP_", ".") -%}
+{% if rule.language == "de" -%}
+[§ 33b Abs. 3 EStG](https://www.gesetze-im-internet.de/estg/__33b.html)
+sieht einen Pauschbetrag wegen Behinderung vor (gestaffelt nach dem Grad
+der Behinderung; § 33b Abs. 3 Satz 3 EStG sieht den erhöhten
+Pauschbetrag von 7 400 EUR für hilflose oder blinde Menschen vor). Die
+Pauschbetragssätze für 2025 stammen aus dem Behinderten-Pauschbetrags-
+gesetz [(BGBl. I 2020 S. 2770)](https://www.gesetze-im-internet.de/bgbl_i_2020/2770.html),
+das die Sätze ab 2021 verdoppelt und unverändert nach 2025 trägt.
+
+[§ 33b Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__33b.html)
+erlaubt die **Übertragung** des einem Kind zustehenden Pauschbetrags
+auf die Eltern, wenn das Kind ihn nicht bei seiner eigenen Veranlagung
+geltend macht (§ 33b Abs. 5 Satz 1 EStG). Die Übertragung wirkt sich
+über § 2 Abs. 5 EStG auf das zu versteuernde Einkommen der Eltern aus
+(§ 33b Abs. 5 Satz 2 EStG).
+
+{# BMF-VERIFIED 2026-05-12 — Anlage Kind 2025 fields 65/66 (per-child Pauschbetrag certification + abweichende Aufteilung) per § 33b Abs. 5 Satz 3 EStG, against ELSTER 2025 instructions https://www.elster.de/eportal/helpGlobal?themaGlobal=help_est_ufa_10_2025 #}
+**Aufteilung zwischen den Eltern** ([§ 33b Abs. 5 Satz 3 EStG](https://www.gesetze-im-internet.de/estg/__33b.html)):
+*"Der einem Kind zustehende Pauschbetrag … wird auf die Elternteile zu
+gleichen Teilen aufgeteilt, es sei denn, sie beantragen gemeinsam eine
+andere Aufteilung."* In der Anlage Kind 2025 wird die abweichende
+Aufteilung in Zeile 66 eingetragen; bleibt diese Zeile leer, gilt der
+gesetzliche 50/50-Standard.
+
+Für 2025:
+
+- Übertragener Pauschbetrag: **{{ de_locale_swap }}** — fließt über
+  DE25-07 in die zvE der Eltern ein.
+- Wahlrechtsstand: {{ rule.inputs_by_key["de.derived.children_disability_pauschbetrag_transfer_election"].value }}
+- Berücksichtigungsfähige Kinder vorhanden:
+  {{ rule.inputs_by_key["de.derived.children_present"].value }}
+
+{# BMF-VERIFIED 2026-05-12 — Anlage Kind 2025 field 65 (per-child Pauschbetrag certification data) against ELSTER 2025 instructions https://www.elster.de/eportal/helpGlobal?themaGlobal=help_est_ufa_10_2025 #}
+**Form locations**
+
+- [Anlage Kind Zeile 65](https://www.gesetze-im-internet.de/estg/__33b.html)
+  — der per § 33b Abs. 5 EStG auf die Eltern übertragene Pauschbetrag
+  in Euro.
+{% else -%}
+[§ 33b Abs. 3 EStG](https://www.gesetze-im-internet.de/estg/__33b.html)
+grants a flat allowance for disability, scaled by the Grad der
+Behinderung (GdB); § 33b Abs. 3 Satz 3 EStG carries a special amount of
+EUR 7,400 for hilflose / blinde Menschen. The 2025 schedule values come
+from the Behinderten-Pauschbetragsgesetz [(BGBl. I 2020 S. 2770)](https://www.gesetze-im-internet.de/bgbl_i_2020/2770.html),
+which doubled the rates effective 2021 and carries unchanged into 2025.
+
+[§ 33b Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__33b.html)
+permits **transferring** a qualifying child's Pauschbetrag to the
+parents when the child does not claim it on their own assessment
+(§ 33b Abs. 5 Satz 1 EStG). The transferred allowance attaches to the
+parents' assessment under the § 2 Abs. 5 EStG ordering (§ 33b Abs. 5
+Satz 2 EStG).
+
+{# BMF-VERIFIED 2026-05-12 — Anlage Kind 2025 field 66 (joint-election alternate split per § 33b Abs. 5 Satz 3 EStG) against ELSTER 2025 instructions https://www.elster.de/eportal/helpGlobal?themaGlobal=help_est_ufa_10_2025 #}
+**Split between parents** ([§ 33b Abs. 5 Satz 3 EStG](https://www.gesetze-im-internet.de/estg/__33b.html)):
+*"Der einem Kind zustehende Pauschbetrag … wird auf die Elternteile zu
+gleichen Teilen aufgeteilt, es sei denn, sie beantragen gemeinsam eine
+andere Aufteilung."* The statutory default is a 50/50 split; the Anlage
+Kind 2025 form captures any joint-election override on Zeile 66
+(leaving Zeile 66 blank means the 50/50 default applies).
+
+For 2025:
+
+- Transferred Pauschbetrag: **{{ en_amount }}** — flows through DE25-07
+  into the parents' zvE.
+- Election active:
+  {{ rule.inputs_by_key["de.derived.children_disability_pauschbetrag_transfer_election"].value }}
+- Qualifying children present:
+  {{ rule.inputs_by_key["de.derived.children_present"].value }}
+
+{# BMF-VERIFIED 2026-05-12 — Anlage Kind 2025 field 65 (per-child Pauschbetrag certification data) against ELSTER 2025 instructions https://www.elster.de/eportal/helpGlobal?themaGlobal=help_est_ufa_10_2025 #}
+**Form locations**
+
+- [Anlage Kind Zeile 65](https://www.gesetze-im-internet.de/estg/__33b.html)
+  — the per-child Pauschbetrag amount transferred to the parents under
+  § 33b Abs. 5 EStG.
+{% endif %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

@@ -1,0 +1,79 @@
+{
+  "doc_type": "german_lohnsteuer_pdf",
+  "owner": "person_1",
+  "relative_path": "germany/alex-north-lohnsteuer-2025.pdf",
+  "facts": [
+    {
+      "key": "gross_wage_eur",
+      "value": "120000.00",
+      "source": {
+        "file": "germany/alex-north-lohnsteuer-2025.pdf"
+      },
+      "notes": "Synthetic German wage certificate with 100k salary plus 20k stock compensation embedded in payroll."
+    },
+    {
+      "key": "withheld_wage_tax_eur",
+      "value": "28000.00",
+      "source": {
+        "file": "germany/alex-north-lohnsteuer-2025.pdf"
+      },
+      "notes": "Synthetic withheld wage tax."
+    },
+    {
+      "key": "withheld_solidarity_surcharge_eur",
+      "value": "1540.00",
+      "source": {
+        "file": "germany/alex-north-lohnsteuer-2025.pdf"
+      },
+      "notes": "Synthetic withheld solidarity surcharge."
+    },
+    {
+      "key": "multiannual_wage_eur",
+      "value": "0.00",
+      "source": {
+        "file": "germany/alex-north-lohnsteuer-2025.pdf"
+      },
+      "notes": "No multiannual wage amount in the demo."
+    },
+    {
+      "key": "employer_pension_contribution_eur",
+      "value": "6000.00",
+      "source": {
+        "file": "germany/alex-north-lohnsteuer-2025.pdf"
+      },
+      "notes": "Synthetic employer pension contribution."
+    },
+    {
+      "key": "employee_pension_contribution_eur",
+      "value": "11160.00",
+      "source": {
+        "file": "germany/alex-north-lohnsteuer-2025.pdf"
+      },
+      "notes": "Synthetic employee pension contribution."
+    },
+    {
+      "key": "employee_health_insurance_eur",
+      "value": "9360.00",
+      "source": {
+        "file": "germany/alex-north-lohnsteuer-2025.pdf"
+      },
+      "notes": "Synthetic statutory health-insurance contribution."
+    },
+    {
+      "key": "employee_nursing_care_insurance_eur",
+      "value": "1830.00",
+      "source": {
+        "file": "germany/alex-north-lohnsteuer-2025.pdf"
+      },
+      "notes": "Synthetic nursing-care contribution."
+    },
+    {
+      "key": "employee_unemployment_insurance_eur",
+      "value": "1560.00",
+      "source": {
+        "file": "germany/alex-north-lohnsteuer-2025.pdf"
+      },
+      "notes": "Synthetic unemployment-insurance contribution."
+    }
+  ]
+}

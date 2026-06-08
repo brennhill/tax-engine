@@ -1,0 +1,27 @@
+# § 20 InvStG 2018 (Teilfreistellung)
+#
+# Authority root: https://www.gesetze-im-internet.de/invstg_2018/__20.html
+#
+# Migrated per W2.A / T1.2 of .review/2026-05-11-implementation-plan.md
+# (deferred F1 tables to TOML). Per-fund-type Teilfreistellung schedule
+# under § 20 Abs. 1 Nr. 1, Abs. 1 Nr. 2, Abs. 3 Nr. 1, Abs. 3 Nr. 2
+# InvStG 2018. The English aliases (equity / mixed / property /
+# foreign_property / other) are accepted alongside the German labels
+# to ease workspace authoring.
+
+[FUND_TEILFREISTELLUNG_RATES_2025]
+authority = "§ 20 Abs. 1 Nr. 1 InvStG 2018 Aktienfonds (≥ 51 % Kapitalbeteiligungen) → 30 % Teilfreistellung; § 20 Abs. 1 Nr. 2 InvStG 2018 Mischfonds (≥ 25 % Kapitalbeteiligungen) → 15 % Teilfreistellung; § 20 Abs. 3 Nr. 1 InvStG 2018 Immobilienfonds (inländisch) → 60 % Teilfreistellung; § 20 Abs. 3 Nr. 2 InvStG 2018 ausländische Immobilienfonds → 80 % Teilfreistellung; § 20 InvStG 2018 Auffangkategorie sonstige Investmentfonds → 0 %."
+citation_url = "https://www.gesetze-im-internet.de/invstg_2018/__20.html"
+shape = "dict_str_decimal"
+
+[FUND_TEILFREISTELLUNG_RATES_2025.entries]
+aktienfonds = "0.30"
+equity = "0.30"
+mischfonds = "0.15"
+mixed = "0.15"
+immobilienfonds = "0.60"
+property = "0.60"
+auslands_immobilienfonds = "0.80"
+foreign_property = "0.80"
+sonstige = "0.00"
+other = "0.00"

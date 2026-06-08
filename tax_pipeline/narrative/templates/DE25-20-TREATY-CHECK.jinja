@@ -1,0 +1,61 @@
+## {{ rule.title }}
+
+{% set out = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[DBA-USA Art. 10](https://www.irs.gov/pub/irs-trty/germtech.pdf) deckelt die deutsche Quellensteuer auf U.S.-Aktiendividenden auf 15 %; [DBA-USA Art. 23](https://www.irs.gov/pub/irs-trty/germtech.pdf) (Methodenartikel) verlangt, dass Deutschland als Wohnsitzstaat die anteilige U.S.-Steuer anrechnet. Diese Anrechnung **muss** über [§ 32d Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32d.html) laufen — eine eigenständige "Treaty-Anrechnung" außerhalb der [§ 32d](https://www.gesetze-im-internet.de/estg/__32d.html)-Logik fällt **fail-closed** aus, weil sie die Pro-Item-Caps unterläuft.
+
+Für 2025:
+
+- Treaty-Anrechnung (muss 0 sein, sonst fail-closed): **{{ out.treaty_credit_eur | money(currency="EUR") }}**
+- Kapitalertragsteuer **vor** Treaty-Prüfung: **{{ out.income_tax_before_treaty | money(currency="EUR") }}**
+- Kapitalertragsteuer **nach** Treaty-Prüfung: **{{ out.income_tax_after_treaty | money(currency="EUR") }}**
+- SolZ vor Treaty: **{{ out.solidarity_surcharge_before_treaty | money(currency="EUR") }}**
+- SolZ nach Treaty: **{{ out.solidarity_surcharge_after_treaty | money(currency="EUR") }}**
+
+Pro-Posten Treaty-Dividenden-Items (für die Cross-Border-Spur in TREATY25-17):
+
+{% for item in out.treaty_dividend_packet_items -%}
+- {{ item.item_id }} ({{ item.dividend_class }}, owner={{ item.owner_slot }}): brutto **{{ item.gross_dividend_eur | money(currency="EUR") }}**, deutsche Vorsteuer **{{ item.germany_precredit_tax_eur | money(currency="EUR") }}**, deutsche Anrechnung U.S.-Steuer **{{ item.germany_residence_credit_eur | money(currency="EUR") }}**, Art. 10-Deckel **{{ item.article_10_source_tax_ceiling_eur | money(currency="EUR") }}**
+{% endfor %}
+{% else -%}
+[DBA-USA Article 10](https://www.irs.gov/pub/irs-trty/germtech.pdf) caps Germany's withholding on U.S. equity dividends at 15 %; [DBA-USA Article 23](https://www.irs.gov/pub/irs-trty/germtech.pdf) (the methods article) requires Germany as residence state to credit the proportional U.S. tax. That credit **must** flow through [§ 32d Abs. 5 EStG](https://www.gesetze-im-internet.de/estg/__32d.html) — a freestanding "treaty credit" outside the [§ 32d](https://www.gesetze-im-internet.de/estg/__32d.html) logic **fails closed**, because it would bypass the per-item caps.
+
+For 2025:
+
+- Treaty credit (must be zero, otherwise fail-closed): **{{ out.treaty_credit_eur | money(currency="EUR") }}**
+- Capital tax **before** treaty check: **{{ out.income_tax_before_treaty | money(currency="EUR") }}**
+- Capital tax **after** treaty check: **{{ out.income_tax_after_treaty | money(currency="EUR") }}**
+- SolZ before treaty: **{{ out.solidarity_surcharge_before_treaty | money(currency="EUR") }}**
+- SolZ after treaty: **{{ out.solidarity_surcharge_after_treaty | money(currency="EUR") }}**
+
+Per-item treaty dividend packet (handed to the cross-border treaty graph at TREATY25-17):
+
+{% for item in out.treaty_dividend_packet_items -%}
+- {{ item.item_id }} ({{ item.dividend_class }}, owner={{ item.owner_slot }}): gross **{{ item.gross_dividend_eur | money(currency="EUR") }}**, German pre-credit tax **{{ item.germany_precredit_tax_eur | money(currency="EUR") }}**, German credit for U.S. tax **{{ item.germany_residence_credit_eur | money(currency="EUR") }}**, Article 10 source ceiling **{{ item.article_10_source_tax_ceiling_eur | money(currency="EUR") }}**
+{% endfor %}
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

@@ -1,0 +1,55 @@
+## {{ rule.title }}
+
+{% set ft = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[InvStG § 20](https://www.gesetze-im-internet.de/invstg_2018/__20.html) stellt einen Teil der Erträge aus Investmentfonds steuerfrei (Teilfreistellung): **30 %** für Aktienfonds, **15 %** für Mischfonds, **60 %** für Immobilienfonds, **80 %** für Auslandsimmobilienfonds. [InvStG § 21](https://www.gesetze-im-internet.de/invstg_2018/__21.html) versagt entsprechend dieselbe Quote bei Verlusten. Dadurch wird die Doppelbesteuerung mit der Investmentsteuer-Vorbelastung kompensiert. Die Teilfreistellung wird **vor** der Verlustverrechnung nach [§ 20 Abs. 6 EStG](https://www.gesetze-im-internet.de/estg/__20.html) (DE25-15) und vor dem Sparer-Pauschbetrag (DE25-16) angewendet.
+
+Für 2025:
+
+- Reduktion durch Teilfreistellung (Bruttofondsgewinn × Freistellungsquote): **{{ ft.fund_teilfreistellung_reduction | money(currency="EUR") }}**
+- Steuerpflichtiger Fondsanteil nach Teilfreistellung: **{{ ft.fund_taxable_after_teilfreistellung | money(currency="EUR") }}**
+
+Pro Fondssymbol nach Teilfreistellung (zur Quellensteueranrechnung pro Posten in DE25-18):
+
+{% for symbol, value in ft.taxable_by_symbol_after_fund_teilfreistellung.items() -%}
+- {{ symbol }}: **{{ value | money(currency="EUR") }}**
+{% endfor %}
+{% else -%}
+[InvStG § 20](https://www.gesetze-im-internet.de/invstg_2018/__20.html) partially exempts investment-fund income (Teilfreistellung): **30 %** for equity funds, **15 %** for mixed, **60 %** for German property funds, **80 %** for foreign property funds. [InvStG § 21](https://www.gesetze-im-internet.de/invstg_2018/__21.html) disallows the same percentage of related losses. The exemption compensates for the fund-level investment-tax already paid. Teilfreistellung is applied **before** [§ 20 Abs. 6 EStG](https://www.gesetze-im-internet.de/estg/__20.html) loss-netting (DE25-15) and before the saver allowance (DE25-16).
+
+For 2025:
+
+- Teilfreistellung reduction (gross fund gain × exemption rate): **{{ ft.fund_teilfreistellung_reduction | money(currency="EUR") }}**
+- Taxable fund portion after Teilfreistellung: **{{ ft.fund_taxable_after_teilfreistellung | money(currency="EUR") }}**
+
+Per fund symbol after Teilfreistellung (so per-item foreign tax credits at DE25-18 can clamp to the right base):
+
+{% for symbol, value in ft.taxable_by_symbol_after_fund_teilfreistellung.items() -%}
+- {{ symbol }}: **{{ value | money(currency="EUR") }}**
+{% endfor %}
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

@@ -1,0 +1,48 @@
+## {{ rule.title }}
+
+{% if rule.language == "de" -%}
+[InvStG § 19](https://www.gesetze-im-internet.de/invstg_2018/__19.html) erhebt eine Vorabpauschale auf thesaurierende (also Erträge nicht ausschüttende) Investmentfonds, damit diese nicht jahrelang unbesteuert wachsen. Die Bemessungsgrundlage definiert [InvStG § 18](https://www.gesetze-im-internet.de/invstg_2018/__18.html): **Basisertrag = NAV_Anfang × 0,7 × Basiszinssatz × Haltemonate / 12**. Tatsächliche Ausschüttungen werden gemäß § 18 Abs. 1 Satz 3 davon abgezogen, [InvStG § 16 Abs. 1 Nr. 2](https://www.gesetze-im-internet.de/invstg_2018/__16.html) deckelt das Ergebnis auf den tatsächlichen Wertzuwachs (NAV_Ende − NAV_Anfang), und [InvStG § 20](https://www.gesetze-im-internet.de/invstg_2018/__20.html) wendet anschließend dieselbe Teilfreistellungsquote wie auf Ausschüttungen an.
+
+Der Basiszinssatz für 2025 beträgt **2,53 %** (BMF-Schreiben vom 16.01.2025, IV C 1 - S 1980-1/19/10005:008). Die Vorabpauschale ist **laufender Ertrag** im Sinne von § 32d Abs. 1 EStG (25 % Abgeltungsteuer) und fließt in die § 20 Abs. 6 EStG-Verrechnung als Nicht-Aktien-Ertrag (§ 20 Abs. 6 Satz 4 EStG verbietet die Verrechnung mit Aktienverlusten).
+
+Für 2025:
+
+{% for output in rule.outputs -%}
+- `{{ output.key }}`: **{{ output.value }}**
+{% endfor %}
+{% else -%}
+[InvStG § 19](https://www.gesetze-im-internet.de/invstg_2018/__19.html) imposes a deemed-distribution levy (Vorabpauschale) on accumulating investment funds so they cannot grow tax-free indefinitely. [InvStG § 18](https://www.gesetze-im-internet.de/invstg_2018/__18.html) fixes the base: **Basisertrag = NAV_start × 0.7 × Basiszinssatz × months_held / 12**. Actual distributions are netted out per § 18 Abs. 1 Satz 3, [InvStG § 16 Abs. 1 Nr. 2](https://www.gesetze-im-internet.de/invstg_2018/__16.html) caps the result at the year's NAV gain (NAV_end − NAV_start), and [InvStG § 20](https://www.gesetze-im-internet.de/invstg_2018/__20.html) then applies the same Teilfreistellung rate that already routes actual distributions.
+
+The 2025 Basiszinssatz is **2.53 %** (BMF-Schreiben dated 16 January 2025, IV C 1 - S 1980-1/19/10005:008). The Vorabpauschale is **laufender Ertrag** under § 32d Abs. 1 EStG (25% Abgeltungsteuer) and feeds § 20 Abs. 6 EStG netting as a non-stock-gain bucket (§ 20 Abs. 6 Satz 4 EStG forbids offsetting against stock losses).
+
+For 2025:
+
+{% for output in rule.outputs -%}
+- `{{ output.key }}`: **{{ output.value }}**
+{% endfor %}
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

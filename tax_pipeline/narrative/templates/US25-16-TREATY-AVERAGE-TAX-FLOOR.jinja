@@ -1,0 +1,43 @@
+## {{ rule.title }}
+
+IRS Publication 514's treaty re-sourcing worksheet (lines 16-18) uses an *average-rate* method: it computes the U.S. tax burden on the U.S.-source dividend stack as if those dividends were taxed at your overall effective rate, then compares that U.S. tax to the 15 % treaty source-country floor ([DBA-USA Article 10](https://www.irs.gov/pub/irs-trty/germtech.pdf)'s reduced source-country rate). Excess above the floor is what the treaty re-sourcing additional credit can target.
+
+{% set lim = rule.outputs[0].value | from_json -%}
+{% set src = rule.inputs_by_key["us.stage.treaty_us_source_dividends"].value | from_json -%}
+{% set rt = rule.inputs_by_key["us.stage.regular_tax_before_credits"].value | from_json -%}
+For 2025:
+
+- U.S.-source dividends from US25-15: **{{ src.us_source_dividends_usd | money(currency="USD") }}**
+- Regular tax before credits (US25-09): **{{ rt.regular_tax_before_credits_usd | money(currency="USD") }}**
+- Taxable income (US25-08, Form 1040 line 15): **{{ rule.inputs_by_key["us.stage.taxable_income"].value | money(currency="USD") }}**
+
+[Pub. 514](https://www.irs.gov/publications/p514) line 16 — U.S. tax on the U.S.-source dividend stack at average rate `regular_tax × (us_source_dividends / taxable_income)`: **{{ lim.us_tax_on_us_source_dividends_usd | money(currency="USD") }}**.
+
+[Pub. 514](https://www.irs.gov/publications/p514) line 17 — treaty 15 % source-country tax on the same stack: **{{ lim.treaty_minimum_us_tax_on_us_source_dividends_usd | money(currency="USD") }}**.
+
+[Pub. 514](https://www.irs.gov/publications/p514) line 18 (= line 16 − line 17, floored at zero): **{{ lim.treaty_resourcing_us_limitation_usd | money(currency="USD") }}**. This is the amount of U.S. tax above the treaty floor that the additional credit can chase.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

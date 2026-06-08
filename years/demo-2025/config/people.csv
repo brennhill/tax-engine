@@ -1,0 +1,2 @@
+person_id,display_name,first_name,last_name,gender,relationship_role,elster_order,us_filer,is_taxpayer,is_spouse,date_of_birth,citizenship,country_of_tax_residence,german_tax_id,us_ssn_or_itin,nra_for_us_return,german_health_insurer,german_statutory_health_with_sick_pay,german_other_vorsorge_cap_eur,church_tax_applicable
+person_1,Alex North,Alex,North,,taxpayer,1,true,true,false,,"US,DE",DE,,,false,TK,true,1900.00,false

@@ -1,0 +1,25 @@
+# § 32a EStG (Einkommensteuertarif)
+#
+# Authority root: https://www.gesetze-im-internet.de/estg/__32a.html
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[TARIFF_2025_GROUND_ALLOWANCE_EUR]
+value = "12096"
+authority = "Official 2025 tariff constants from the dated BMF Programmablaufplan 2025 and § 32a Abs. 1 EStG. Live statute URL can roll forward to later-year constants."
+citation_url = "https://www.gesetze-im-internet.de/estg/__32a.html"
+
+[TARIFF_2025_PROGRESS_ZONE_1_END_EUR]
+value = "17443"
+authority = "§ 32a EStG (Einkommensteuertarif)"
+citation_url = "https://www.gesetze-im-internet.de/estg/__32a.html"
+
+[TARIFF_2025_PROGRESS_ZONE_2_END_EUR]
+value = "68480"
+authority = "§ 32a EStG (Einkommensteuertarif)"
+citation_url = "https://www.gesetze-im-internet.de/estg/__32a.html"
+
+[TARIFF_2025_TOP_RATE_START_EUR]
+value = "277825"
+authority = "§ 32a Abs. 1 Nr. 5 EStG: the 45 % Reichensteuer applies \"ab €277.826\". This constant is the inclusive UPPER BOUND of the 42 % zone (one euro below the start of the 45 % zone) — the rule body uses ``x <= TARIFF_2025_TOP_RATE_START_EUR`` so the comparison stays correct, but the name is a legacy artifact: the value is *not* the first euro of the 45 % bracket."
+citation_url = "https://www.gesetze-im-internet.de/estg/__32a.html"

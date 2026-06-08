@@ -1,0 +1,48 @@
+# FinCEN Form 114 (FBAR) — Filing Determination (Status Sheet)
+# Authority: 31 U.S.C. § 5314; 31 CFR § 1010.350; FinCEN BSA E-Filing
+# System.
+# https://bsaefiling.fincen.treas.gov/
+#
+# Y2 / P5 form-schema-as-data. This is a determination-only status
+# sheet, NOT a fillable FinCEN Form 114 (the actual filing happens
+# through FinCEN's web UI, not through Form 1040). Labels are
+# descriptive rather than "Line N", so the I3 scanner deliberately
+# skips them.
+
+form_id = "fincen_114_status"
+form_year = 2025
+display_name = "FinCEN Form 114 (FBAR) - Filing Determination"
+canonical_form_name = "FinCEN Form 114"
+authority_url = "https://bsaefiling.fincen.treas.gov/"
+
+[[lines]]
+line_id = "determination_status_manual"
+label = "Determination status"
+
+[[lines]]
+line_id = "fbar_aggregate_threshold"
+label = "FBAR aggregate threshold"
+
+[[lines]]
+line_id = "auto_discovered_accounts"
+label = "Auto-discovered foreign accounts"
+
+[[lines]]
+line_id = "fbar_threshold_31_cfr"
+label = "FBAR threshold (31 CFR § 1010.350(a))"
+
+[[lines]]
+line_id = "aggregate_max_balance"
+label = "Aggregate foreign-account balance - max during year"
+
+[[lines]]
+line_id = "determination"
+label = "Determination"
+
+[[lines]]
+line_id = "account_count"
+label = "Account count enumerated"
+
+[[lines]]
+line_id = "filing_system"
+label = "Filing system"

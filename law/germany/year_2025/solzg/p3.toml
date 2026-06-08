@@ -1,0 +1,10 @@
+# § 3 SolzG 1995 (Bemessungsgrundlage und zeitliche Anwendung)
+#
+# Authority root: https://www.gesetze-im-internet.de/solzg_1995/__3.html
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[SOLI_RATE]
+value = "0.055"
+authority = "§ 4 Satz 1 SolzG 1995: 5,5 % solidarity-surcharge rate applied to the § 3 SolzG 1995 assessment base (festgesetzte Einkommensteuer / Lohnsteuer / Kapitalertragsteuer)."
+citation_url = "https://www.gesetze-im-internet.de/solzg_1995/__3.html"

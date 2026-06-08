@@ -1,0 +1,43 @@
+## {{ rule.title }}
+
+This card summarizes the validated U.S. inputs and the bottom-line refund/balance for tax year 2025. [26 U.S.C. § 6012](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section6012&num=0&edition=prelim) imposes the duty to file [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) if you have at least the threshold gross income for your filing status; [§ 6013](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section6013&num=0&edition=prelim) governs joint filing. Everything in the U.S. graph flows from the facts below.
+
+For 2025:
+
+- **Filing status**: {{ rule.inputs_by_key["us.filing_assumptions.filing_status"].value }}
+- **Wages translated to USD** (US25-01): **{{ rule.inputs_by_key["us.income.wages_usd"].value | money(currency="USD") }}**
+- **Ordinary dividends**: **{{ rule.inputs_by_key["us.income.ordinary_dividends_usd"].value | money(currency="USD") }}**
+- **Short-term capital total** ([Schedule D](https://www.irs.gov/forms-pubs/about-schedule-d-form-1040) line 7): **{{ rule.inputs_by_key["us.capital.short_term_total_usd"].value | money(currency="USD") }}**
+- **Long-term capital total with capital gain distributions** ([Schedule D](https://www.irs.gov/forms-pubs/about-schedule-d-form-1040) line 15): **{{ rule.inputs_by_key["us.capital.long_term_total_with_cgd_usd"].value | money(currency="USD") }}**
+
+After the full graph runs (regular tax, FTC, treaty re-sourcing if elected, NIIT, payments), the bottom line on [Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) with the treaty re-sourcing scenario is:
+
+- **Refund** (line 35a): **{{ rule.outputs[0].value | money(currency="USD") }}**
+- **Amount owed** (line 37): **{{ rule.outputs[1].value | money(currency="USD") }}**
+
+The detailed step-by-step is in the per-stage rules US25-00 through US25-21 below.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

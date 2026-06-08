@@ -1,0 +1,49 @@
+## {{ rule.title }}
+
+{% set wages = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 19 Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__19.html) definiert die Einkünfte aus nichtselbständiger Arbeit. Bruttolohn aus Lohnsteuerbescheinigungen (Zeile 3 / 4) ist hier die Ausgangsgröße, bevor Werbungskosten (DE25-02) abgezogen werden.
+
+Für 2025:
+
+- Veranlagungsart aus DE25-00: **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**
+- Brutto-Arbeitslohn pro Person: {% for v in wages.by_person %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Haushalts-Bruttolohn gesamt: **{{ wages.total_eur | money(currency="EUR") }}**
+
+Diese Zahl wird in der Anlage N Zeile 6 des/der jeweiligen Steuerpflichtigen ausgewiesen und ist der Ausgangswert für DE25-02 (Werbungskosten) und DE25-03 (Einkünfte nach Werbungskosten).
+{% else -%}
+[§ 19 Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__19.html) defines employment income (Einkünfte aus nichtselbständiger Arbeit). The starting point is the gross wage from the wage-tax certificate (Lohnsteuerbescheinigung, lines 3 / 4) before any work-expense deduction at DE25-02.
+
+For 2025:
+
+- Filing posture from DE25-00: **{{ rule.inputs_by_key["de.ordinary.filing_posture"].value }}**
+- Gross wage per person: {% for v in wages.by_person %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
+- Household gross wage total: **{{ wages.total_eur | money(currency="EUR") }}**
+
+This number appears on Anlage N line 6 for each taxpayer and is the input to DE25-02 (work expenses) and DE25-03 (net employment income).
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

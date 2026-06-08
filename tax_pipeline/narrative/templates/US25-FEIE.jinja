@@ -1,0 +1,46 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 911](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section911) lets a U.S. citizen (or qualifying long-term resident) elect to exclude foreign earned income from gross income, up to the [§ 911(b)(2)(D)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section911) annual ceiling (Rev. Proc. 2024-40 § 3.34: **$130,000** for 2025). [§ 911(c)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section911) routes qualifying housing expenses to either a housing exclusion (employees) or a housing deduction (self-employed taxpayers, § 911(c)(4)). The election requires meeting either the bona-fide-residence test (§ 911(d)(1)(A)) or the physical-presence test (§ 911(d)(1)(B)).
+
+Two cross-cutting consequences flow from the § 911 election:
+
+- [**§ 911(d)(6)**](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section911) denies any FTC on foreign tax allocable to the excluded portion of foreign earned income, so excluded wages cannot also generate creditable foreign tax.
+- [**§ 1411(d)(1)(A)**](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1411) adds the excluded amount back to MAGI for Net Investment Income Tax purposes, so § 911 does not also reduce the § 1411 base.
+
+For 2025 the engine consumes the FEIE election state from the loader; when the election is not made every output is zero and the rest of the pipeline (§ 63 taxable income, § 904 FTC denominator, § 1411 NIIT) flows through unchanged.
+
+{% set out = rule.outputs[0].value | from_json -%}
+For 2025:
+
+- § 911 election active: **{{ out.elected }}**
+- § 911(b)(2)(D) excluded amount (Form 2555 line 45): **{{ out.excluded_amount_usd | money(currency="USD") }}**
+- § 911(c)(2) housing exclusion (Form 2555 line 36): **{{ out.housing_exclusion_usd | money(currency="USD") }}**
+- § 911(c)(4) housing deduction (Form 2555 line 50): **{{ out.housing_deduction_usd | money(currency="USD") }}**
+- § 911 deduction-total flowing into § 63 taxable income: **{{ out.deduction_total_usd | money(currency="USD") }}**
+- § 911(d)(6) denied FTC on excluded income: **{{ out.disallowed_ftc_usd | money(currency="USD") }}**
+- § 1411(d)(1)(A) NIIT MAGI add-back: **{{ out.niit_magi_addback_usd | money(currency="USD") }}**
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

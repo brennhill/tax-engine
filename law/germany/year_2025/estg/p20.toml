@@ -1,0 +1,15 @@
+# § 20 EStG (Einkünfte aus Kapitalvermögen)
+#
+# Authority root: https://www.gesetze-im-internet.de/estg/__20.html
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[SAVER_ALLOWANCE_JOINT_2025_EUR]
+value = "2000.00"
+authority = "§ 20 Abs. 9 Satz 1 EStG: Sparer-Pauschbetrag — €1,000 per single filer, €2,000 for jointly assessed spouses (§ 20 Abs. 9 Satz 2 EStG)."
+citation_url = "https://www.gesetze-im-internet.de/estg/__20.html"
+
+[SAVER_ALLOWANCE_SINGLE_2025_EUR]
+value = "1000.00"
+authority = "§ 20 EStG (Einkünfte aus Kapitalvermögen)"
+citation_url = "https://www.gesetze-im-internet.de/estg/__20.html"

@@ -1,0 +1,51 @@
+## {{ rule.title }}
+
+[26 U.S.C. § 59(a)](https://www.law.cornell.edu/uscode/text/26/59) provides the AMT Foreign Tax Credit, a per-category limitation that parallels [§ 904(d)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section904&num=0&edition=prelim) but uses the AMTI base instead of regular taxable income. [§ 55(a)](https://www.law.cornell.edu/uscode/text/26/55) then takes the final AMT as `max(0, tentative_min_tax − AMTFTC − regular_tax_after_FTC)` — when regular FTC fully offsets US tax on foreign-source income but AMTFTC is independently limited, the residual AMT binds. The F-US-1 reviewer flagged exactly this pattern as the silent gap: prior to this stage, US25-21 omitted the AMT addend and total_tax silently understated the AMT-binding posture.
+
+{% set amti_in = rule.inputs_by_key["us.stage.amt_amti"].value | from_json -%}
+{% set tent = rule.inputs_by_key["us.stage.amt_tentative"].value | from_json -%}
+{% set baseline = rule.inputs_by_key["us.stage.baseline_allowed_ftc"].value | from_json -%}
+{% set allowed = rule.inputs_by_key["us.stage.allowed_ftc"].value | from_json -%}
+{% set reg = rule.inputs_by_key["us.stage.regular_tax_before_credits"].value | from_json -%}
+{% set out = rule.outputs[0].value | from_json -%}
+For 2025:
+
+- AMTI: **{{ amti_in.amti_usd | money(currency="USD") }}**
+- Tentative minimum tax: **{{ tent.tentative_min_tax_usd | money(currency="USD") }}**
+- AMTFTC general category (§ 59(a)): **{{ out.amtftc_general_usd | money(currency="USD") }}**
+- AMTFTC passive category (§ 59(a)): **{{ out.amtftc_passive_usd | money(currency="USD") }}**
+- AMTFTC total (Form 6251 line 8, capped at tentative): **{{ out.amtftc_usd | money(currency="USD") }}**
+- Regular tax before credits: **{{ reg.regular_tax_before_credits_usd | money(currency="USD") }}**
+- Regular tax after FTC (post-treaty baseline): **{{ out.regular_tax_after_ftc_usd | money(currency="USD") }}**
+- Regular tax after FTC (no-treaty baseline): **{{ out.baseline_regular_tax_after_ftc_usd | money(currency="USD") }}**
+- **AMT owed (treaty re-sourcing posture, Form 6251 line 11):** **{{ out.amt_owed_usd | money(currency="USD") }}**
+- AMT owed (no-treaty posture): **{{ out.amt_owed_without_treaty_resourcing_usd | money(currency="USD") }}**
+
+{# IRS-VERIFIED 2026-05-11 — chain on 2025 Schedule 2 PDF
+   https://www.irs.gov/pub/irs-pdf/f1040s2.pdf #}
+The AMT amount is entered on [Form 6251](https://www.irs.gov/forms-pubs/about-form-6251) line 11, which the IRS instructs you to carry to **[Schedule 2](https://www.irs.gov/pub/irs-pdf/f1040s2.pdf) line 2** (the 2025 revision moved AMT from line 1 to line 2). Schedule 2 line 3 then totals line 1z (additions to tax — APTC repayment, clean-vehicle credit repayments, Form 4255 EPE recapture) and line 2 (AMT); for the supported posture line 1z is $0, so Schedule 2 line 3 = the AMT above. Schedule 2 line 3 carries to **[Form 1040](https://www.irs.gov/forms-pubs/about-form-1040) line 17**.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

@@ -1,0 +1,10 @@
+# § 10b EStG (Spendenabzug)
+#
+# Authority root: https://www.gesetze-im-internet.de/estg/__10b.html
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md.
+
+[SPENDENABZUG_2025_GDE_FRACTION_CAP]
+value = "0.20"
+authority = "§ 10b Abs. 1 Satz 1 Nr. 1 EStG: deductible Sonderausgabe = min(donations, 20% of Gesamtbetrag der Einkünfte). The 4‰ \"Umsatz + Lohnsumme\" entrepreneur cap (§ 10b Abs. 1 Satz 1 Nr. 2 EStG) is out of scope."
+citation_url = "https://www.gesetze-im-internet.de/estg/__10b.html"

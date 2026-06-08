@@ -1,0 +1,53 @@
+## {{ rule.title }}
+
+{% set we = rule.outputs[0].value | from_json -%}
+{% if rule.language == "de" -%}
+[§ 9 EStG](https://www.gesetze-im-internet.de/estg/__9.html) erlaubt den Abzug von Werbungskosten — Aufwendungen, die zur Erwerbung, Sicherung und Erhaltung der Einnahmen dienen. [§ 9a Satz 1 Nr. 1 Buchst. a EStG](https://www.gesetze-im-internet.de/estg/__9a.html) garantiert dabei den Arbeitnehmer-Pauschbetrag (2025: **{{ rule.inputs_by_key["de.constants.worker_allowance_per_person"].value | money(currency="EUR") }}**) auch dann, wenn die tatsächlichen Werbungskosten niedriger sind. [§ 4 Abs. 5 Satz 1 Nr. 6c EStG](https://www.gesetze-im-internet.de/estg/__4.html) regelt die Tagespauschale für das häusliche Arbeitszimmer (2025: 6 €/Tag, Höchstbetrag 1.260 €).
+
+Für 2025 wird je Person der höhere Wert aus tatsächlichen Werbungskosten und Pauschbetrag genommen:
+
+{% for entry in we.by_person -%}
+- Tatsächliche Werbungskosten: **{{ entry.actual_werbungskosten_eur | money(currency="EUR") }}** (Arbeitsmittel **{{ entry.work_equipment_eur | money(currency="EUR") }}**, Home-Office-Tagespauschale **{{ entry.home_office_deduction_eur | money(currency="EUR") }}**, Telekom **{{ entry.telecom_deduction_eur | money(currency="EUR") }}**, Berufsrechtsschutz **{{ entry.employment_legal_insurance_deduction_eur | money(currency="EUR") }}**, grenzüberschreitende Steuerhilfe **{{ entry.cross_border_tax_help_deduction_eur | money(currency="EUR") }}**)
+- Anerkannte Werbungskosten (max von tatsächlichen Kosten und Pauschbetrag): **{{ entry.allowed_werbungskosten_eur | money(currency="EUR") }}**
+{% endfor %}
+- Haushalt-Werbungskosten gesamt: **{{ we.total_allowed_eur | money(currency="EUR") }}**
+
+Diese werden in DE25-03 vom Bruttolohn abgezogen, um die Einkünfte aus nichtselbständiger Arbeit zu ermitteln (Anlage N Zeilen 31 ff.).
+{% else -%}
+[§ 9 EStG](https://www.gesetze-im-internet.de/estg/__9.html) allows the deduction of work expenses — costs incurred to earn employment income. [§ 9a Satz 1 Nr. 1 Buchst. a EStG](https://www.gesetze-im-internet.de/estg/__9a.html) guarantees the *Arbeitnehmer-Pauschbetrag* (employee lump sum, 2025: **{{ rule.inputs_by_key["de.constants.worker_allowance_per_person"].value | money(currency="EUR") }}**) even if actual work expenses are lower. [§ 4 Abs. 5 Satz 1 Nr. 6c EStG](https://www.gesetze-im-internet.de/estg/__4.html) governs the home-office *Tagespauschale* (2025: €6/day, capped at €1,260).
+
+For 2025, each person's allowed expenses are the larger of actual expenses and the lump sum:
+
+{% for entry in we.by_person -%}
+- Actual work expenses: **{{ entry.actual_werbungskosten_eur | money(currency="EUR") }}** (work equipment **{{ entry.work_equipment_eur | money(currency="EUR") }}**, home-office Tagespauschale **{{ entry.home_office_deduction_eur | money(currency="EUR") }}**, telecom **{{ entry.telecom_deduction_eur | money(currency="EUR") }}**, employment legal insurance **{{ entry.employment_legal_insurance_deduction_eur | money(currency="EUR") }}**, cross-border tax help **{{ entry.cross_border_tax_help_deduction_eur | money(currency="EUR") }}**)
+- Allowed work expenses (max of actual and Arbeitnehmer-Pauschbetrag): **{{ entry.allowed_werbungskosten_eur | money(currency="EUR") }}**
+{% endfor %}
+- Household work expenses total: **{{ we.total_allowed_eur | money(currency="EUR") }}**
+
+These will be subtracted from gross wages at DE25-03 to produce employment income (Anlage N lines 31 ff.).
+{% endif %}
+
+**{% if rule.language == "de" %}Formularorte{% else %}Form locations{% endif %}**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**{% if rule.language == "de" %}Quellen — selbst nachlesen{% else %}Audit links — read the law yourself{% endif %}**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

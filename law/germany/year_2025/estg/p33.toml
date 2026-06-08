@@ -1,0 +1,46 @@
+# § 33 EStG (außergewöhnliche Belastungen)
+#
+# Authority root: https://www.gesetze-im-internet.de/estg/__33.html
+#
+# Migrated per W2.A / T1.2 of .review/2026-05-11-implementation-plan.md
+# (deferred F1 tables to TOML). § 33 Abs. 3 EStG zumutbare Belastung
+# sliding scale, applied progressively (slab method per BFH VI R 75/14,
+# 19.01.2017): each income tier's rate applies only to the income band
+# within that tier.
+#
+# Family categories per § 33 Abs. 3 Satz 1 EStG:
+# - "single_no_children": single (or married-separate) without children,
+# - "joint_or_few_children": married/joint without children OR single
+#   with 1-2 dependent children,
+# - "many_children": three or more dependent children regardless of
+#   posture.
+
+[ZUMUTBARE_BELASTUNG_2025_BRACKETS_EUR]
+authority = "§ 33 Abs. 3 EStG zumutbare Belastung sliding scale (slab method per BFH VI R 75/14, 19.01.2017). The schedule has three income bands with upper thresholds at €15,340 and €51,130, and per-family-category rates within each band. Three brackets are declared inline (one per band); the last band's upper_threshold is 'Infinity' to mark the unbounded top tier."
+citation_url = "https://www.gesetze-im-internet.de/estg/__33.html"
+shape = "bracket_list"
+
+[[ZUMUTBARE_BELASTUNG_2025_BRACKETS_EUR.brackets]]
+# Band a — income ≤ €15,340.
+upper_threshold = "15340.00"
+single_no_children = "0.05"
+joint_or_few_children = "0.04"
+many_children = "0.01"
+
+[[ZUMUTBARE_BELASTUNG_2025_BRACKETS_EUR.brackets]]
+# Band b — €15,340 < income ≤ €51,130.
+upper_threshold = "51130.00"
+single_no_children = "0.06"
+joint_or_few_children = "0.05"
+many_children = "0.01"
+
+[[ZUMUTBARE_BELASTUNG_2025_BRACKETS_EUR.brackets]]
+# Band c — income > €51,130. ``Infinity`` is the canonical Decimal
+# sentinel for the unbounded top tier; the consumer side does NOT
+# emit this row into ZUMUTBARE_BELASTUNG_2025_BRACKETS_EUR (which is
+# a 2-tuple of finite thresholds) but DOES consume its rate row as
+# the third element of each per-category rate tuple.
+upper_threshold = "Infinity"
+single_no_children = "0.07"
+joint_or_few_children = "0.06"
+many_children = "0.02"

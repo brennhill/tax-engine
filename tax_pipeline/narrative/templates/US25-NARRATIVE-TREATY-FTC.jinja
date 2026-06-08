@@ -1,0 +1,40 @@
+## {{ rule.title }}
+
+When you are a U.S. citizen and a German tax resident, U.S.-source dividends are taxed by the U.S. (under § 1) and by Germany (under [§ 32d Abs. 1 EStG](https://www.gesetze-im-internet.de/estg/__32d.html)). The U.S.-Germany income tax treaty ([DBA-USA Article 10](https://www.irs.gov/pub/irs-trty/germtech.pdf)) caps Germany's source-country share at 15 %. Because Germany doesn't actually withhold the U.S. side, IRS Publication 514's *treaty re-sourcing* worksheet provides an additional U.S. foreign tax credit equal to the German tax you actually paid on those dividends, capped by the U.S. tax above the 15 % treaty floor.
+
+For 2025:
+
+- **U.S.-source dividends** ([Pub. 514](https://www.irs.gov/publications/p514) line 15): **{{ rule.inputs_by_key["us.treaty_resourcing.us_source_dividends_usd"].value | money(currency="USD") }}**
+- **Excess U.S. tax above 15 % treaty floor** ([Pub. 514](https://www.irs.gov/publications/p514) line 18 / line 19): **{{ rule.inputs_by_key["us.treaty_resourcing.treaty_resourcing_us_limitation_usd"].value | money(currency="USD") }}**
+- **Residual German tax on the same dividends** ([Pub. 514](https://www.irs.gov/publications/p514) line 20c): **{{ rule.inputs_by_key["us.treaty_resourcing.worksheet_line_20c_residual_residence_country_tax_usd"].value | money(currency="USD") }}**
+
+[Pub. 514](https://www.irs.gov/publications/p514) **line 21** — `min(line 19, line 20c)`: **{{ rule.outputs[0].value | money(currency="USD") }}**.
+
+The worksheet line 21 amount carries to **[Form 1116](https://www.irs.gov/forms-pubs/about-form-1116), line 12** as the treaty re-sourcing add-on. [Form 1116](https://www.irs.gov/forms-pubs/about-form-1116) line 33 then caps the final allowed credit at the remaining nonrefundable room: **{{ rule.outputs[1].value | money(currency="USD") }}**.
+
+If both line 19 and line 20c are zero, the additional FTC is zero — typically because there are no U.S.-source dividends or because Germany's residence credit already absorbed its tax on them. Otherwise, the lesser excess is what the U.S. additional credit can recover.
+
+**Form locations**
+
+{% for fl in rule.form_lines -%}
+{% if fl.url -%}
+- [{{ fl.form }}]({{ fl.url }})
+{% else -%}
+- {{ fl.form }}
+{% endif -%}
+{% endfor %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

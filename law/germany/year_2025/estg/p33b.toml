@@ -1,0 +1,28 @@
+# § 33b EStG (Pauschbeträge wegen Behinderung)
+#
+# Authority root: https://www.gesetze-im-internet.de/estg/__33b.html
+#
+# Migrated per F1 of .review/2026-05-08-platform-flexibility-review.md
+# (atomic constants) and W2.A / T1.2 of .review/2026-05-11-implementation-plan.md
+# (Pauschbetrag schedule).
+
+[BEHINDERUNG_PAUSCHBETRAG_HILFLOS_BLIND_2025_EUR]
+value = "7400.00"
+authority = "§ 33b Abs. 3 Satz 3 EStG erhöhter Pauschbetrag (€7,400) for hilflose (Merkzeichen H), blinde (Merkzeichen Bl), or Pflegegrad 4/5 (§ 33b Abs. 6 EStG) taxpayers. Mutually exclusive with the GdB schedule under § 33b Abs. 3 Satz 2 EStG: the special amount supersedes the schedule when claimed."
+citation_url = "https://www.gesetze-im-internet.de/estg/__33b.html"
+
+[BEHINDERUNG_PAUSCHBETRAG_2025_TABLE_EUR]
+authority = "§ 33b Abs. 3 Satz 2 EStG Pauschbeträge by Grad der Behinderung (GdB). The 2021 Behinderten-Pauschbetragsgesetz (BGBl. I 2020 S. 2770) doubled the rates effective 2021; the 2025 statute carries those rates unchanged."
+citation_url = "https://www.gesetze-im-internet.de/estg/__33b.html"
+shape = "dict_int_decimal"
+
+[BEHINDERUNG_PAUSCHBETRAG_2025_TABLE_EUR.entries]
+"20" = "384.00"
+"30" = "620.00"
+"40" = "860.00"
+"50" = "1140.00"
+"60" = "1440.00"
+"70" = "1780.00"
+"80" = "2120.00"
+"90" = "2460.00"
+"100" = "2840.00"

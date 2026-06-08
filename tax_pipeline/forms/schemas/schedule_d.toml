@@ -1,0 +1,17 @@
+# Schedule D (Form 1040) — Capital Gains and Losses
+# Authority: 26 U.S.C. § 1(h), §§ 1211–1212; IRS Schedule D instructions.
+# https://www.irs.gov/forms-pubs/about-schedule-d-form-1040
+#
+# Y2 / P5 form-schema-as-data: Schedule D is a "dynamic-lines" form —
+# the renderer pre-builds a list[FormEntry] from the saved
+# ``us-capital-results.json`` projection and passes it straight through
+# to write_form. There are no statically-known line strings inside
+# tax_pipeline/forms/usa.py for Schedule D, so this schema declares
+# only the form metadata (display_name, canonical_form_name,
+# authority_url) used for the title.
+
+form_id = "schedule_d"
+form_year = 2025
+display_name = "Schedule D"
+canonical_form_name = "Schedule D"
+authority_url = "https://www.irs.gov/forms-pubs/about-schedule-d-form-1040"
