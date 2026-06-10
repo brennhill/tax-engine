@@ -254,7 +254,7 @@ USA_FORMS: tuple[FormSpec, ...] = (
         basename="2025_form_1116_resourced.md",
         display_name="Form 1116 — Certain Income Resourced by Treaty",
         what_for="§ 904(d)(6) separate basket for treaty-resourced U.S.-source income.",
-        triggered_because="DBA-USA Art. 23(3) treaty re-sourcing claimed",
+        triggered_because="DBA-USA Art. 23(5)(c) treaty re-sourcing claimed",
         feeds_into=("2025_schedule_3.md", "2025_form_8833.md"),
         transfer_targets={
             "Line 32": "→ Schedule 3 Line 1 (combined FTC across all baskets)",

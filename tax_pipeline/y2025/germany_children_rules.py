@@ -195,8 +195,9 @@ def de25_children_credits(facts: Mapping[str, Any]) -> Mapping[str, Any]:
       The aggregator already applied the per-spouse split at the
       Pipeline 1 boundary; this rule reads the household total.
       https://www.gesetze-im-internet.de/estg/__32.html
-    - BKGG § 6 Abs. 2 (Kindergeld monthly amount): €250/month uniform
-      since 01.01.2023.
+    - BKGG § 6 Abs. 2 (Kindergeld monthly amount): €255/month uniform
+      for VZ 2025 (raised from €250 by the Steuerfortentwicklungsgesetz
+      2024, effective 01.01.2025).
       https://www.gesetze-im-internet.de/bkgg_1996/
     - § 32a Abs. 1 / Abs. 5 EStG (counterfactual tariff): the
       Kinderfreibetrag deduction reduces zvE before the § 32a tariff

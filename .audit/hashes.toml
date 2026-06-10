@@ -246,9 +246,9 @@ audited_by = "brenn@dontbugme.com"
 audited_on = "2026-05-09"
 
 ["law/treaty/dba_usa/art23.py"]
-hash = "sha256:a6a750e4fb93bc5f1e5ac63f742cc0866920d4b3a4ee7f743543c403a2046f89"
-audited_by = "brenn@dontbugme.com"
-audited_on = "2026-05-09"
+hash = "sha256:20fc9f3b15e924f1e12350552973f736ea0d61d4e29988c32628bb2e0da9373c"
+audited_by = "brenn@Brenns-MacBook-Pro-2.local"
+audited_on = "2026-06-10"
 
 ["law/treaty/dba_usa/art28.py"]
 hash = "sha256:29ab5eb88a45d4e3f0168017cbfe75fc93d546424978f640f64bcd105214eafd"
@@ -256,9 +256,9 @@ audited_by = "brenn@dontbugme.com"
 audited_on = "2026-05-09"
 
 ["law/treaty/dba_usa/pub_514_average_tax.py"]
-hash = "sha256:fa617f810f17f38ba132c0bbd1079922218cbed562be7bce42b85ecd862fd30b"
-audited_by = "brenn@dontbugme.com"
-audited_on = "2026-05-09"
+hash = "sha256:ce41224b96811940aa05f199bc20638cdc478a2b1592baedf11e5d11f9cfa70e"
+audited_by = "brenn@Brenns-MacBook-Pro-2.local"
+audited_on = "2026-06-10"
 
 ["law/usa/year_2025/rev_proc/proc_2024_40/p3_05.py"]
 hash = "sha256:6951ae1b3ba4aead06db68eff7849767113ef7dfa20b8f821b17601d98dee013"
@@ -291,14 +291,14 @@ audited_by = "brenn@dontbugme.com"
 audited_on = "2026-05-09"
 
 ["law/usa/year_2025/usc26/p1.py"]
-hash = "sha256:94042c6d7aad280255f64599a53f7fe8e25c7f0b333d9922aa0dce3db2f2f420"
-audited_by = "brenn@dontbugme.com"
-audited_on = "2026-05-09"
+hash = "sha256:22c06e2c4698189adabc493ed7e6fc00a009b180bb8921cd91cf5d194f148a2a"
+audited_by = "brenn@Brenns-MacBook-Pro-2.local"
+audited_on = "2026-06-10"
 
 ["law/usa/year_2025/usc26/p1.toml"]
-hash = "sha256:8827ded01662bb0447a3714aac20cba8f0df9efe77b49587ec21308b9ab4d40e"
-audited_by = "brenn@dontbugme.com"
-audited_on = "2026-05-09"
+hash = "sha256:602d755937725abaa6cbca10946a4ebf16b06f416e044de18022b1fc3821a773"
+audited_by = "brenn@Brenns-MacBook-Pro-2.local"
+audited_on = "2026-06-10"
 
 ["law/usa/year_2025/usc26/p1211.py"]
 hash = "sha256:6871dda85c24e34e622f2f9ea680aa21297134afe4b4dc8b59451901892c4a3f"
@@ -621,6 +621,6 @@ audited_by = "brenn@dontbugme.com"
 audited_on = "2026-05-11"
 
 ["tax_pipeline/law_spec/usa/2025/treaty_resourcing.md"]
-hash = "sha256:4f57b5f8264c0a9403e6d4e976ee6e2f076aefba4f5248a224f589e6adfac7a8"
-audited_by = "brenn@dontbugme.com"
-audited_on = "2026-05-11"
+hash = "sha256:403beefdcbaeaccee5e47da5ce1ae32ee8992aeb144cba5fd0daca77c7237e1a"
+audited_by = "brenn@Brenns-MacBook-Pro-2.local"
+audited_on = "2026-06-10"

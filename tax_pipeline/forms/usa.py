@@ -1953,7 +1953,7 @@ def _write_form_1116_resourced(
     Per-line scalars (all from existing declared TREATY25-* / US25-*
     rule outputs):
     - **Part I Line 1a** — Re-sourced gross income (the U.S.-source
-      dividends now treated as foreign-source per DBA-USA Art. 23(3)).
+      dividends now treated as foreign-source per DBA-USA Art. 23(5)(c)).
       Source: ``treaty_resourcing.us_source_dividends_usd``.
     - **Part I Line 8** — Foreign tax paid on the re-sourced income
       (the German residence-state credit allocable to U.S.-source
@@ -1976,7 +1976,7 @@ def _write_form_1116_resourced(
     Authority:
     - 26 U.S.C. § 904(d)(6) (separate basket for treaty re-sourced
       income): https://www.law.cornell.edu/uscode/text/26/904
-    - DBA-USA Art. 23(3) (Relief from Double Taxation):
+    - DBA-USA Art. 23(5)(c) (Relief from Double Taxation):
       https://www.irs.gov/pub/irs-trty/germany.pdf
     - IRS Publication 514 (Foreign Tax Credit for Individuals):
       https://www.irs.gov/publications/p514
@@ -2001,7 +2001,7 @@ def _write_form_1116_resourced(
             "for income re-sourced by treaty. Per Form 1116 instructions, "
             'the basket header reads "Certain Income Resourced by Treaty" '
             "and Form 8833 disclosure is required (26 U.S.C. § 6114).",
-            "DBA-USA Art. 23(3) re-sources U.S.-source dividends to "
+            "DBA-USA Art. 23(5)(c) re-sources U.S.-source dividends to "
             "Germany so the Art. 10(2)(b) 15 % source-country ceiling "
             "is given effect through the foreign-tax credit; the dual "
             "cap (Pub. 514 worksheet line 19 / 20c → line 21) computes "
@@ -2024,7 +2024,7 @@ def _write_form_1116_resourced(
                 source="us-tax-estimate.json (treaty_resourcing.us_source_dividends_usd)",
                 notes=(
                     "Re-sourced gross income: U.S.-source dividends "
-                    "treated as foreign-source per DBA-USA Art. 23(3)."
+                    "treated as foreign-source per DBA-USA Art. 23(5)(c)."
                 ),
             ),
             legal_value_entry(
@@ -2138,7 +2138,7 @@ def _write_form_1116_resourced(
         [
             "Authority for the separate basket: 26 U.S.C. § 904(d)(6) "
             "(https://www.law.cornell.edu/uscode/text/26/904).",
-            "Authority for treaty re-sourcing: DBA-USA Art. 23(3) "
+            "Authority for treaty re-sourcing: DBA-USA Art. 23(5)(c) "
             "(https://www.irs.gov/pub/irs-trty/germany.pdf).",
             f"IRS Publication 514 (worksheet authority): {IRS_P514}.",
             f"IRS Form 1116 instructions: {IRS_ABOUT_FORM_1116_URL}.",
@@ -2390,7 +2390,7 @@ def _write_form_8833(paths: YearPaths, treaty: dict) -> None:
                 schema.label("1b_treaty_articles"),
                 "Article 23 (Relief from Double Taxation); Article 28 (Limitation on Benefits, 2006 Protocol); Article 10 (Dividends)",
                 source="us-treaty-package.json",
-                notes="Re-sourcing claim relies on Art. 23(3) (U.S. source-country credit floor for U.S. citizens) read with the Art. 10(2)(b) 15 % portfolio-dividend ceiling and Art. 28 LOB qualification.",
+                notes="Re-sourcing claim relies on Art. 23(5)(c) (U.S.-source items deemed to arise in Germany for U.S. citizens) read with Art. 23(5)(b) (U.S. credit for the German tax), the Art. 10(2)(b) 15 % portfolio-dividend ceiling and Art. 28 LOB qualification.",
             ),
             FormEntry(
                 schema.label("2_irc_provisions"),
@@ -2417,7 +2417,7 @@ def _write_form_8833(paths: YearPaths, treaty: dict) -> None:
                 (
                     "The taxpayer is a U.S. citizen resident in Germany and qualifies under DBA-USA Art. 28 "
                     f"(LOB category: {lob_category or 'qualified_resident'}). "
-                    "Pursuant to Art. 23(3) of the 1989 U.S.-Germany income tax treaty (as amended by the 2006 Protocol), U.S.-source dividends "
+                    "Pursuant to Art. 23(5)(c) of the 1989 U.S.-Germany income tax treaty (as amended by the 2006 Protocol), U.S.-source dividends "
                     "are re-sourced to Germany to the extent necessary so the Art. 10(2)(b) 15 % ceiling is given effect through the Art. 23 "
                     "foreign tax credit on the German return. The additional foreign tax credit on the U.S. side is computed via the "
                     "IRS Publication 514 'Additional Foreign Tax Credit on U.S. Income' worksheet attached to Form 1116."

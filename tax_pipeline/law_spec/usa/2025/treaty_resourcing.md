@@ -24,13 +24,15 @@ The current codebase's treatment of treaty re-sourcing on certain U.S.-source di
 
 The implemented logic follows the current saved worksheet posture:
 
+<!-- IRS-VERIFIED 2026-06-10: Pub. 514 "Tax Treaties" worksheet line numbers 16/17/18/19/20c/21 and the Form 1040 line 15 (taxable income) / line 16 (tax) references below are verified against https://www.irs.gov/publications/p514 and the 2025 Form 1040 (https://www.irs.gov/pub/irs-pdf/f1040.pdf). Line 16 average rate = tax ÷ taxable income (line 15), NOT AGI (the F-FN-2 fix). -->
 1. isolate the U.S.-source dividend stack
-2. compute the Publication 514 Step I estimated U.S. tax by dividing Form 1040 line 16 tax by AGI and multiplying that average rate by net U.S.-source income in the category
-3. compute the treaty minimum source-country tax
-4. compute the excess U.S. tax above the treaty floor
+2. compute the Publication 514 worksheet line 16 estimated U.S. tax by dividing Form 1040 line 16 tax by **taxable income (Form 1040 line 15)** — NOT AGI (the F-FN-2 fix; AGI as the divisor understates the average rate) — and multiplying that average rate by net U.S.-source income in the category
+3. compute the treaty minimum source-country tax (worksheet line 17 = 15 % of gross under DBA-USA Art. 10(2)(b))
+4. compute the excess U.S. tax above the treaty floor (worksheet line 18 = max of 0 and line 16 minus line 17)
 5. validate that Germany's treaty-dividend gross matches the U.S.-computed U.S.-source dividend stack
-6. use Germany's computed dividend-stage tax for Publication 514 line `17` and Germany's computed dividend-stage credit for line `18`
-7. cap the additional credit by the residence-country residual-tax worksheet result
+6. feed Germany's computed dividend-stage residence credit into the worksheet line 19 greater-of clamp and Germany's computed dividend-stage pre-credit tax into the line 20c clamp
+7. cap the additional credit by the residence-country residual-tax worksheet result (line 21 = lesser of line 19 and line 20c)
+<!-- IRS-VERIFIED 2026-06-10: worksheet lines 17/18/19/20c/21 above verified against IRS Pub. 514 "Tax Treaties" additional-foreign-tax-credit worksheet (https://www.irs.gov/publications/p514). -->
 
 ## Ordering
 

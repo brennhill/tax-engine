@@ -7,7 +7,7 @@
 [QUALIFIED_DIVIDEND_FIFTEEN_BRACKET_RATE]
 value = "0.15"
 authority = "IRC § 1(h)(1)(C) — qualified-dividend / long-term capital-gain 15 % bracket. Numerically coincident with DBA-USA Art. 10(2)(b) but legally independent (the treaty rate has its own constant in the treaty law module)."
-citation_url = "https://www.law.cornell.edu/uscode/text/26/1"
+citation_url = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1&num=0&edition=prelim"
 
 [QUALIFIED_DIVIDEND_TWENTY_BRACKET_RATE]
 value = "0.20"

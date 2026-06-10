@@ -1,7 +1,7 @@
 """IRS Pub. 514 average-tax-rate worksheet tests.
 
 Authority:
-- DBA-USA Art. 10(2)(b), Art. 23(5)(b) (https://www.irs.gov/pub/irs-trty/germany.pdf)
+- DBA-USA Art. 10(2)(b), Art. 23(5)(c) (re-sourcing) + Art. 23(5)(b) (U.S. credit for German tax) (https://www.irs.gov/pub/irs-trty/germany.pdf)
 - IRS Publication 514 (https://www.irs.gov/publications/p514)
 """
 from __future__ import annotations

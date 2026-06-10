@@ -9,8 +9,13 @@ Authority
   resident of the other state may not exceed 15 % of the gross dividend.
   Bilingual treaty text: https://www.irs.gov/pub/irs-trty/germany.pdf
   Tech explanation:    https://www.irs.gov/pub/irs-trty/germtech.pdf
-- DBA-USA Art. 23 governs elimination of double taxation; Art. 23(5)(b)
-  allows the residence state to re-source income for FTC purposes.
+- DBA-USA Art. 23 governs elimination of double taxation. For a U.S.
+  citizen resident in Germany, the operative sub-paragraphs are
+  Art. 23(5)(c) (the re-sourcing rule — U.S.-source items are "deemed to
+  arise" in Germany for U.S. FTC-limitation purposes), Art. 23(5)(b)
+  (the U.S. credit for the German tax on those items) and Art. 23(5)(a)
+  (Germany credits only the treaty-permitted U.S. tax). See the canonical
+  citation constants below.
 
 Why a separate module
 - The 15 % rate is a single legal fact that belongs to one statute. Both
@@ -46,10 +51,34 @@ DBA_USA_ART_10_URL = "https://www.irs.gov/pub/irs-trty/germany.pdf"
 # DBA-USA Technical Explanation (IRS).
 DBA_USA_TECH_EXPLANATION_URL = "https://www.irs.gov/pub/irs-trty/germtech.pdf"
 
-# DBA-USA Art. 23 — elimination of double taxation; Art. 23(5)(b) is the
+# DBA-USA Art. 23 — elimination of double taxation. Art. 23(5)(c) is the
 # re-sourcing rule that underpins IRS Pub. 514's treaty re-sourcing
 # worksheet (lines 16-19) for U.S. citizens resident in Germany.
 DBA_USA_ART_23_URL = DBA_USA_ART_10_URL  # same treaty document
+
+# --- Canonical DBA-USA Art. 23(5) / Art. 1 citation strings -----------------
+# Single source of truth for the paragraph letters so they cannot drift
+# between modules (the BLOCKER closed here was half the codebase citing
+# "Art. 23(5)(b)" and half citing "Art. 23(3)" for the same re-sourcing
+# rule — neither was correct). Per the 1989 treaty as amended by the 2006
+# Protocol, Art. 23(5) is the special block for a U.S. citizen resident in
+# Germany. New code should reference these constants rather than spelling
+# the paragraph out inline. Authority: bilingual treaty text
+# https://www.irs.gov/pub/irs-trty/germany.pdf and Technical Explanation
+# https://www.irs.gov/pub/irs-trty/germtech.pdf.
+#
+#   Art. 23(5)(a) — Germany credits only the U.S. tax the treaty permits
+#                   (not the U.S. citizenship-based tax)
+#   Art. 23(5)(b) — the United States credits the German income tax paid
+#                   on the re-sourced items (§§ 901-905, Pub. 514 limited)
+#   Art. 23(5)(c) — the re-sourcing rule: those items are "deemed to
+#                   arise" in Germany for U.S. FTC-limitation purposes
+DBA_USA_ART_23_5_A_DE_CREDIT = "DBA-USA Art. 23(5)(a)"
+DBA_USA_ART_23_5_B_US_CREDIT = "DBA-USA Art. 23(5)(b)"
+DBA_USA_ART_23_5_C_RESOURCING = "DBA-USA Art. 23(5)(c)"
+# Saving clause and the exception that preserves Art. 23(5) for citizens.
+DBA_USA_ART_1_4_SAVING_CLAUSE = "DBA-USA Art. 1(4)"
+DBA_USA_ART_1_5_A_SAVING_EXCEPTION = "DBA-USA Art. 1(5)(a)"
 
 # DBA-USA Art. 28 (Limitation on Benefits, as amended by the 2006
 # Protocol) — treaty benefits (including the Art. 23 / Pub. 514

@@ -78,9 +78,10 @@ ESTG_31_URL = "https://www.gesetze-im-internet.de/estg/__31.html"
 # single parent / MFJ, halved (€4,800) per spouse in MFS.
 # https://www.gesetze-im-internet.de/estg/__32.html
 ESTG_32_URL = "https://www.gesetze-im-internet.de/estg/__32.html"
-# Bundeskindergeldgesetz (BKGG) — Kindergeld since 01.01.2023:
-# €250/month per child, statutory uniform rate (no longer escalating
-# with child count).
+# Bundeskindergeldgesetz (BKGG) — Kindergeld for VZ 2025:
+# €255/month per child (raised from €250 by the
+# Steuerfortentwicklungsgesetz 2024, effective 01.01.2025), statutory
+# uniform rate (no longer escalating with child count).
 # https://www.gesetze-im-internet.de/bkgg_1996/
 BKGG_URL = "https://www.gesetze-im-internet.de/bkgg_1996/"
 ESTG_36_URL = "https://www.gesetze-im-internet.de/estg/__36.html"
@@ -1006,7 +1007,8 @@ def kindergeld_for_child_2025(
     other parent fall outside this filer's claim per § 31 Satz 4 EStG.
 
     Authority:
-    - BKGG (€250/month uniform since 01.01.2023):
+    - BKGG (€255/month uniform for VZ 2025, raised from €250 by the
+      Steuerfortentwicklungsgesetz 2024 effective 01.01.2025):
       https://www.gesetze-im-internet.de/bkgg_1996/
     - § 31 Satz 4 EStG (Kindergeld counted only to the entitled parent):
       https://www.gesetze-im-internet.de/estg/__31.html
@@ -1984,9 +1986,10 @@ def _validate_germany_capital_inputs_2025(inputs: GermanyCapitalAssessmentInputs
             raise ValueError("kap_line_8_stock_gains_eur cannot exceed kap_line_7_income_eur.")
     seen_treaty_item_ids: set[str] = set()
     for item in inputs.treaty_dividend_items:
-        # DBA-USA Art. 10 is dividend-only relief. DBA-USA Art. 23(3)(a) then routes
+        # DBA-USA Art. 10 is dividend-only relief. DBA-USA Art. 23(5)(a) then routes
         # the treaty-limited U.S. source tax through Germany's § 32d Abs. 5 EStG
-        # credit cap. Reject ambiguous or non-dividend items before the capital
+        # credit cap (Germany credits only the treaty-permitted U.S. tax for a
+        # U.S. citizen resident in Germany). Reject ambiguous or non-dividend items before the capital
         # sequence so stock-sale gains cannot receive dividend treaty treatment.
         item_id = str(item.item_id).strip()
         if not item_id:

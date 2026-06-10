@@ -1,6 +1,6 @@
 """Auto-derive treaty dividend items from extracted dividend facts.
 
-Pub. 514 treaty re-sourcing (DBA-USA Art. 23(5)(b)) requires per-item
+Pub. 514 treaty re-sourcing (DBA-USA Art. 23(5)(c)) requires per-item
 U.S.-source dividend records on both the Germany side (with treaty rate,
 allocated treaty-allowed U.S. tax, and dividend classification) and the
 U.S. side (with treaty bucket and gross USD amount). Authoring these by
@@ -12,8 +12,9 @@ Source authorities (links pinned to year-aware editions where available):
 - DBA-USA Art. 10(2)(b) (15 % portfolio-dividend source-tax cap):
   https://www.irs.gov/pub/irs-trty/germany.pdf (1989 treaty + 2006 protocol)
   Technical Explanation: https://www.irs.gov/pub/irs-trty/germtech.pdf
-- DBA-USA Art. 23(5)(b) (residence-state re-sourcing rule):
-  https://www.irs.gov/pub/irs-trty/germany.pdf
+- DBA-USA Art. 23(5)(c) (re-sourcing rule — U.S.-source items deemed to
+  arise in Germany), read with Art. 23(5)(b) (U.S. credit for the German
+  tax on those items): https://www.irs.gov/pub/irs-trty/germany.pdf
 - IRS Publication 514 (2024 ed., applicable for 2025 returns) "Tax
   Treaties" section, treaty-resourcing worksheet lines 16/17/18/19:
   https://www.irs.gov/publications/p514

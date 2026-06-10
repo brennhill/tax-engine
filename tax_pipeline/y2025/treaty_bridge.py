@@ -55,12 +55,13 @@ def convert_germany_treaty_dividend_items_to_us_2025(
     us_items: tuple[USTreatyDividendItem2025, ...],
     eur_per_usd: Decimal,
 ) -> tuple[GermanyTreatyDividendPacketItem2025, ...]:
-    # DBA-USA Art. 23(5)(b) (residence-state re-sourcing) and IRS Pub. 514
-    # (2024 ed., applicable for 2025 returns) "Tax Treaties" worksheet
-    # require Germany's residence-country tax/credit on the same U.S.-source
-    # dividend stack used on the U.S. additional-credit worksheet. Match by
-    # item ID first; FX is an audit reconciliation, not the source of legal
-    # identity.
+    # DBA-USA Art. 23(5)(c) (re-sourcing — U.S.-source items deemed to arise
+    # in Germany) read with Art. 23(5)(b) (the U.S. credit for the German
+    # tax on those items), and IRS Pub. 514 (2024 ed., applicable for 2025
+    # returns) "Tax Treaties" worksheet, require Germany's residence-country
+    # tax/credit on the same U.S.-source dividend stack used on the U.S.
+    # additional-credit worksheet. Match by item ID first; FX is an audit
+    # reconciliation, not the source of legal identity.
     # Sources: https://www.irs.gov/pub/irs-trty/germany.pdf (1989 treaty +
     # 2006 protocol) and https://www.irs.gov/publications/p514.
     if eur_per_usd <= Decimal("0.00"):

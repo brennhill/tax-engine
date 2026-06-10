@@ -934,7 +934,7 @@ class Germany2025LawTest(unittest.TestCase):
 
     def test_us_treaty_dividend_credit_is_integrated_through_32d5(self) -> None:
         # DBA-USA Art. 10 limits the U.S. source-country tax on ordinary portfolio
-        # dividends to 15%, and Art. 23(3)(a) makes Germany credit that source tax
+        # dividends to 15%, and Art. 23(5)(a) makes Germany credit that source tax
         # through the German foreign-tax-credit mechanism. § 32d Abs. 5 EStG still
         # caps the credit per taxable dividend item/source, so this is not a second
         # post-§32d treaty subtraction.
@@ -1031,7 +1031,7 @@ class Germany2025LawTest(unittest.TestCase):
 
     def test_us_treaty_dividend_article_10_amount_is_derived_from_gross_and_rate(self) -> None:
         # DBA-USA Art. 10 fixes the supported portfolio-dividend source-country tax
-        # ceiling at 15% of the gross dividend. DBA-USA Art. 23(3)(a) then sends that
+        # ceiling at 15% of the gross dividend. DBA-USA Art. 23(5)(a) then sends that
         # Article 10 amount into Germany's § 32d Abs. 5 EStG item/source cap. A low
         # manual sidecar value must not silently reduce the treaty amount before the
         # statutory German cap is applied.

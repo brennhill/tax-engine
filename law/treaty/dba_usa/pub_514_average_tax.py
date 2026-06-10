@@ -3,7 +3,7 @@
 jurisdiction: TREATY
 treaty: DBA-USA (Germany–United States Convention for the Avoidance of Double Taxation, Income and Capital, signed 1989, amended 2006 Protocol)
 tax_year: 2025
-statute: DBA-USA Art. 23(5)(b) implemented via IRS Publication 514 (Foreign Tax Credit for Individuals)
+statute: DBA-USA Art. 23(5)(c) (re-sourcing) + Art. 23(5)(b) (U.S. credit for German tax) implemented via IRS Publication 514 (Foreign Tax Credit for Individuals)
 url: https://www.irs.gov/publications/p514
 contains:
   - Pub. 514 worksheet line 16: U.S. tax on the U.S.-source dividend stack
@@ -23,7 +23,7 @@ numeric_constants: []
 amended_by: []
 audited_by: claude-opus-4-7
 audited_on: 2026-05-03
-audit_hash: sha256:fa617f810f17f38ba132c0bbd1079922218cbed562be7bce42b85ecd862fd30b
+audit_hash: sha256:ce41224b96811940aa05f199bc20638cdc478a2b1592baedf11e5d11f9cfa70e
 ---
 """
 # Shadow extraction of IRS Pub. 514 average-tax-rate worksheet helpers
@@ -61,7 +61,8 @@ def treaty25_16_average_tax_floor(facts: Mapping[str, Any]) -> Mapping[str, Any]
 
     Authority:
     - DBA-USA Art. 10(2)(b) (15 % treaty rate)
-    - DBA-USA Art. 23(5)(b) (treaty re-sourcing)
+    - DBA-USA Art. 23(5)(c) (treaty re-sourcing — items "deemed to arise"
+      in Germany); Art. 23(5)(b) (U.S. credit for the German tax)
     - IRS Publication 514 (https://www.irs.gov/publications/p514)
     """
     # Pub. 514 worksheet line 16: U.S. tax on the U.S.-source dividend stack

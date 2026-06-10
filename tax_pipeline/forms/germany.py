@@ -1307,7 +1307,8 @@ def _write_anlage_aus(
         "dividend cap)** (EN): U.S.-source dividends route to Anlage AUS "
         "country block ``Land = USA``; the residence-state credit is "
         "capped at the treaty-allowed 15 % source-state rate (DBA-USA "
-        "Art. 10(2)(b) + Art. 23(5)(b)).",
+        "Art. 10(2)(b) + Art. 23(5)(a), Germany's credit limited to the "
+        "treaty-permitted U.S. tax).",
     ]
     notes = [
         # Bilingual citations — DE first, EN parenthetical.

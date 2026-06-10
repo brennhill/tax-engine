@@ -24,7 +24,7 @@ numeric_constants:
 amended_by: []
 audited_by: claude-opus-4-7
 audited_on: 2026-05-03
-audit_hash: sha256:94042c6d7aad280255f64599a53f7fe8e25c7f0b333d9922aa0dce3db2f2f420
+audit_hash: sha256:22c06e2c4698189adabc493ed7e6fc00a009b180bb8921cd91cf5d194f148a2a
 ---
 """
 # Shadow extraction of § 1 ordinary-income brackets and § 1(h)
@@ -39,7 +39,7 @@ audit_hash: sha256:94042c6d7aad280255f64599a53f7fe8e25c7f0b333d9922aa0dce3db2f2f
 # instructions and Pub. 550 specify the Tax Table / Computation
 # Worksheet construction.
 # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1
-# https://www.law.cornell.edu/uscode/text/26/1
+# https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1&num=0&edition=prelim
 from __future__ import annotations
 
 from decimal import ROUND_FLOOR, ROUND_HALF_UP, Decimal
@@ -59,7 +59,7 @@ USC_1_URL = (
 # bracket. Numerically coincident with DBA-USA Art. 10(2)(b) but legally
 # independent (the treaty rate has its own constant in the treaty law
 # module).
-# https://www.law.cornell.edu/uscode/text/26/1
+# https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1&num=0&edition=prelim
 # Statutory constants live in the sibling .toml data file (F1, see
 # .review/2026-05-08-platform-flexibility-review.md): year-on-year roll-
 # forward edits the TOML, not this Python module.

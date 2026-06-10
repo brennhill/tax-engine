@@ -96,7 +96,7 @@ and IRS Pub. 514 worksheet at https://www.irs.gov/publications/p514.
 | Art. 19 | Government service | None | OUT OF SCOPE (no triggering facts) |
 | Art. 20 | Students / teachers | None | OUT OF SCOPE (no triggering facts) |
 | Art. 23 | Methods (residence-state credit) | DE25-18 (routed via § 32d Abs. 5 EStG); fail-closed gate at DE25-20 prevents standalone treaty credit | IN SCOPE |
-| Art. 24 | Limitation on Benefits (LOB) | None | N/A for natural persons |
+| Art. 28 | Limitation on Benefits (LOB, as amended by the 2006 Protocol) | LOB qualification category enforced in treaty_law.py (Art. 28(2)(a) qualified-resident — individual) | IN SCOPE — a treaty position must declare its Art. 28 qualifying category |
 
 ## U.S.–Germany Totalization Agreement (Social Security)
 
