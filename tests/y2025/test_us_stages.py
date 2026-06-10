@@ -7,6 +7,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from tax_pipeline.demo_workspace import materialize_demo_workspace
+from tests.y2025._treaty_fixture import write_demo_us_treaty_dividend_items
 from tax_pipeline.y2025.germany_law import GermanyUSTreatyDividendPacketItem2025
 from tax_pipeline.y2025.us_inputs import load_us_assessment_inputs_2025
 from tax_pipeline.y2025.us_law import compute_us_assessment_2025
@@ -122,6 +123,7 @@ class USA2025StagesTest(unittest.TestCase):
         # truth, not a projection of pre-computed Assessment values.
         with tempfile.TemporaryDirectory() as tmp:
             paths = materialize_demo_workspace(Path(tmp), demo_name="demo-2025", year=2025)
+            write_demo_us_treaty_dividend_items(paths)
             inputs = self._load_demo_inputs_with_germany_packet(paths)
             assessment = compute_us_assessment_2025(inputs)
 
@@ -166,6 +168,7 @@ class USA2025StagesTest(unittest.TestCase):
         # truth, not a projection of pre-computed Assessment values.
         with tempfile.TemporaryDirectory() as tmp:
             paths = materialize_demo_workspace(Path(tmp), demo_name="demo-2025", year=2025)
+            write_demo_us_treaty_dividend_items(paths)
             inputs = self._load_demo_inputs_with_germany_packet(paths)
             assessment = compute_us_assessment_2025(inputs)
 

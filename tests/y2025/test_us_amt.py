@@ -39,6 +39,7 @@ from tax_pipeline.y2025.us_law import (
     amt_tentative_minimum_tax_2025,
 )
 from tax_pipeline.y2025.us_stages import usa_law_stages_2025
+from tests.y2025._treaty_fixture import write_demo_us_treaty_dividend_items
 
 D = Decimal
 
@@ -295,6 +296,7 @@ class US25AMTExecutionEndToEndTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             paths = materialize_demo_workspace(Path(tmp), demo_name="demo-2025", year=2025)
+            write_demo_us_treaty_dividend_items(paths)
             inputs = load_us_assessment_inputs_2025(
                 paths,
                 germany_treaty_dividend_items=(
@@ -392,6 +394,7 @@ class AMTPostureGateTest(unittest.TestCase):
         paths = materialize_demo_workspace(
             Path(tmp_dir), demo_name="demo-2025", year=2025
         )
+        write_demo_us_treaty_dividend_items(paths)
         manual_overrides_path = paths.manual_overrides_path
         existing = json.loads(manual_overrides_path.read_text(encoding="utf-8"))
         existing[override_key] = override_value

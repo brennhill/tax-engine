@@ -45,6 +45,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from tax_pipeline.demo_workspace import materialize_demo_workspace
+from tests.y2025._treaty_fixture import write_demo_us_treaty_dividend_items
 from tax_pipeline.y2025.germany_law import GermanyUSTreatyDividendPacketItem2025
 from tax_pipeline.y2025.us_inputs import load_us_assessment_inputs_2025
 from tax_pipeline.y2025.us_rules import (
@@ -125,6 +126,7 @@ class Schedule3LineValuesTest(unittest.TestCase):
             paths = materialize_demo_workspace(
                 Path(tmp), demo_name="demo-2025", year=2025
             )
+            write_demo_us_treaty_dividend_items(paths)
             inputs = load_us_assessment_inputs_2025(
                 paths,
                 germany_treaty_dividend_items=(
@@ -200,6 +202,7 @@ class US25_19A_RemovesProjectionSmellTest(unittest.TestCase):
             paths = materialize_demo_workspace(
                 Path(tmp), demo_name="demo-2025", year=2025
             )
+            write_demo_us_treaty_dividend_items(paths)
             inputs = load_us_assessment_inputs_2025(
                 paths,
                 germany_treaty_dividend_items=(
@@ -250,6 +253,7 @@ class Schedule3RendererEmitsLinesTest(unittest.TestCase):
             paths = materialize_demo_workspace(
                 Path(tmp), demo_name="demo-2025", year=2025
             )
+            write_demo_us_treaty_dividend_items(paths)
             run_year(Path(tmp), "2025", workspace_root=paths.year_root)
             schedule_3_md = (
                 paths.usa_forms_root / f"{paths.year}_schedule_3.md"

@@ -34,6 +34,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from tax_pipeline.demo_workspace import materialize_demo_workspace
+from tests.y2025._treaty_fixture import write_demo_us_treaty_dividend_items
 from tax_pipeline.y2025.germany_law import GermanyUSTreatyDividendPacketItem2025
 from tax_pipeline.y2025.us_inputs import load_us_assessment_inputs_2025
 from tax_pipeline.y2025.us_law import (
@@ -112,6 +113,7 @@ class Form8959ZeroPostureTest(unittest.TestCase):
             paths = materialize_demo_workspace(
                 Path(tmp), demo_name="demo-2025", year=2025
             )
+            write_demo_us_treaty_dividend_items(paths)
             inputs = load_us_assessment_inputs_2025(
                 paths,
                 germany_treaty_dividend_items=(
@@ -166,6 +168,7 @@ class Form8959NonZeroDecompositionTest(unittest.TestCase):
             paths = materialize_demo_workspace(
                 Path(tmp), demo_name="demo-2025", year=2025
             )
+            write_demo_us_treaty_dividend_items(paths)
             base = load_us_assessment_inputs_2025(
                 paths,
                 germany_treaty_dividend_items=(
@@ -295,6 +298,7 @@ class Form8959RendererEmitsLinesTest(unittest.TestCase):
             paths = materialize_demo_workspace(
                 Path(tmp), demo_name="demo-2025", year=2025
             )
+            write_demo_us_treaty_dividend_items(paths)
             run_year(Path(tmp), "2025", workspace_root=paths.year_root)
             form_8959_path = (
                 paths.usa_forms_root / f"{paths.year}_form_8959.md"

@@ -17,6 +17,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from tax_pipeline.demo_workspace import materialize_demo_workspace
+from tests.y2025._treaty_fixture import write_demo_us_treaty_dividend_items
 from tax_pipeline.y2025.germany_law import GermanyUSTreatyDividendPacketItem2025
 from tax_pipeline.paths import YearPaths
 from tax_pipeline.y2025.us_inputs import _usa_filing_posture, load_us_assessment_inputs_2025, load_us_capital_source_facts_2025
@@ -310,6 +311,11 @@ class US2025LawTest(unittest.TestCase):
         return materialize_demo_workspace(root, demo_name="demo-2025", year=2025)
 
     def _load_us_inputs_with_demo_germany_packet(self, paths: YearPaths) -> USAssessmentInputs2025:
+        # The synthetic demo packet asserts a U.S.-source treaty dividend
+        # (msft_us_dividend); the real pipeline auto-derives the matching
+        # us-treaty-dividend-items.csv before the U.S. model loads, so the
+        # test writes it here (the bare demo carries no treaty items).
+        write_demo_us_treaty_dividend_items(paths)
         return load_us_assessment_inputs_2025(
             paths,
             germany_treaty_dividend_items=self._demo_germany_treaty_dividend_packet_items(),
@@ -1572,6 +1578,7 @@ class US2025LawTest(unittest.TestCase):
         # tax/credit values to the U.S. model's USD workpaper currency.
         with tempfile.TemporaryDirectory() as tmp:
             paths = self._seed_us_inputs_tree(Path(tmp))
+            write_demo_us_treaty_dividend_items(paths)
 
             inputs = load_us_assessment_inputs_2025(
                 paths,
