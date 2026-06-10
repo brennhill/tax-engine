@@ -9,7 +9,11 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from tax_pipeline.intake.outputs import build_output_manifest, read_generated_output
+from tax_pipeline.intake.outputs import (
+    build_output_manifest,
+    build_output_preview,
+    read_generated_output,
+)
 from tax_pipeline.intake.postures import (
     PostureValidationError,
     read_posture_state,
@@ -25,14 +29,16 @@ from tax_pipeline.intake.screens import (
 )
 from tax_pipeline.intake.workspace import (
     create_workspace,
+    materialize_demo_into_workspace,
     open_workspace,
     read_household,
     read_payments,
     resolve_workspace_paths,
+    roll_forward_workspace,
     write_household,
     write_payments,
 )
-from tax_pipeline.intake.uploads import list_uploads, store_upload
+from tax_pipeline.intake.uploads import classify_upload_batch, list_uploads, store_upload
 from tax_pipeline.intake.commands import (
     get_readiness,
     run_pipeline,
@@ -134,6 +140,25 @@ def dispatch_request(
             return HTTPStatus.BAD_REQUEST, {"error": "Missing the tax year. Please add ?year=YYYY to the URL, like ?year=2025."}
         workspace_root = _workspace_root_from_text(query.get("workspace", [""])[0])
         return HTTPStatus.OK, get_readiness(project_root, year, workspace_root=workspace_root)
+
+    if method == "GET" and parsed.path == "/api/output-preview":
+        query = parse_qs(parsed.query)
+        year = query.get("year", [""])[0]
+        rel_path = query.get("path", [""])[0]
+        if not year or not rel_path:
+            return HTTPStatus.BAD_REQUEST, {
+                "error": "Missing 'year' and/or 'path'. Provide both — e.g. /api/output-preview?year=2025&path=outputs/analysis-steps/final-legal-output.json.",
+            }
+        workspace_root = _workspace_root_from_text(query.get("workspace", [""])[0])
+        try:
+            paths = resolve_workspace_paths(project_root, year, workspace_root=workspace_root)
+            return HTTPStatus.OK, build_output_preview(paths, rel_path)
+        except PermissionError as exc:
+            return HTTPStatus.FORBIDDEN, {"error": str(exc)}
+        except FileNotFoundError as exc:
+            return HTTPStatus.NOT_FOUND, {"error": f"Output not found: {exc}"}
+        except ValueError as exc:
+            return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
 
     if method == "GET" and parsed.path == "/api/outputs":
         query = parse_qs(parsed.query)
@@ -245,6 +270,42 @@ def dispatch_request(
         except ValueError as exc:
             return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
 
+    if method == "POST" and parsed.path == "/api/workspace/demo":
+        payload = body or {}
+        year = str(payload.get("year", "demo-2025")).strip() or "demo-2025"
+        workspace_root = _workspace_root_from_text(str(payload.get("workspace", "")).strip())
+        try:
+            return HTTPStatus.CREATED, materialize_demo_into_workspace(
+                project_root,
+                year,
+                workspace_root=workspace_root,
+            )
+        except FileNotFoundError as exc:
+            return HTTPStatus.NOT_FOUND, {"error": str(exc)}
+        except ValueError as exc:
+            return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
+
+    if method == "POST" and parsed.path == "/api/workspace/roll-forward":
+        payload = body or {}
+        year = str(payload.get("year", "")).strip()
+        source_year = str(payload.get("source_year", "")).strip()
+        if not year or not source_year:
+            return HTTPStatus.BAD_REQUEST, {
+                "error": "Missing 'year' and/or 'source_year'. Provide both — e.g. {\"source_year\": \"2024\", \"year\": \"2025\"}.",
+            }
+        workspace_root = _workspace_root_from_text(str(payload.get("workspace", "")).strip())
+        try:
+            return HTTPStatus.CREATED, roll_forward_workspace(
+                project_root,
+                source_year=source_year,
+                target_year=year,
+                workspace_root=workspace_root,
+            )
+        except FileNotFoundError as exc:
+            return HTTPStatus.NOT_FOUND, {"error": str(exc)}
+        except ValueError as exc:
+            return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
+
     if method == "POST" and parsed.path == "/api/intake/household":
         payload = dict(body or {})
         year = str(payload.pop("year", "")).strip()
@@ -268,6 +329,15 @@ def dispatch_request(
             return HTTPStatus.OK, write_payments(paths, payload)
         except ValueError as exc:
             return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
+
+    if method == "POST" and parsed.path == "/api/uploads/classify-batch":
+        payload = dict(body or {})
+        filenames = payload.get("filenames")
+        if not isinstance(filenames, list):
+            return HTTPStatus.BAD_REQUEST, {
+                "error": "Missing 'filenames' array. Provide a list of names to classify, e.g. {\"filenames\": [\"foo.pdf\", \"bar.csv\"]}.",
+            }
+        return HTTPStatus.OK, {"predictions": classify_upload_batch([str(n) for n in filenames])}
 
     if method == "POST" and parsed.path == "/api/uploads":
         payload = dict(body or {})

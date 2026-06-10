@@ -268,6 +268,33 @@ def store_upload(
     return preview
 
 
+def classify_upload_batch(filenames: list[str]) -> list[dict[str, object]]:
+    """Classify a batch of upload candidates without storing them.
+
+    Powers the drag-and-drop uploader's per-file preview row: the client
+    drops N files, the server returns N classifier predictions (bucket,
+    doc_type, provider, confidence, country), and the user confirms or
+    overrides bucket before any bytes are written to disk. The classifier
+    only needs the filename/relative-path to predict — file content is
+    not read at this stage, so the preview is cheap.
+    """
+    predictions: list[dict[str, object]] = []
+    for raw_name in filenames:
+        name = str(raw_name or "").strip()
+        if not name:
+            predictions.append(
+                {
+                    "filename": "",
+                    "error": "Empty filename.",
+                }
+            )
+            continue
+        prediction = classify_relative_path(Path(name))
+        prediction["filename"] = name
+        predictions.append(prediction)
+    return predictions
+
+
 def list_uploads(paths: YearPaths) -> dict[str, object]:
     ensure_year_scaffold(paths)
     return {"uploads": _load_upload_index(paths)}

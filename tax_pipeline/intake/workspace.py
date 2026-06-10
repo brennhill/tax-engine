@@ -3,9 +3,11 @@ from __future__ import annotations
 import csv
 import io
 import json
+import shutil
 from pathlib import Path
 
 from tax_pipeline.core.io import atomic_write_text
+from tax_pipeline.demo_workspace import demo_source_root
 from tax_pipeline.intake.state import workspace_metadata
 from tax_pipeline.paths import YearPaths
 from tax_pipeline.scaffold_year import (
@@ -71,6 +73,90 @@ def open_workspace(
 ) -> dict[str, object]:
     paths = resolve_workspace_paths(project_root, year_token, workspace_root=workspace_root)
     return workspace_metadata(paths)
+
+
+def materialize_demo_into_workspace(
+    project_root: Path,
+    year_token: str,
+    *,
+    workspace_root: Path | None = None,
+    demo_name: str = "demo-2025",
+) -> dict[str, object]:
+    """Copy the synthetic demo workspace into the user's year tree.
+
+    Powers the intake wizard's "Try the demo" first-run path: a new user
+    gets a runnable workspace with no manual data entry. The demo lives
+    under ``years/<demo-name>/`` in the repo and is copied verbatim to
+    the resolved year root; the target year token is preserved so the
+    user can rename or roll forward later.
+    """
+    paths = resolve_workspace_paths(project_root, year_token, workspace_root=workspace_root)
+    source = demo_source_root(demo_name=demo_name)
+    if paths.year_root.exists():
+        shutil.rmtree(paths.year_root)
+    paths.year_root.mkdir(parents=True, exist_ok=True)
+    for child in source.iterdir():
+        destination = paths.year_root / child.name
+        if child.is_dir():
+            shutil.copytree(child, destination)
+        else:
+            shutil.copy2(child, destination)
+    paths.ensure_directories()
+    return workspace_metadata(paths)
+
+
+def roll_forward_workspace(
+    project_root: Path,
+    *,
+    source_year: str,
+    target_year: str,
+    workspace_root: Path | None = None,
+) -> dict[str, object]:
+    """Scaffold ``target_year`` and copy ``config/`` from ``source_year``.
+
+    Onboarding shortcut for returning users — household, postures, and
+    elections survive the year transition; raw documents and outputs do
+    not. The target year is scaffolded first so missing config files
+    fall back to defaults rather than crashing the loader.
+
+    When ``workspace_root`` is supplied, it points at the *target* year
+    directory. The source year is expected to live as a sibling under
+    the same parent, so we derive its workspace_root by swapping the
+    trailing year token. This matches the standard layout
+    (``~/taxes/<year>/``) without requiring the caller to pass two paths.
+    """
+    target_paths = resolve_workspace_paths(project_root, target_year, workspace_root=workspace_root)
+    if workspace_root is not None and target_year.strip().isdigit():
+        source_workspace_root = workspace_root.parent / source_year
+    else:
+        source_workspace_root = workspace_root
+    source_paths = resolve_workspace_paths(
+        project_root,
+        source_year,
+        workspace_root=source_workspace_root,
+    )
+    if not source_paths.year_root.exists():
+        raise FileNotFoundError(
+            f"Cannot roll forward: source workspace {source_paths.year_root} does not exist."
+        )
+    scaffold_year(
+        project_root,
+        target_year,
+        workspace_root=target_paths.workspace_root,
+        input_fn=lambda _prompt: "y",
+    )
+    source_config = source_paths.year_root / "config"
+    target_config = target_paths.year_root / "config"
+    if source_config.is_dir():
+        for entry in source_config.iterdir():
+            destination = target_config / entry.name
+            if entry.is_dir():
+                if destination.exists():
+                    shutil.rmtree(destination)
+                shutil.copytree(entry, destination)
+            else:
+                shutil.copy2(entry, destination)
+    return workspace_metadata(target_paths)
 
 
 def _stringify_bool(value: object) -> str:

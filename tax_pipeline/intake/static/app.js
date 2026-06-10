@@ -4,7 +4,242 @@ const state = {
   year: defaultTaxYear,
   workspace: "",
   csrfToken: "",
+  workspaceOpened: false,
+  workspaceMode: null,  // "new" | "roll-forward" | null
 };
+
+// ---------------------------------------------------------------------------
+// Stepper + status badges
+//
+// The vertical stepper on the left mirrors a per-section workflow state
+// (Empty / Incomplete / Saved / Validated / Locked). Status sources are
+// per-section: workspace presence, /api/progress completeness for Wave 6
+// screens, /api/uploads count for Documents, /api/readiness for the Run
+// gate, /api/outputs count for Outputs. After any save we re-poll the
+// affected sources and re-render the badges.
+// ---------------------------------------------------------------------------
+
+const STEP_STATUS_LABELS = {
+  locked: "Locked",
+  empty: "Empty",
+  incomplete: "Partial",
+  saved: "Saved",
+  validated: "Ready",
+  done: "Done",
+  error: "Error",
+  current: "Current",
+  new: "New",
+};
+
+const STEP_LOCK_PARENTS = ["workspace"];  // these never get locked
+
+function setStepStatus(target, status, label) {
+  const li = document.querySelector(`.stepper-step[data-nav-target="${target}"]`);
+  if (!li) return;
+  for (const cls of [
+    "is-locked", "is-empty", "is-incomplete", "is-saved",
+    "is-validated", "is-done", "is-error", "is-new",
+  ]) {
+    li.classList.remove(cls);
+  }
+  li.classList.add(`is-${status}`);
+  const badge = li.querySelector(`[data-step-status="${target}"]`);
+  if (badge) {
+    badge.textContent = label || STEP_STATUS_LABELS[status] || "";
+  }
+}
+
+function setStepperCurrent(target) {
+  for (const li of document.querySelectorAll(".stepper-step")) {
+    li.classList.toggle("is-current", li.dataset.navTarget === target);
+  }
+}
+
+function setStepperLocked(locked) {
+  for (const li of document.querySelectorAll(".stepper-step")) {
+    const target = li.dataset.navTarget;
+    if (STEP_LOCK_PARENTS.includes(target)) continue;
+    if (locked) {
+      li.classList.add("is-locked");
+      const badge = li.querySelector(`[data-step-status="${target}"]`);
+      if (badge) badge.textContent = STEP_STATUS_LABELS.locked;
+    } else if (li.classList.contains("is-locked")) {
+      li.classList.remove("is-locked");
+      const badge = li.querySelector(`[data-step-status="${target}"]`);
+      if (badge) badge.textContent = STEP_STATUS_LABELS.empty;
+      li.classList.add("is-empty");
+    }
+  }
+}
+
+async function refreshStepperStatuses() {
+  if (!state.workspaceOpened) {
+    setStepperLocked(true);
+    setStepStatus("workspace", "new");
+    return;
+  }
+  setStepperLocked(false);
+  setStepStatus("workspace", "saved");
+
+  // Per-screen completeness from /api/progress (covers identity,
+  // bank_accounts, de_deductions, vorabpauschale, carryovers, children).
+  try {
+    const params = new URLSearchParams({ year: state.year, workspace: state.workspace });
+    const progress = await apiRequest(`/api/progress?${params.toString()}`);
+    const byScreen = (progress && progress.completeness && progress.completeness.by_screen) || {};
+    for (const screen of Object.keys(byScreen)) {
+      const filled = !!byScreen[screen].filled;
+      setStepStatus(screen, filled ? "saved" : "empty");
+    }
+  } catch (_) {
+    // ignore — keep prior status
+  }
+
+  // Household + Payments: cheap GETs; non-empty taxpayer name / payment marks them saved.
+  await refreshHouseholdStatus();
+  await refreshPaymentsStatus();
+  await refreshPosturesStatus();
+  await refreshDocumentsStatus();
+  await refreshOutputsStatus();
+}
+
+async function refreshHouseholdStatus() {
+  try {
+    const params = new URLSearchParams({ year: state.year, workspace: state.workspace });
+    const payload = await apiRequest(`/api/intake/household?${params.toString()}`);
+    const people = (payload && payload.people) || [];
+    const filled = people.some((p) => p && String(p.display_name || "").trim());
+    setStepStatus("household", filled ? "saved" : "empty");
+  } catch (_) {
+    setStepStatus("household", "empty");
+  }
+}
+
+async function refreshPaymentsStatus() {
+  try {
+    const params = new URLSearchParams({ year: state.year, workspace: state.workspace });
+    const payload = await apiRequest(`/api/intake/payments?${params.toString()}`);
+    const payments = (payload && payload.payments) || [];
+    const filled = payments.some((p) => p && Number(p.amount) > 0);
+    setStepStatus("payments", filled ? "saved" : "empty");
+  } catch (_) {
+    setStepStatus("payments", "empty");
+  }
+}
+
+async function refreshPosturesStatus() {
+  try {
+    const params = new URLSearchParams({ year: state.year, workspace: state.workspace });
+    const payload = await apiRequest(`/api/postures/state?${params.toString()}`);
+    const stateObj = (payload && payload.state) || {};
+    const keys = Object.keys(stateObj);
+    setStepStatus("postures", keys.length > 0 ? "saved" : "empty");
+  } catch (_) {
+    setStepStatus("postures", "empty");
+  }
+}
+
+async function refreshDocumentsStatus() {
+  try {
+    const params = new URLSearchParams({ year: state.year, workspace: state.workspace });
+    const payload = await apiRequest(`/api/uploads?${params.toString()}`);
+    const uploads = (payload && payload.uploads) || [];
+    setStepStatus("documents", uploads.length > 0 ? "saved" : "empty");
+  } catch (_) {
+    setStepStatus("documents", "empty");
+  }
+}
+
+async function refreshOutputsStatus() {
+  try {
+    const params = new URLSearchParams({ year: state.year, workspace: state.workspace });
+    const payload = await apiRequest(`/api/outputs?${params.toString()}`);
+    const files = (payload && payload.files) || [];
+    setStepStatus("outputs", files.length > 0 ? "done" : "empty");
+    setStepStatus("run", files.length > 0 ? "done" : "empty");
+  } catch (_) {
+    setStepStatus("outputs", "empty");
+    setStepStatus("run", "empty");
+  }
+}
+
+// ---------------------------------------------------------------------------
+// First-run quick-start cards
+// ---------------------------------------------------------------------------
+
+function bindQuickStartCards() {
+  for (const card of document.querySelectorAll(".quick-start-card[data-quick-start]")) {
+    card.addEventListener("click", () => handleQuickStart(card.dataset.quickStart));
+  }
+  const cancel = document.getElementById("workspace-cancel");
+  if (cancel) cancel.addEventListener("click", () => showQuickStartCards());
+  const switchBtn = document.getElementById("workspace-switch");
+  if (switchBtn) switchBtn.addEventListener("click", () => showQuickStartCards());
+}
+
+function showQuickStartCards() {
+  document.getElementById("quick-start-cards").hidden = false;
+  document.getElementById("workspace-form").hidden = true;
+  document.getElementById("workspace-active").hidden = true;
+  state.workspaceMode = null;
+}
+
+function showWorkspaceForm(mode) {
+  state.workspaceMode = mode;
+  document.getElementById("quick-start-cards").hidden = true;
+  document.getElementById("workspace-form").hidden = false;
+  document.getElementById("workspace-active").hidden = true;
+  const label = document.getElementById("workspace-mode-label");
+  if (label) {
+    label.textContent =
+      mode === "roll-forward"
+        ? "Roll forward from a prior year"
+        : "Start a new workspace";
+  }
+  const submit = document.getElementById("workspace-submit");
+  if (submit) {
+    submit.textContent = mode === "roll-forward" ? "Roll forward" : "Open workspace";
+  }
+  const sourceField = document.querySelector('[data-workspace-field="source_year"]');
+  if (sourceField) sourceField.hidden = mode !== "roll-forward";
+}
+
+function showWorkspaceActive(payload) {
+  document.getElementById("quick-start-cards").hidden = true;
+  document.getElementById("workspace-form").hidden = true;
+  const active = document.getElementById("workspace-active");
+  active.hidden = false;
+  const value = document.getElementById("workspace-active-value");
+  if (value) {
+    const yearLabel = state.year || "—";
+    const pathLabel = (payload && payload.year_root) || state.workspace || "default location";
+    value.textContent = `${yearLabel} — ${pathLabel}`;
+  }
+}
+
+async function handleQuickStart(mode) {
+  if (mode === "demo") {
+    try {
+      const payload = await apiRequest("/api/workspace/demo", {
+        method: "POST",
+        body: JSON.stringify({ year: "2025" }),
+      });
+      state.year = "2025";
+      state.workspace = "";
+      state.workspaceOpened = true;
+      renderJson("workspace-output", payload);
+      showWorkspaceActive(payload);
+      await refreshStepperStatuses();
+      await refreshReadiness();
+    } catch (error) {
+      renderJson("workspace-output", { error: String(error) });
+    }
+    return;
+  }
+  if (mode === "new" || mode === "roll-forward") {
+    showWorkspaceForm(mode);
+  }
+}
 
 async function ensureSessionToken() {
   if (state.csrfToken) {
@@ -46,14 +281,39 @@ async function createWorkspace(year, workspace) {
   });
   state.year = year;
   state.workspace = workspace || "";
+  state.workspaceOpened = true;
   renderJson("workspace-output", payload);
+  showWorkspaceActive(payload);
+  await refreshStepperStatuses();
+  await refreshReadiness();
+  return payload;
+}
+
+async function rollForwardWorkspace(sourceYear, year, workspace) {
+  const payload = await apiRequest("/api/workspace/roll-forward", {
+    method: "POST",
+    body: JSON.stringify({ source_year: sourceYear, year, workspace }),
+  });
+  state.year = year;
+  state.workspace = workspace || "";
+  state.workspaceOpened = true;
+  renderJson("workspace-output", payload);
+  showWorkspaceActive(payload);
+  await refreshStepperStatuses();
+  await refreshReadiness();
   return payload;
 }
 
 async function loadWorkspace(year, workspace) {
   const params = new URLSearchParams({ year, workspace });
   const payload = await apiRequest(`/api/workspace?${params.toString()}`);
+  state.year = year;
+  state.workspace = workspace || "";
+  state.workspaceOpened = true;
   renderJson("workspace-output", payload);
+  showWorkspaceActive(payload);
+  await refreshStepperStatuses();
+  await refreshReadiness();
   return payload;
 }
 
@@ -63,6 +323,8 @@ async function saveHousehold(payload) {
     body: JSON.stringify(payload),
   });
   renderJson("household-output", response);
+  setStepStatus("household", "saved");
+  refreshReadiness().catch(() => {});
   return response;
 }
 
@@ -72,6 +334,8 @@ async function savePayments(payload) {
     body: JSON.stringify(payload),
   });
   renderJson("payments-output", response);
+  setStepStatus("payments", "saved");
+  refreshReadiness().catch(() => {});
   return response;
 }
 
@@ -81,6 +345,8 @@ async function uploadDocument(payload) {
     body: JSON.stringify(payload),
   });
   renderJson("documents-output", response);
+  setStepStatus("documents", "saved");
+  refreshReadiness().catch(() => {});
   return response;
 }
 
@@ -228,84 +494,133 @@ function renderRunFailureCard(failure) {
 }
 
 function renderRunProgressInitial(runId) {
-  const target = document.getElementById("run-output");
-  if (!target) return;
-  target.textContent = "";
-  const heading = document.createElement("p");
-  heading.className = "run-progress-heading";
-  heading.textContent = `Run ${runId} started — streaming progress…`;
-  target.appendChild(heading);
-  const list = document.createElement("ol");
-  list.className = "run-progress-list";
-  list.id = "run-progress-list";
-  target.appendChild(list);
+  const board = document.getElementById("run-output");
+  const summary = document.getElementById("run-summary");
+  if (!board) return;
+  board.replaceChildren();
+  if (summary) {
+    summary.hidden = false;
+    summary.textContent = `Run ${runId} — streaming progress…`;
+    summary.className = "run-summary";
+  }
 }
 
 function renderRunProgress(payload, startedAtMs) {
-  const list = document.getElementById("run-progress-list");
-  if (!list) return;
-  list.replaceChildren();
+  const board = document.getElementById("run-output");
+  const summary = document.getElementById("run-summary");
+  if (!board) return;
+
   const events = Array.isArray(payload.events) ? payload.events : [];
   // Reduce events to per-stage entries: one row per stage_started, with
-  // the stage's status updated when stage_completed arrives. This gives
-  // the user a stable list that grows as the pipeline progresses.
+  // the stage's status updated when stage_completed arrives. Order
+  // follows first-seen order from the event stream so the board grows
+  // top-down as the pipeline progresses.
   const byStage = new Map();
+  let runFailed = null;
   for (const event of events) {
     if (event.event === "stage_started" && event.stage_id) {
-      byStage.set(event.stage_id, {
-        stage_id: event.stage_id,
-        started_at: event.ts,
-        elapsed_seconds: event.elapsed_seconds || 0,
-        completed: false,
-        completed_elapsed: null,
-        phase: event.phase || "",
-      });
+      if (!byStage.has(event.stage_id)) {
+        byStage.set(event.stage_id, {
+          stage_id: event.stage_id,
+          started_elapsed: event.elapsed_seconds || 0,
+          completed_elapsed: null,
+          phase: event.phase || "",
+          state: "running",
+        });
+      }
     } else if (event.event === "stage_completed" && event.stage_id) {
       const entry = byStage.get(event.stage_id);
       if (entry) {
-        entry.completed = true;
         entry.completed_elapsed = event.elapsed_seconds || 0;
+        entry.state = "complete";
+      }
+    } else if (event.event === "run_failed") {
+      runFailed = event;
+      if (event.stage_id && byStage.has(event.stage_id)) {
+        byStage.get(event.stage_id).state = "failed";
+      } else if (event.stage_id) {
+        byStage.set(event.stage_id, {
+          stage_id: event.stage_id,
+          started_elapsed: event.elapsed_seconds || 0,
+          completed_elapsed: event.elapsed_seconds || 0,
+          phase: "",
+          state: "failed",
+        });
       }
     }
   }
+
+  board.replaceChildren();
+  const liveElapsedSecs = (Date.now() - startedAtMs) / 1000;
   for (const entry of byStage.values()) {
-    const item = document.createElement("li");
-    item.className = entry.completed
-      ? "run-stage is-complete"
-      : "run-stage is-running";
+    const row = document.createElement("div");
+    row.className = `run-stage-row is-${entry.state}`;
+
+    const icon = document.createElement("span");
+    icon.className = "run-stage-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = ({ running: "…", complete: "✓", failed: "!" })[entry.state] || "·";
+    row.appendChild(icon);
+
     const label = document.createElement("span");
-    label.className = "run-stage-id";
-    label.textContent = entry.stage_id;
-    item.appendChild(label);
-    if (entry.phase) {
-      const phase = document.createElement("span");
-      phase.className = "run-stage-phase";
-      phase.textContent = ` (${entry.phase})`;
-      item.appendChild(phase);
-    }
+    label.className = "run-stage-label";
+    label.textContent = entry.phase ? `${entry.stage_id} · ${entry.phase}` : entry.stage_id;
+    row.appendChild(label);
+
     const timing = document.createElement("span");
     timing.className = "run-stage-timing";
-    if (entry.completed) {
-      const dt = (entry.completed_elapsed - entry.elapsed_seconds).toFixed(2);
-      timing.textContent = ` — ${dt}s`;
+    if (entry.state === "complete" && entry.completed_elapsed != null) {
+      const dt = (entry.completed_elapsed - entry.started_elapsed).toFixed(2);
+      timing.textContent = `${dt}s`;
+    } else if (entry.state === "failed") {
+      timing.textContent = "failed";
     } else {
-      const elapsed = ((Date.now() - startedAtMs) / 1000 - entry.elapsed_seconds).toFixed(1);
-      timing.textContent = ` — running ${elapsed}s`;
+      const dt = (liveElapsedSecs - entry.started_elapsed).toFixed(1);
+      timing.textContent = `${dt}s`;
     }
-    item.appendChild(timing);
-    list.appendChild(item);
+    row.appendChild(timing);
+
+    if (entry.state === "failed" && runFailed) {
+      const failure = document.createElement("div");
+      failure.className = "run-stage-failure";
+      const pieces = [];
+      if (runFailed.rule_id) pieces.push(`Rule: ${runFailed.rule_id}`);
+      if (runFailed.missing_input_key) pieces.push(`Missing input: ${runFailed.missing_input_key}`);
+      if (runFailed.original_message) pieces.push(runFailed.original_message);
+      failure.textContent = pieces.join(" — ");
+      if (runFailed.authority_url) {
+        failure.append(" · ");
+        const link = document.createElement("a");
+        link.href = runFailed.authority_url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "authority";
+        failure.appendChild(link);
+      }
+      row.appendChild(failure);
+    }
+
+    board.appendChild(row);
   }
-  // Status indicator above the list.
-  const heading = list.previousElementSibling;
-  if (heading && heading.classList.contains("run-progress-heading")) {
+
+  if (summary) {
+    const stageCount = byStage.size;
     if (payload.status === "running" && payload.current_stage_id) {
-      heading.textContent = `Running stage: ${payload.current_stage_id}`;
+      summary.textContent = `Running stage ${payload.current_stage_id} (${stageCount} stages so far, ${liveElapsedSecs.toFixed(1)}s elapsed)`;
+      summary.className = "run-summary";
     } else if (payload.status === "completed") {
-      heading.textContent = "Run complete — opening Outputs.";
+      const totalElapsed = events.reduce(
+        (max, e) => Math.max(max, Number(e.elapsed_seconds) || 0),
+        0,
+      );
+      summary.textContent = `Complete — ${stageCount} stages, ${totalElapsed.toFixed(2)}s total. Opening Outputs.`;
+      summary.className = "run-summary is-complete";
     } else if (payload.status === "failed") {
-      heading.textContent = "Run failed — see error card below.";
+      summary.textContent = `Failed at ${runFailed && runFailed.stage_id ? runFailed.stage_id : "an unknown stage"} after ${liveElapsedSecs.toFixed(1)}s.`;
+      summary.className = "run-summary is-failed";
     } else {
-      heading.textContent = "Run started — streaming progress…";
+      summary.textContent = "Run started — streaming progress…";
+      summary.className = "run-summary";
     }
   }
 }
@@ -370,6 +685,19 @@ function renderOutputDownloads(payload) {
       link.textContent = file.label || file.relative_path;
       item.appendChild(link);
 
+      // High-value outputs (final-legal-output.json, narratives, verbose
+      // report) get a Preview button that opens the in-app preview
+      // modal. The server marks eligibility via preview_eligible so the
+      // affordance list is centralized in tax_pipeline/intake/outputs.py.
+      if (file.preview_eligible) {
+        const previewBtn = document.createElement("button");
+        previewBtn.type = "button";
+        previewBtn.className = "preview-button";
+        previewBtn.textContent = "Preview";
+        previewBtn.addEventListener("click", () => openOutputPreview(file));
+        item.appendChild(previewBtn);
+      }
+
       const path = document.createElement("span");
       path.className = "output-path";
       path.textContent = ` ${file.relative_path}`;
@@ -385,24 +713,292 @@ function showScreen(name) {
   for (const screen of document.querySelectorAll(".screen")) {
     screen.classList.toggle("is-active", screen.dataset.screen === name);
   }
+  setStepperCurrent(name);
+}
+
+// ---------------------------------------------------------------------------
+// Output preview modal (suggestion #5)
+// ---------------------------------------------------------------------------
+
+async function openOutputPreview(file) {
+  const modal = document.getElementById("output-preview-modal");
+  const body = document.getElementById("output-preview-body");
+  const title = document.getElementById("output-preview-title");
+  if (!modal || !body || !title) return;
+  title.textContent = file.label || file.relative_path;
+  body.innerHTML = '<p class="rail-empty">Loading preview…</p>';
+  modal.hidden = false;
+  modal.classList.add("is-open");
+  try {
+    const params = new URLSearchParams({
+      year: state.year,
+      workspace: state.workspace,
+      path: file.relative_path,
+    });
+    const payload = await apiRequest(`/api/output-preview?${params.toString()}`);
+    renderOutputPreview(body, payload);
+  } catch (error) {
+    body.innerHTML = `<p class="rail-empty">Preview failed: ${String(error)}</p>`;
+  }
+}
+
+function closeOutputPreview() {
+  const modal = document.getElementById("output-preview-modal");
+  if (!modal) return;
+  modal.classList.remove("is-open");
+  modal.hidden = true;
+}
+
+function renderOutputPreview(body, payload) {
+  body.replaceChildren();
+  if (payload.error) {
+    const err = document.createElement("p");
+    err.className = "rail-empty";
+    err.textContent = payload.error;
+    body.appendChild(err);
+  }
+
+  if (payload.kind === "json") {
+    const highlights = Array.isArray(payload.highlights) ? payload.highlights : [];
+    if (highlights.length === 0) {
+      const p = document.createElement("p");
+      p.className = "rail-empty";
+      p.textContent = "No highlight figures recognized in this file.";
+      body.appendChild(p);
+    } else {
+      for (const h of highlights) {
+        const row = document.createElement("div");
+        row.className = "highlight-row";
+        const labelWrap = document.createElement("div");
+        const label = document.createElement("strong");
+        label.textContent = h.label;
+        labelWrap.appendChild(label);
+        if (h.detail) {
+          const detail = document.createElement("div");
+          detail.className = "highlight-detail";
+          detail.textContent = h.detail;
+          labelWrap.appendChild(detail);
+        }
+        row.appendChild(labelWrap);
+        const amount = document.createElement("span");
+        amount.className = "highlight-amount";
+        amount.textContent = h.amount;
+        row.appendChild(amount);
+        body.appendChild(row);
+      }
+    }
+    if (Number(payload.provenance_count) > 0) {
+      const prov = document.createElement("p");
+      prov.style.marginTop = "1rem";
+      prov.style.fontSize = "0.82rem";
+      prov.style.color = "var(--ink-faint)";
+      prov.textContent = `Audit trail: ${payload.provenance_count} rule-output fingerprints recorded in _provenance.`;
+      body.appendChild(prov);
+    }
+  }
+
+  if (payload.kind === "markdown") {
+    const wrap = document.createElement("div");
+    wrap.className = "preview-narrative";
+    const pre = document.createElement("pre");
+    pre.textContent = payload.body_text || "";
+    wrap.appendChild(pre);
+    body.appendChild(wrap);
+  }
+
+  if (payload.kind === "raw") {
+    const pre = document.createElement("pre");
+    pre.textContent = payload.body_text || "";
+    body.appendChild(pre);
+  }
+
+  if (payload.truncated) {
+    const trunc = document.createElement("p");
+    trunc.style.marginTop = "0.75rem";
+    trunc.style.fontStyle = "italic";
+    trunc.style.color = "var(--ink-faint)";
+    trunc.textContent = "Preview truncated. Use Download for the full file.";
+    body.appendChild(trunc);
+  }
+}
+
+function bindOutputPreviewModal() {
+  const modal = document.getElementById("output-preview-modal");
+  const close = document.getElementById("output-preview-close");
+  if (close) close.addEventListener("click", closeOutputPreview);
+  if (modal) {
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) closeOutputPreview();
+    });
+  }
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeOutputPreview();
+  });
 }
 
 function bindNavigation() {
   for (const button of document.querySelectorAll("[data-nav-target]")) {
-    button.addEventListener("click", () => showScreen(button.dataset.navTarget));
+    button.addEventListener("click", (event) => {
+      // Stepper steps may be locked while no workspace is open. Locked
+      // steps are not actionable — clicking them just nudges the user
+      // back to Workspace so they can pick a starting point.
+      if (button.classList && button.classList.contains("is-locked")) {
+        event.preventDefault();
+        showScreen("workspace");
+        return;
+      }
+      showScreen(button.dataset.navTarget);
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Live readiness side-panel (suggestion #2)
+//
+// /api/readiness re-runs the workspace validator on every call and is
+// cheap (file-presence + lightweight TOML parsing). After each autosave
+// save we re-poll, then render the structured groups (missing_config /
+// missing_structured / other_errors / sections) into the right-hand
+// rail. Errors are clickable buttons that deep-link back to the
+// responsible screen via the same data-nav-target convention the
+// stepper uses.
+// ---------------------------------------------------------------------------
+
+// Maps a readiness error/missing-key string to the screen the user
+// would visit to fix it. Falls back to "documents" for anything that
+// looks like a raw-input gap, and "workspace" for everything else.
+const READINESS_FIELD_HINTS = [
+  { pattern: /profile\.json|people\.csv|household|marital/i, target: "household" },
+  { pattern: /payments\.csv|prepayment|estimated/i, target: "payments" },
+  { pattern: /elections\.csv|posture|treaty/i, target: "postures" },
+  { pattern: /identity|tax id|ssn|itin|employer/i, target: "identity" },
+  { pattern: /bank|fbar|account/i, target: "bank_accounts" },
+  { pattern: /child|kinder|dependent/i, target: "children" },
+  { pattern: /carryover|carryforward|ftc/i, target: "carryovers" },
+  { pattern: /vorab|invstg|fund/i, target: "vorabpauschale" },
+  { pattern: /außergewöhnliche|sonderausgaben|arbeitszimmer|deduction/i, target: "de_deductions" },
+  { pattern: /raw|upload|document|lohnsteuer|w-?2|1099/i, target: "documents" },
+];
+
+function resolveReadinessTarget(needle) {
+  for (const { pattern, target } of READINESS_FIELD_HINTS) {
+    if (pattern.test(needle)) return target;
+  }
+  return "workspace";
+}
+
+async function refreshReadiness() {
+  const rail = document.getElementById("readiness-rail-body");
+  const badge = document.getElementById("readiness-badge");
+  const raw = document.getElementById("readiness-output");
+  if (!rail) return;
+  if (!state.workspaceOpened) {
+    rail.innerHTML = '<p class="rail-empty">Open or create a workspace to begin.</p>';
+    if (badge) {
+      badge.className = "rail-badge";
+      badge.textContent = "Not checked";
+    }
+    return;
+  }
+  try {
+    const params = new URLSearchParams({ year: state.year, workspace: state.workspace });
+    const payload = await apiRequest(`/api/readiness?${params.toString()}`);
+    renderReadinessRail(payload);
+    if (raw) renderJson("readiness-output", payload);
+    setStepStatus("run", payload && payload.ready ? "validated" : "incomplete");
+  } catch (error) {
+    rail.innerHTML = `<p class="rail-empty">Readiness check failed: ${String(error)}</p>`;
+    if (badge) {
+      badge.className = "rail-badge is-not-ready";
+      badge.textContent = "Error";
+    }
+  }
+}
+
+function renderReadinessRail(payload) {
+  const rail = document.getElementById("readiness-rail-body");
+  const badge = document.getElementById("readiness-badge");
+  if (!rail) return;
+  rail.replaceChildren();
+  if (badge) {
+    badge.className = "rail-badge " + (payload && payload.ready ? "is-ready" : "is-not-ready");
+    badge.textContent = payload && payload.ready ? "Ready" : "Not ready";
+  }
+
+  const groups = (payload && payload.groups) || {};
+  const sectionDefs = [
+    { key: "missing_config", title: "Missing config" },
+    { key: "missing_structured", title: "Missing inputs" },
+    { key: "other_errors", title: "Other issues" },
+  ];
+
+  let totalIssues = 0;
+  for (const def of sectionDefs) {
+    const items = Array.isArray(groups[def.key]) ? groups[def.key] : [];
+    if (items.length === 0) continue;
+    totalIssues += items.length;
+    const section = document.createElement("section");
+    section.className = "rail-section";
+
+    const title = document.createElement("h3");
+    title.className = "rail-section-title";
+    const titleLabel = document.createElement("span");
+    titleLabel.textContent = def.title;
+    title.appendChild(titleLabel);
+    const count = document.createElement("span");
+    count.className = "rail-section-count";
+    count.textContent = String(items.length);
+    title.appendChild(count);
+    section.appendChild(title);
+
+    const list = document.createElement("ul");
+    list.className = "rail-list";
+    for (const needle of items) {
+      const li = document.createElement("li");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "rail-item is-error";
+      button.textContent = needle;
+      const target = resolveReadinessTarget(String(needle));
+      button.addEventListener("click", () => showScreen(target));
+      li.appendChild(button);
+      list.appendChild(li);
+    }
+    section.appendChild(list);
+    rail.appendChild(section);
+  }
+
+  if (totalIssues === 0) {
+    const ok = document.createElement("p");
+    ok.className = "rail-empty";
+    ok.textContent = payload && payload.ready
+      ? "All required inputs are present. Ready to run."
+      : "No structured errors recorded yet.";
+    rail.appendChild(ok);
   }
 }
 
 function bindWorkspaceForm() {
   const form = document.getElementById("workspace-form");
+  if (!form) return;
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(form);
     const year = String(formData.get("year") || state.year);
     const workspace = String(formData.get("workspace") || "");
     try {
-      await createWorkspace(year, workspace);
-      await loadWorkspace(year, workspace);
+      if (state.workspaceMode === "roll-forward") {
+        const sourceYear = String(formData.get("source_year") || "").trim();
+        if (!sourceYear) {
+          renderJson("workspace-output", {
+            error: "Source year is required for roll-forward.",
+          });
+          return;
+        }
+        await rollForwardWorkspace(sourceYear, year, workspace);
+      } else {
+        await createWorkspace(year, workspace);
+      }
     } catch (error) {
       renderJson("workspace-output", { error: String(error) });
     }
@@ -541,33 +1137,239 @@ async function fileToBase64(file) {
   return btoa(binary);
 }
 
+// ---------------------------------------------------------------------------
+// Drag-and-drop batch upload (suggestion #3)
+//
+// The Documents screen now accepts a batch of files via drag-drop or the
+// hidden <input type="file" multiple>. For each dropped file we:
+//   1. Pre-classify via /api/uploads/classify-batch (filename-only — no
+//      bytes leave the browser at this stage).
+//   2. Render a preview row showing the predicted bucket + confidence
+//      and an editable bucket override.
+//   3. On "Upload all", POST each row's bytes (base64) to /api/uploads
+//      with the (possibly overridden) bucket, updating the row state.
+//
+// The dropzone state lives in module-scoped uploadBatchState; the
+// rendered rows are derived from it. File contents stay in-memory until
+// the user commits or clears the batch.
+// ---------------------------------------------------------------------------
+
+const BUCKET_OVERRIDES = [
+  { value: "", label: "Auto (use prediction)" },
+  { value: "germany", label: "germany" },
+  { value: "us", label: "us" },
+  { value: "brokers", label: "brokers" },
+  { value: "crypto", label: "crypto" },
+  { value: "equity_comp", label: "equity_comp" },
+  { value: "receipts", label: "receipts" },
+  { value: "real_estate", label: "real_estate" },
+];
+
+const uploadBatchState = {
+  rows: [],  // { id, file, prediction, override, status, error }
+  nextId: 1,
+};
+
+function fileBatchId() {
+  return `upload-${uploadBatchState.nextId++}`;
+}
+
 function bindUploadForm() {
   const form = document.getElementById("document-upload-form");
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const formData = new FormData(form);
-    const file = formData.get("document");
-    if (!(file instanceof File) || !file.name) {
-      renderJson("documents-output", { error: "Choose a file first." });
-      return;
+  if (!form) return;
+  // Prevent the legacy submit from triggering a full page reload when a
+  // single dropzone-input change happens to bubble a submit.
+  form.addEventListener("submit", (event) => event.preventDefault());
+
+  const dropzone = document.getElementById("upload-dropzone");
+  const input = document.getElementById("upload-dropzone-input");
+  if (dropzone && input) {
+    input.addEventListener("change", () => handleUploadFiles(Array.from(input.files || [])));
+    dropzone.addEventListener("dragenter", (e) => { e.preventDefault(); dropzone.classList.add("is-dragover"); });
+    dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("is-dragover"); });
+    dropzone.addEventListener("dragleave", () => dropzone.classList.remove("is-dragover"));
+    dropzone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropzone.classList.remove("is-dragover");
+      const files = Array.from((e.dataTransfer && e.dataTransfer.files) || []);
+      if (files.length > 0) {
+        handleUploadFiles(files);
+      }
+    });
+  }
+
+  const commitAll = document.getElementById("upload-commit-all");
+  if (commitAll) commitAll.addEventListener("click", commitUploadBatch);
+  const clearAll = document.getElementById("upload-clear-all");
+  if (clearAll) clearAll.addEventListener("click", () => clearUploadBatch());
+}
+
+async function handleUploadFiles(files) {
+  if (!files || files.length === 0) return;
+  const newRows = files.map((file) => ({
+    id: fileBatchId(),
+    file,
+    prediction: null,
+    override: "",
+    status: "classifying",
+    error: null,
+  }));
+  uploadBatchState.rows.push(...newRows);
+  renderUploadBatch();
+
+  try {
+    const predictions = await apiRequest("/api/uploads/classify-batch", {
+      method: "POST",
+      body: JSON.stringify({ filenames: newRows.map((r) => r.file.name) }),
+    });
+    const predList = (predictions && predictions.predictions) || [];
+    for (let i = 0; i < newRows.length; i++) {
+      newRows[i].prediction = predList[i] || null;
+      newRows[i].status = "ready";
     }
+  } catch (error) {
+    for (const row of newRows) {
+      row.status = "error";
+      row.error = String(error);
+    }
+  }
+  renderUploadBatch();
+}
+
+function clearUploadBatch() {
+  uploadBatchState.rows = [];
+  renderUploadBatch();
+  const input = document.getElementById("upload-dropzone-input");
+  if (input) input.value = "";
+}
+
+async function commitUploadBatch() {
+  const pending = uploadBatchState.rows.filter((r) => r.status === "ready" || r.status === "error");
+  if (pending.length === 0) return;
+  const commitBtn = document.getElementById("upload-commit-all");
+  if (commitBtn) commitBtn.disabled = true;
+  for (const row of pending) {
+    row.status = "uploading";
+    renderUploadBatch();
     try {
-      await uploadDocument({
+      const content_base64 = await fileToBase64(row.file);
+      const response = await uploadDocument({
         year: state.year,
         workspace: state.workspace,
-        filename: file.name,
-        content_base64: await fileToBase64(file),
-        manual_bucket: String(formData.get("manual_bucket") || ""),
-        evidence_only: Boolean(formData.get("evidence_only")),
+        filename: row.file.name,
+        content_base64,
+        manual_bucket: row.override || "",
+        evidence_only: false,
       });
+      row.status = "done";
+      row.error = null;
+      row.result = response;
     } catch (error) {
-      renderJson("documents-output", { error: String(error) });
+      row.status = "error";
+      row.error = String(error);
     }
-  });
+    renderUploadBatch();
+  }
+  if (commitBtn) commitBtn.disabled = false;
+  refreshDocumentsStatus().catch(() => {});
+  refreshReadiness().catch(() => {});
+}
+
+function renderUploadBatch() {
+  const board = document.getElementById("upload-batch");
+  const actions = document.getElementById("upload-batch-actions");
+  if (!board) return;
+  board.replaceChildren();
+  if (uploadBatchState.rows.length === 0) {
+    board.hidden = true;
+    if (actions) actions.hidden = true;
+    return;
+  }
+  board.hidden = false;
+  if (actions) actions.hidden = false;
+
+  for (const row of uploadBatchState.rows) {
+    const li = document.createElement("div");
+    li.className = "upload-row";
+    if (row.status === "error") li.classList.add("is-error");
+    if (row.status === "uploading" || row.status === "classifying") li.classList.add("is-uploading");
+    if (row.status === "done") li.classList.add("is-done");
+
+    const icon = document.createElement("span");
+    icon.className = "upload-row-icon";
+    icon.textContent = ({
+      classifying: "…",
+      ready: "↑",
+      uploading: "…",
+      done: "✓",
+      error: "!",
+    })[row.status] || "?";
+    li.appendChild(icon);
+
+    const meta = document.createElement("div");
+    meta.className = "upload-row-meta";
+    const name = document.createElement("span");
+    name.className = "upload-row-name";
+    name.textContent = row.file.name;
+    meta.appendChild(name);
+    const detail = document.createElement("span");
+    detail.className = "upload-row-detail";
+    if (row.status === "classifying") {
+      detail.textContent = "Classifying…";
+    } else if (row.status === "uploading") {
+      detail.textContent = "Uploading…";
+    } else if (row.status === "done") {
+      const r = row.result && row.result.entry ? row.result.entry : row.result;
+      const bucket = (r && r.bucket) || (row.prediction && row.prediction.bucket) || "unknown";
+      detail.textContent = `Uploaded → ${bucket}`;
+    } else if (row.status === "error") {
+      detail.textContent = row.error || "Upload failed.";
+    } else if (row.prediction) {
+      const p = row.prediction;
+      const confidence = String(p.confidence || "low");
+      const docType = String(p.doc_type || "unknown");
+      detail.textContent = `${p.bucket || "unknown"} · ${docType} · ${confidence} confidence`;
+      if (confidence === "low") detail.classList.add("is-low-confidence");
+    }
+    meta.appendChild(detail);
+    li.appendChild(meta);
+
+    const select = document.createElement("select");
+    select.disabled = row.status === "uploading" || row.status === "done";
+    for (const option of BUCKET_OVERRIDES) {
+      const opt = document.createElement("option");
+      opt.value = option.value;
+      opt.textContent = option.label;
+      if (option.value === row.override) opt.selected = true;
+      select.appendChild(opt);
+    }
+    select.addEventListener("change", () => {
+      row.override = select.value;
+    });
+    li.appendChild(select);
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "row-action is-danger";
+    remove.textContent = row.status === "done" ? "Done" : "Remove";
+    remove.disabled = row.status === "done";
+    remove.addEventListener("click", () => {
+      uploadBatchState.rows = uploadBatchState.rows.filter((r) => r.id !== row.id);
+      renderUploadBatch();
+    });
+    li.appendChild(remove);
+
+    board.appendChild(li);
+  }
 }
 
 function bindReadinessButton() {
+  // The Readiness screen was retired in favour of the live readiness
+  // side-panel (see refreshReadiness + the right-rail <aside>). The old
+  // ``readiness-button`` may not be in the DOM; guard for that so an
+  // older index.html doesn't break the init block.
   const button = document.getElementById("readiness-button");
+  if (!button) return;
   button.addEventListener("click", async () => {
     try {
       await refreshReadiness();
@@ -964,6 +1766,15 @@ function setScreenStatus(screen, kind, label) {
   if (kind) target.classList.add(kind);
   target.textContent = label;
   refreshGlobalStatus();
+  // Mirror the per-screen save status onto the left-rail stepper badge
+  // so the user sees progress in one glance without scrolling the form.
+  // The stepper also re-polls /api/readiness opportunistically — a save
+  // that drives readiness from "Not ready" to "Ready" is what should
+  // unlock the Run step.
+  if (kind === "is-saved") {
+    setStepStatus(screen, "saved");
+    refreshReadiness().catch(() => {});
+  }
 }
 
 function refreshGlobalStatus() {
@@ -1861,6 +2672,7 @@ function bindSaveAllButton() {
 window.addEventListener("DOMContentLoaded", () => {
   initializeWorkspaceYearDefault();
   bindNavigation();
+  bindQuickStartCards();
   bindWorkspaceForm();
   bindHouseholdForm();
   bindPaymentsForm();
@@ -1871,4 +2683,11 @@ window.addEventListener("DOMContentLoaded", () => {
   bindPosturesScreen();
   bindAllScreenForms();
   bindSaveAllButton();
+  bindOutputPreviewModal();
+  // Initial stepper state: all sections (except Workspace) are locked
+  // until the user opens or creates a workspace via a quick-start card
+  // or the Switch-workspace flow.
+  setStepperLocked(true);
+  setStepStatus("workspace", "new");
+  setStepperCurrent("workspace");
 });

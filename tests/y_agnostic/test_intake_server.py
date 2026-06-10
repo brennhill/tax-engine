@@ -43,7 +43,9 @@ class IntakeServerTest(unittest.TestCase):
         self.assertIn("data-screen=\"household\"", text)
         self.assertIn("data-screen=\"payments\"", text)
         self.assertIn("data-screen=\"documents\"", text)
-        self.assertIn("data-screen=\"readiness\"", text)
+        # Readiness migrated from a stand-alone screen to a sticky
+        # right-rail panel that re-runs the validator after each save.
+        self.assertIn('id="readiness-rail"', text)
         self.assertIn("data-screen=\"run\"", text)
 
     def test_static_assets_are_served(self) -> None:
@@ -70,7 +72,8 @@ class IntakeServerTest(unittest.TestCase):
         self.assertTrue(dom.has("form", id="household-form"))
         self.assertTrue(dom.has("form", id="payments-form"))
         self.assertTrue(dom.has("form", id="document-upload-form"))
-        self.assertTrue(dom.has("button", id="readiness-button"))
+        # Readiness button retired in favour of the live readiness rail.
+        self.assertTrue(dom.has("aside", id="readiness-rail"))
         self.assertTrue(dom.has("button", id="run-button"))
         self.assertTrue(dom.has("button", id="outputs-button"))
         self.assertTrue(dom.has("div", id="outputs-list"))

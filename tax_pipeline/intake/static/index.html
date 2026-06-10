@@ -16,23 +16,6 @@
       <p class="lede-paragraph">Local intake wizard. Save your inputs as you go; uploaded documents and generated outputs stay on this machine. <strong>This is not professional tax advice — audit every number before you file.</strong></p>
     </header>
 
-    <nav class="wizard-nav" aria-label="Wizard sections">
-      <button data-nav-target="workspace">Workspace</button>
-      <button data-nav-target="household">Household</button>
-      <button data-nav-target="identity">Identity</button>
-      <button data-nav-target="bank_accounts">Bank accounts</button>
-      <button data-nav-target="payments">Payments</button>
-      <button data-nav-target="postures">Postures &amp; Elections</button>
-      <button data-nav-target="de_deductions">DE deductions</button>
-      <button data-nav-target="vorabpauschale">Vorabpauschale</button>
-      <button data-nav-target="carryovers">Carryovers</button>
-      <button data-nav-target="children">Children</button>
-      <button data-nav-target="documents">Documents</button>
-      <button data-nav-target="readiness">Readiness</button>
-      <button data-nav-target="run">Run</button>
-      <button data-nav-target="outputs">Outputs</button>
-    </nav>
-
     <div class="progress-toolbar" role="region" aria-label="Save status">
       <span id="progress-summary" class="progress-summary">Progress: – of – sections filled</span>
       <span id="autosave-global-status" class="autosave-global-status" role="status">All saved</span>
@@ -44,17 +27,155 @@
       Unable to save. Reconnect to save your progress.
     </div>
 
-    <main>
+    <div class="wizard-layout">
+      <aside class="wizard-stepper" aria-label="Wizard sections">
+        <ol class="stepper-list" id="stepper-list">
+          <li class="stepper-step is-current" data-nav-target="workspace" data-step-group="setup">
+            <span class="step-number">1</span>
+            <span class="step-body">
+              <span class="step-label">Workspace</span>
+              <span class="step-hint">Pick the year and folder</span>
+            </span>
+            <span class="step-status" data-step-status="workspace">New</span>
+          </li>
+          <li class="stepper-step is-locked" data-nav-target="household" data-step-group="profile">
+            <span class="step-number">2</span>
+            <span class="step-body">
+              <span class="step-label">Household</span>
+              <span class="step-hint">Marital status and names</span>
+            </span>
+            <span class="step-status" data-step-status="household">Empty</span>
+          </li>
+          <li class="stepper-step is-locked" data-nav-target="identity" data-step-group="profile">
+            <span class="step-number">3</span>
+            <span class="step-body">
+              <span class="step-label">Identity</span>
+              <span class="step-hint">IDs and employer</span>
+            </span>
+            <span class="step-status" data-step-status="identity">Empty</span>
+          </li>
+          <li class="stepper-step is-locked" data-nav-target="bank_accounts" data-step-group="profile">
+            <span class="step-number">4</span>
+            <span class="step-body">
+              <span class="step-label">Bank accounts</span>
+              <span class="step-hint">Non-U.S. accounts for FBAR</span>
+            </span>
+            <span class="step-status" data-step-status="bank_accounts">Empty</span>
+          </li>
+          <li class="stepper-step is-locked" data-nav-target="payments" data-step-group="profile">
+            <span class="step-number">5</span>
+            <span class="step-body">
+              <span class="step-label">Payments</span>
+              <span class="step-hint">Prepayments and withholding</span>
+            </span>
+            <span class="step-status" data-step-status="payments">Empty</span>
+          </li>
+          <li class="stepper-step is-locked" data-nav-target="postures" data-step-group="elections">
+            <span class="step-number">6</span>
+            <span class="step-body">
+              <span class="step-label">Postures &amp; elections</span>
+              <span class="step-hint">Filing postures and treaty</span>
+            </span>
+            <span class="step-status" data-step-status="postures">Empty</span>
+          </li>
+          <li class="stepper-step is-locked" data-nav-target="de_deductions" data-step-group="positions">
+            <span class="step-number">7</span>
+            <span class="step-body">
+              <span class="step-label">DE deductions</span>
+              <span class="step-hint">Außergewöhnliche Belastungen</span>
+            </span>
+            <span class="step-status" data-step-status="de_deductions">Empty</span>
+          </li>
+          <li class="stepper-step is-locked" data-nav-target="vorabpauschale" data-step-group="positions">
+            <span class="step-number">8</span>
+            <span class="step-body">
+              <span class="step-label">Vorabpauschale</span>
+              <span class="step-hint">Per-fund advance lump-sum</span>
+            </span>
+            <span class="step-status" data-step-status="vorabpauschale">Empty</span>
+          </li>
+          <li class="stepper-step is-locked" data-nav-target="carryovers" data-step-group="positions">
+            <span class="step-number">9</span>
+            <span class="step-body">
+              <span class="step-label">Carryovers</span>
+              <span class="step-hint">FTC, capital, § 20 Abs. 6</span>
+            </span>
+            <span class="step-status" data-step-status="carryovers">Empty</span>
+          </li>
+          <li class="stepper-step is-locked" data-nav-target="children" data-step-group="positions">
+            <span class="step-number">10</span>
+            <span class="step-body">
+              <span class="step-label">Children</span>
+              <span class="step-hint">CTC, Kinderfreibetrag</span>
+            </span>
+            <span class="step-status" data-step-status="children">Empty</span>
+          </li>
+          <li class="stepper-step is-locked" data-nav-target="documents" data-step-group="documents">
+            <span class="step-number">11</span>
+            <span class="step-body">
+              <span class="step-label">Documents</span>
+              <span class="step-hint">Upload supporting files</span>
+            </span>
+            <span class="step-status" data-step-status="documents">Empty</span>
+          </li>
+          <li class="stepper-step is-locked" data-nav-target="run" data-step-group="run">
+            <span class="step-number">12</span>
+            <span class="step-body">
+              <span class="step-label">Run</span>
+              <span class="step-hint">Execute the pipeline</span>
+            </span>
+            <span class="step-status" data-step-status="run">Empty</span>
+          </li>
+          <li class="stepper-step is-locked" data-nav-target="outputs" data-step-group="run">
+            <span class="step-number">13</span>
+            <span class="step-body">
+              <span class="step-label">Outputs</span>
+              <span class="step-hint">Review and download</span>
+            </span>
+            <span class="step-status" data-step-status="outputs">Empty</span>
+          </li>
+        </ol>
+      </aside>
+
+      <main class="wizard-main">
       <section class="screen is-active" data-screen="workspace" aria-labelledby="screen-workspace-title">
         <h2 id="screen-workspace-title">Workspace</h2>
-        <p class="screen-subtitle">Pick the tax year and the folder where its files will live.</p>
-        <p class="lede">Open or create a private workspace for one calendar year. The engine reads inputs and writes outputs under this folder; nothing is uploaded off your machine.</p>
-        <form id="workspace-form">
+        <p class="screen-subtitle">Pick a starting point. The engine creates a private workspace and stores everything locally.</p>
+
+        <div class="quick-start-cards" id="quick-start-cards">
+          <button type="button" class="quick-start-card" data-quick-start="demo">
+            <span class="qs-card-icon" aria-hidden="true">▶</span>
+            <span class="qs-card-title">Try the demo</span>
+            <span class="qs-card-body">Open the built-in synthetic 2025 workspace. See what the engine produces against a sample cross-border household — no data entry required.</span>
+            <span class="qs-card-cta">Open demo workspace →</span>
+          </button>
+          <button type="button" class="quick-start-card" data-quick-start="new">
+            <span class="qs-card-icon" aria-hidden="true">＋</span>
+            <span class="qs-card-title">Start a new year</span>
+            <span class="qs-card-body">Scaffold a fresh workspace for a tax year. You'll fill in household, postures, and payments, and upload supporting documents.</span>
+            <span class="qs-card-cta">New workspace →</span>
+          </button>
+          <button type="button" class="quick-start-card" data-quick-start="roll-forward">
+            <span class="qs-card-icon" aria-hidden="true">↻</span>
+            <span class="qs-card-title">Roll forward last year</span>
+            <span class="qs-card-body">Copy household, postures, and elections from a prior year's workspace into a new one. Raw documents and outputs are not carried over.</span>
+            <span class="qs-card-cta">Roll forward →</span>
+          </button>
+        </div>
+
+        <form id="workspace-form" class="workspace-form" hidden>
+          <p class="form-mode-label" id="workspace-mode-label">Start a new workspace</p>
           <label>
             <span class="field-label-row">Year
               <span class="info-marker" tabindex="0" data-tooltip="Type the 4-digit tax year you are filing for, like 2025. If you leave it blank, we use last calendar year. The tax year is the year the income happened, not the year you are filing in.">i</span>
             </span>
             <input name="year" placeholder="YYYY (defaults to prior calendar year)">
+          </label>
+          <label data-workspace-field="source_year" hidden>
+            <span class="field-label-row">Source year (to roll forward from)
+              <span class="info-marker" tabindex="0" data-tooltip="The previous year's workspace whose household, postures, and elections you want to copy into the new year. Raw documents and outputs are not carried over.">i</span>
+            </span>
+            <input name="source_year" placeholder="YYYY">
           </label>
           <label>
             <span class="field-label-row">Workspace path
@@ -62,8 +183,18 @@
             </span>
             <input name="workspace" placeholder="Optional custom folder path">
           </label>
-          <button type="submit">Open workspace</button>
+          <div class="form-actions">
+            <button type="submit" id="workspace-submit">Open workspace</button>
+            <button type="button" class="ghost-button" id="workspace-cancel">Cancel</button>
+          </div>
         </form>
+
+        <div class="workspace-active" id="workspace-active" hidden>
+          <p class="workspace-active-label">Current workspace</p>
+          <p class="workspace-active-value" id="workspace-active-value">—</p>
+          <button type="button" class="ghost-button" id="workspace-switch">Switch workspace</button>
+        </div>
+
         <pre id="workspace-output"></pre>
       </section>
 
@@ -274,51 +405,40 @@
 
       <section class="screen" data-screen="documents" aria-labelledby="screen-documents-title">
         <h2 id="screen-documents-title">Documents</h2>
-        <p class="screen-subtitle">Upload supporting documents. Files stay on this machine.</p>
-        <p>Attach the paper that backs each line. Files stay on this machine; only their cryptographic hashes enter the audit trail.</p>
-        <form id="document-upload-form">
-          <label>
-            <span class="field-label-row">Choose file
-              <span class="info-marker" tabindex="0" data-tooltip="Pick a PDF, image, or CSV from your computer to upload as supporting evidence (a broker statement, a German tax certificate, a charity receipt, etc.). The file stays on your machine and is hashed for the audit trail.">i</span>
-            </span>
-            <input type="file" name="document">
-          </label>
-          <label>
-            <span class="field-label-row">Evidence-only bucket
-              <span class="info-marker" tabindex="0" data-tooltip="Pick which folder to drop the file into. 'Auto' lets us guess from the filename. 'Receipts' is for charity and medical receipts. 'Germany' is for ELSTER-related papers. 'U.S.' is for IRS forms and broker statements.">i</span>
-            </span>
-            <select name="manual_bucket">
-              <option value="">Auto</option>
-              <option value="receipts">Receipts</option>
-              <option value="germany">Germany</option>
-              <option value="us">U.S.</option>
-            </select>
-          </label>
-          <label class="inline-checkbox">
-            <input type="checkbox" name="evidence_only">
-            <span class="field-label-row">Store as evidence-only
-              <span class="info-marker" tabindex="0" data-tooltip="Check this if the file is just a record-keeping copy and should not be parsed for numbers (no auto-extraction). Useful for receipts and ID scans you want to keep in the audit trail without feeding them into the calculator.">i</span>
-            </span>
-          </label>
-          <button type="submit">Upload document</button>
-        </form>
-        <pre id="documents-output"></pre>
-      </section>
+        <p class="screen-subtitle">Drag &amp; drop the paper that backs each line. Files stay on this machine; only their cryptographic hashes enter the audit trail.</p>
 
-      <section class="screen" data-screen="readiness" aria-labelledby="screen-readiness-title">
-        <h2 id="screen-readiness-title">Readiness</h2>
-        <p class="screen-subtitle">Check whether every required input is present before running.</p>
-        <p class="screen-help">Click the button to check whether all the inputs the calculator needs are present. Any missing or invalid inputs are listed with a plain-language hint of what to fix.</p>
-        <button id="readiness-button" type="button">Inspect inputs</button>
-        <pre id="readiness-output"></pre>
+        <form id="document-upload-form">
+          <label class="dropzone" id="upload-dropzone" for="upload-dropzone-input">
+            <span class="dropzone-title">Drop files here, or click to choose</span>
+            <span class="dropzone-hint">PDF, PNG, JPG, CSV, EML — up to 25 MB each. We&rsquo;ll auto-classify each one and let you review before committing.</span>
+            <input
+              type="file"
+              id="upload-dropzone-input"
+              class="dropzone-input"
+              name="document"
+              multiple
+              accept=".pdf,.png,.jpg,.jpeg,.csv,.eml,application/pdf,image/png,image/jpeg,text/csv,message/rfc822"
+            >
+          </label>
+
+          <div id="upload-batch" class="upload-batch" hidden></div>
+
+          <div id="upload-batch-actions" class="upload-batch-actions" hidden>
+            <button type="button" id="upload-commit-all" class="primary-button">Upload all</button>
+            <button type="button" id="upload-clear-all" class="ghost-button">Clear batch</button>
+          </div>
+        </form>
+
+        <pre id="documents-output"></pre>
       </section>
 
       <section class="screen" data-screen="run" aria-labelledby="screen-run-title">
         <h2 id="screen-run-title">Run</h2>
         <p class="screen-subtitle">Run the pipeline and write the legal output package.</p>
-        <p>The pipeline runs the legal stages, writes a full audit trail, and persists the rendered filings to your workspace. After a successful run, use the Outputs section below to open or download the generated filing packages, legal audit files, final legal output JSON, and legal narratives.</p>
+        <p>The pipeline runs the legal stages, writes a full audit trail, and persists the rendered filings to your workspace. After a successful run, the Outputs section opens automatically.</p>
         <button id="run-button" type="button">Run pipeline</button>
-        <pre id="run-output"></pre>
+        <p class="run-summary" id="run-summary" hidden></p>
+        <div id="run-output" class="run-stage-board" role="region" aria-live="polite"></div>
         <div id="run-failure-card" class="run-failure-card" role="alert"></div>
       </section>
 
@@ -331,7 +451,33 @@
         <div id="outputs-list" class="outputs-list"></div>
         <pre id="outputs-output"></pre>
       </section>
-    </main>
+      </main>
+
+      <aside class="wizard-rail" id="readiness-rail" aria-label="Readiness">
+        <header class="rail-header">
+          <h2 class="rail-title">Readiness</h2>
+          <span class="rail-badge" id="readiness-badge">Not checked</span>
+        </header>
+        <p class="rail-help">Updates after each save. Click any error to jump to the offending field.</p>
+        <div class="rail-body" id="readiness-rail-body">
+          <p class="rail-empty">Open or create a workspace to begin.</p>
+        </div>
+        <details class="rail-details">
+          <summary>Full readiness report</summary>
+          <pre id="readiness-output" class="rail-raw"></pre>
+        </details>
+      </aside>
+    </div>
+
+    <div class="output-preview-modal" id="output-preview-modal" role="dialog" aria-modal="true" aria-labelledby="output-preview-title" hidden>
+      <div class="output-preview-panel">
+        <header class="output-preview-header">
+          <h3 class="output-preview-title" id="output-preview-title">Preview</h3>
+          <button type="button" class="output-preview-close" id="output-preview-close" aria-label="Close preview">×</button>
+        </header>
+        <div class="output-preview-body" id="output-preview-body"></div>
+      </div>
+    </div>
 
     <footer class="wizard-foot" role="contentinfo">
       <p class="disclaimer-banner">Not professional tax advice. Audit every number before you file.</p>
