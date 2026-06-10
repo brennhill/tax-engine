@@ -326,9 +326,9 @@ audited_by = "brenn@dontbugme.com"
 audited_on = "2026-05-09"
 
 ["law/usa/year_2025/usc26/p1401.py"]
-hash = "sha256:8c560f9cf2a582718bc4b6271a374dddad6c261b8df93306ca36ec704f3948d5"
-audited_by = "brenn@dontbugme.com"
-audited_on = "2026-05-09"
+hash = "sha256:798b1923017087f7966305fb275f79a2353b90115540993bdaf782fa89dfd4a7"
+audited_by = "brenn@Brenns-MacBook-Pro-2.local"
+audited_on = "2026-06-10"
 
 ["law/usa/year_2025/usc26/p1401.toml"]
 hash = "sha256:076d5ddbf66b8bfba570b5ef1a6527adc9f58be9b35c049b450496648724abbf"

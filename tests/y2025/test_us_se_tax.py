@@ -124,18 +124,70 @@ class SETaxNonZeroEarningsTest(unittest.TestCase):
 
 
 class SETaxTotalizationCertificateTest(unittest.TestCase):
-    """U.S.-Germany Totalization Agreement Certificate of Coverage path
-    is not yet modeled — must fail closed."""
+    """U.S.-Germany Totalization Agreement (1979) — Phase 0.
 
-    def test_totalization_certificate_present_fails_closed(self) -> None:
-        with self.assertRaisesRegex(NotImplementedError, "Totalization"):
-            se_tax_assessment_2025(
-                se_inputs=USSelfEmploymentInputs2025(
-                    net_se_earnings_usd=D("50000"),
-                    us_w2_medicare_taxable_wages_usd=D("0"),
-                    totalization_certificate_present=True,
-                )
+    A self-employed U.S. citizen resident in Germany who holds a German
+    Certificate of Coverage is covered by the German social-insurance
+    system and is EXEMPT from § 1401. The assessment is returned as an
+    explicit Totalization exemption (zero tax, exempt marker, citation),
+    not a silent zero and not a fail-closed error.
+    Authority: SSA U.S.-Germany Totalization Agreement (1979),
+    https://www.ssa.gov/international/Agreement_Pamphlets/germany.html.
+    """
+
+    def test_certificate_present_is_exempt_zero_se_tax(self) -> None:
+        result = se_tax_assessment_2025(
+            se_inputs=USSelfEmploymentInputs2025(
+                net_se_earnings_usd=D("50000"),
+                us_w2_medicare_taxable_wages_usd=D("0"),
+                totalization_certificate_present=True,
             )
+        )
+        # Exempt → every § 1401 tax component is zero.
+        self.assertEqual(result.se_tax_usd, D("0.00"))
+        self.assertEqual(result.oasdi_tax_usd, D("0.00"))
+        self.assertEqual(result.medicare_tax_usd, D("0.00"))
+        self.assertEqual(result.se_taxable_earnings_usd, D("0.00"))
+        self.assertEqual(result.oasdi_taxable_earnings_usd, D("0.00"))
+        # But the earnings are still reported (disclosure), and the
+        # exemption is explicitly marked and cited — not a silent zero.
+        self.assertEqual(result.net_se_earnings_usd, D("50000.00"))
+        self.assertTrue(result.exempt_under_totalization)
+        self.assertIn("Totalization", result.coverage_basis)
+
+    def test_exempt_zero_is_distinguishable_from_no_earnings_zero(self) -> None:
+        # I13 / null-zero-missing: both produce $0 SE tax, but the basis
+        # and the exemption marker differ so the audit trail can tell
+        # "exempt under a treaty" apart from "had no SE income".
+        exempt = se_tax_assessment_2025(
+            se_inputs=USSelfEmploymentInputs2025(
+                net_se_earnings_usd=D("50000"),
+                us_w2_medicare_taxable_wages_usd=D("0"),
+                totalization_certificate_present=True,
+            )
+        )
+        no_earnings = se_tax_assessment_2025(
+            se_inputs=USSelfEmploymentInputs2025(
+                net_se_earnings_usd=D("0"),
+                us_w2_medicare_taxable_wages_usd=D("0"),
+                totalization_certificate_present=False,
+            )
+        )
+        self.assertEqual(exempt.se_tax_usd, no_earnings.se_tax_usd)  # both 0
+        self.assertTrue(exempt.exempt_under_totalization)
+        self.assertFalse(no_earnings.exempt_under_totalization)
+        self.assertNotEqual(exempt.coverage_basis, no_earnings.coverage_basis)
+
+    def test_computed_branch_reports_section_1401_basis(self) -> None:
+        result = se_tax_assessment_2025(
+            se_inputs=USSelfEmploymentInputs2025(
+                net_se_earnings_usd=D("100000"),
+                us_w2_medicare_taxable_wages_usd=D("0"),
+                totalization_certificate_present=False,
+            )
+        )
+        self.assertFalse(result.exempt_under_totalization)
+        self.assertIn("§ 1401", result.coverage_basis)
 
 
 class AdditionalMedicareTest(unittest.TestCase):

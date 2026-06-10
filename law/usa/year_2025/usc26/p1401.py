@@ -17,8 +17,11 @@ contains:
     2024-10-10).
   - § 164(f) one-half SE-tax deduction is consumed by ``p63``/AGI.
   - U.S.-Germany Totalization Agreement (1979) — when a German
-    Certificate of Coverage applies, § 1401 does not attach. The shadow
-    fails closed because the certificate path is not modeled.
+    Certificate of Coverage applies, § 1401 does not attach: the SE
+    earnings are exempt and the assessment is returned as an explicit
+    Totalization exemption (zero tax, ``exempt_under_totalization=True``,
+    citation carried in ``coverage_basis``), never a silent zero. The
+    earnings remain subject to U.S. income tax.
 numeric_constants:
   - SECA_NET_EARNINGS_FACTOR: 0.9235  # § 1402(a)(12)
   - OASDI_RATE: 0.124                 # § 1401(a)
@@ -28,7 +31,7 @@ numeric_constants:
 amended_by: []
 audited_by: claude-opus-4-7
 audited_on: 2026-05-03
-audit_hash: sha256:8c560f9cf2a582718bc4b6271a374dddad6c261b8df93306ca36ec704f3948d5
+audit_hash: sha256:798b1923017087f7966305fb275f79a2353b90115540993bdaf782fa89dfd4a7
 ---
 """
 # Shadow extraction of § 1401 SECA tax (Phase 2 leaf §). Mirrors
@@ -50,9 +53,13 @@ from pathlib import Path
 from law._utils.constants import load_constants
 from law._utils.money import ZERO_USD, _require_non_negative, round_cents
 
-# Re-use production dataclasses so shadow output instances compare
-# equal to production output under unittest.assertEqual.
+# Re-use production dataclasses + branch-basis citation strings so shadow
+# output instances compare equal to production output under
+# unittest.assertEqual.
 from tax_pipeline.y2025.us_law import (
+    SE_TAX_BASIS_COMPUTED,
+    SE_TAX_BASIS_NO_EARNINGS,
+    SE_TAX_BASIS_TOTALIZATION_EXEMPT,
     SSA_TOTALIZATION_DE_URL,
     USSelfEmploymentInputs2025,
     USSelfEmploymentTaxAssessment2025,
@@ -113,16 +120,19 @@ def se_tax_assessment_2025(
         se_inputs.net_se_earnings_usd, label="net_se_earnings_usd"
     )
     if se_inputs.totalization_certificate_present:
-        # U.S.-Germany Totalization Agreement (1979) keeps SE earnings
-        # OUT of U.S. § 1401 if a German Certificate of Coverage applies.
-        # The certificate-driven path is a future workstream — fail closed.
-        raise NotImplementedError(
-            "U.S.-Germany Totalization Agreement Certificate of Coverage "
-            "exempts SE earnings from § 1401. Certificate handling is not "
-            "implemented for 2025; remove the certificate flag or "
-            "implement the SSA-coverage path before computing SE tax. "
-            "Authority: SSA U.S.-Germany Totalization Agreement "
-            f"({SSA_TOTALIZATION_DE_URL})."
+        # U.S.-Germany Totalization Agreement (1979): the German system
+        # covers the SE earner, so § 1401 does not attach. Explicit
+        # exemption (zero tax + marker + citation), not a silent zero;
+        # the income still flows to U.S. income tax.
+        return USSelfEmploymentTaxAssessment2025(
+            net_se_earnings_usd=round_cents(se_inputs.net_se_earnings_usd),
+            se_taxable_earnings_usd=ZERO_USD,
+            oasdi_taxable_earnings_usd=ZERO_USD,
+            oasdi_tax_usd=ZERO_USD,
+            medicare_tax_usd=ZERO_USD,
+            se_tax_usd=ZERO_USD,
+            exempt_under_totalization=True,
+            coverage_basis=SE_TAX_BASIS_TOTALIZATION_EXEMPT,
         )
     if se_inputs.net_se_earnings_usd <= ZERO_USD:
         return USSelfEmploymentTaxAssessment2025(
@@ -132,6 +142,8 @@ def se_tax_assessment_2025(
             oasdi_tax_usd=ZERO_USD,
             medicare_tax_usd=ZERO_USD,
             se_tax_usd=ZERO_USD,
+            exempt_under_totalization=False,
+            coverage_basis=SE_TAX_BASIS_NO_EARNINGS,
         )
     se_taxable = round_cents(
         se_inputs.net_se_earnings_usd * SECA_NET_EARNINGS_FACTOR
@@ -147,6 +159,8 @@ def se_tax_assessment_2025(
         oasdi_tax_usd=oasdi_tax,
         medicare_tax_usd=medicare_tax,
         se_tax_usd=se_tax,
+        exempt_under_totalization=False,
+        coverage_basis=SE_TAX_BASIS_COMPUTED,
     )
 
 

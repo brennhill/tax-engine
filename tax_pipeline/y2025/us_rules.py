@@ -1107,10 +1107,13 @@ def us25_se_tax(facts: Mapping[str, Any]) -> Mapping[str, Any]:
     # 26 U.S.C. § 1401 / § 1402 — SE tax = 12.4 % OASDI on net SE
     # earnings up to the SS wage base + 2.9 % Medicare on all net SE
     # earnings (§ 1402(a)(12) reduces the base to 92.35 %). When SE
-    # earnings are zero the helper short-circuits to zero outputs;
-    # ``totalization_certificate_present`` fails closed inside the law
-    # helper because the SSA-coverage path is not yet modeled.
+    # earnings are zero the helper short-circuits to zero outputs.
+    # Phase 0 (Totalization): ``totalization_certificate_present`` returns
+    # an explicit § 1401 exemption (zero tax, exempt marker, citation)
+    # under the U.S.-Germany Totalization Agreement — the German system
+    # covers the SE earner — rather than failing closed.
     # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section1401
+    # https://www.ssa.gov/international/Agreement_Pamphlets/germany.html
     inputs = _inputs(facts)
     assessment = se_tax_assessment_2025(se_inputs=inputs.se_inputs)
     # B4 (FORM-MAPPING-FOLLOWUP) — Schedule SE line-level decomposition.
@@ -1148,6 +1151,13 @@ def us25_se_tax(facts: Mapping[str, Any]) -> Mapping[str, Any]:
             "oasdi_tax_usd": assessment.oasdi_tax_usd,
             "medicare_tax_usd": assessment.medicare_tax_usd,
             "se_tax_usd": assessment.se_tax_usd,
+            # Phase 0 (Totalization): the exemption is carried into the
+            # audit trail so a Totalization-exempt $0 is distinguishable
+            # from a no-earnings $0 (CLAUDE.md null/zero/missing, I13).
+            # ``coverage_basis`` names the controlling authority for the
+            # branch taken so this stage cross-audits in isolation.
+            "exempt_under_totalization": assessment.exempt_under_totalization,
+            "coverage_basis": assessment.coverage_basis,
         },
         # B1 (FORM-MAPPING-FOLLOWUP) — Schedule 2 line 4 = § 1401 SE tax.
         # 1:1 surface of the SE-tax scalar; no new arithmetic.

@@ -90,14 +90,21 @@ class P1401IdentityTest(unittest.TestCase):
             shadow.oasdi_taxable_earnings_usd, SS_WAGE_BASE_2025_USD
         )
 
-    def test_totalization_certificate_fails_closed(self) -> None:
+    def test_totalization_certificate_is_exempt(self) -> None:
+        # Phase 0: a German Certificate of Coverage exempts the SE
+        # earnings from § 1401 (zero tax + explicit exempt marker +
+        # citation), not a fail-closed error. The shadow mirrors
+        # production byte-for-byte.
         inputs = USSelfEmploymentInputs2025(
             net_se_earnings_usd=Decimal("100000.00"),
             us_w2_medicare_taxable_wages_usd=Decimal("0.00"),
             totalization_certificate_present=True,
         )
-        with self.assertRaises(NotImplementedError):
-            se_tax_assessment_2025(se_inputs=inputs)
+        shadow = se_tax_assessment_2025(se_inputs=inputs)
+        self.assertEqual(shadow, orig_fn(se_inputs=inputs))
+        self.assertEqual(shadow.se_tax_usd, Decimal("0.00"))
+        self.assertTrue(shadow.exempt_under_totalization)
+        self.assertIn("Totalization", shadow.coverage_basis)
 
 
 class P1401HandDerivedStatuteTest(unittest.TestCase):

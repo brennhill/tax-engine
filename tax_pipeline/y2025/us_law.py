@@ -680,9 +680,13 @@ class USSelfEmploymentInputs2025:
     (wages subject to U.S. Medicare withholding) and the § 1401(b)(2)
     threshold computation. ``totalization_certificate_present`` records
     whether the taxpayer holds a German Certificate of Coverage under
-    the U.S.-Germany Totalization Agreement, which exempts the SE
-    earnings from § 1401 OASDI/Medicare. With a certificate present the
-    engine fails closed because the certificate path is not modeled.
+    the U.S.-Germany Totalization Agreement (1979): a self-employed U.S.
+    citizen resident in Germany is covered by the German social-insurance
+    system and is therefore **exempt** from § 1401 OASDI/Medicare on the
+    SE earnings (the income remains subject to U.S. income tax). When the
+    certificate is present the SE-tax assessment is returned as an
+    explicit Totalization exemption (zero tax, ``exempt_under_totalization
+    = True``), not a silent zero — see ``se_tax_assessment_2025``.
     """
 
     net_se_earnings_usd: Decimal
@@ -2477,7 +2481,17 @@ def fatca_fbar_assessment_2025(
 
 @dataclass(frozen=True)
 class USSelfEmploymentTaxAssessment2025:
-    """26 U.S.C. § 1401 Self-Employment tax breakdown."""
+    """26 U.S.C. § 1401 Self-Employment tax breakdown.
+
+    ``coverage_basis`` is the controlling legal authority for *this*
+    result — the function carries its own citation out so a single
+    assessment cross-audits against the law in isolation, not only via
+    the enclosing rule-graph stage. ``exempt_under_totalization``
+    distinguishes a legitimate Totalization exemption (German Certificate
+    of Coverage held → zero § 1401 tax) from a zero produced by zero net
+    SE earnings, per CLAUDE.md "Null / zero / missing" and invariant I13
+    (an exemption is explicitly marked, never a silent zero).
+    """
 
     net_se_earnings_usd: Decimal
     se_taxable_earnings_usd: Decimal  # 92.35 % of net SE earnings
@@ -2485,13 +2499,31 @@ class USSelfEmploymentTaxAssessment2025:
     oasdi_tax_usd: Decimal
     medicare_tax_usd: Decimal
     se_tax_usd: Decimal
+    exempt_under_totalization: bool = False
+    coverage_basis: str = "26 U.S.C. §§ 1401, 1402(a)(12)"
+
+
+# Controlling-authority strings carried out of ``se_tax_assessment_2025``
+# so each branch's result names the law it rests on (cross-audit at the
+# function boundary, not only at the stage).
+SE_TAX_BASIS_COMPUTED = "26 U.S.C. §§ 1401, 1402(a)(12)"
+SE_TAX_BASIS_NO_EARNINGS = "26 U.S.C. § 1401 (no net SE earnings → no SE tax)"
+SE_TAX_BASIS_TOTALIZATION_EXEMPT = (
+    "U.S.-Germany Totalization Agreement (1979): a self-employed U.S. "
+    "citizen resident in Germany is covered by the German system and is "
+    "exempt from 26 U.S.C. § 1401 on the SE earnings (German Certificate "
+    "of Coverage held). The earnings remain subject to U.S. income tax."
+)
 
 
 def se_tax_assessment_2025(
     *,
     se_inputs: USSelfEmploymentInputs2025,
 ) -> USSelfEmploymentTaxAssessment2025:
-    """Compute § 1401 OASDI + Medicare SE tax.
+    """Compute § 1401 OASDI + Medicare SE tax — or the Totalization exemption.
+
+    Pure function of its declared inputs; returns the tax breakdown plus
+    the controlling-authority string for the branch taken.
 
     Authority:
       - 26 U.S.C. § 1401(a) — 12.4 % OASDI on net SE earnings up to the
@@ -2501,24 +2533,32 @@ def se_tax_assessment_2025(
       - § 1401(b)(2) Additional Medicare 0.9 % is computed in the
         separate ``additional_medicare_assessment_2025`` so it can be
         combined with the wage-side computation per Form 8959.
+      - U.S.-Germany Totalization Agreement (1979): a German Certificate
+        of Coverage exempts the SE earnings from § 1401 entirely. SSA
+        agreement pamphlet: ``SSA_TOTALIZATION_DE_URL``.
 
     URLs: see ``USC_1401_URL`` / ``USC_1402_URL`` /
-    ``IRS_SCHEDULE_SE_URL``.
+    ``IRS_SCHEDULE_SE_URL`` / ``SSA_TOTALIZATION_DE_URL``.
     """
     _require_non_negative(
         se_inputs.net_se_earnings_usd, label="net_se_earnings_usd"
     )
     if se_inputs.totalization_certificate_present:
-        # U.S.-Germany Totalization Agreement (1979) keeps SE earnings
-        # OUT of U.S. § 1401 if a German Certificate of Coverage applies.
-        # The certificate-driven path is a future workstream — fail closed.
-        raise NotImplementedError(
-            "U.S.-Germany Totalization Agreement Certificate of Coverage "
-            "exempts SE earnings from § 1401. Certificate handling is not "
-            "implemented for 2025; remove the certificate flag or "
-            "implement the SSA-coverage path before computing SE tax. "
-            "Authority: SSA U.S.-Germany Totalization Agreement "
-            f"({SSA_TOTALIZATION_DE_URL})."
+        # U.S.-Germany Totalization Agreement (1979): the German system
+        # covers the SE earner, so § 1401 does not attach. This is an
+        # explicit exemption (zero tax + exempt marker + citation), not a
+        # silent zero — the income still flows to U.S. income tax. The net
+        # SE earnings are reported for disclosure (Schedule SE exempt
+        # statement); every tax component is zero.
+        return USSelfEmploymentTaxAssessment2025(
+            net_se_earnings_usd=round_cents(se_inputs.net_se_earnings_usd),
+            se_taxable_earnings_usd=ZERO_USD,
+            oasdi_taxable_earnings_usd=ZERO_USD,
+            oasdi_tax_usd=ZERO_USD,
+            medicare_tax_usd=ZERO_USD,
+            se_tax_usd=ZERO_USD,
+            exempt_under_totalization=True,
+            coverage_basis=SE_TAX_BASIS_TOTALIZATION_EXEMPT,
         )
     if se_inputs.net_se_earnings_usd <= ZERO_USD:
         return USSelfEmploymentTaxAssessment2025(
@@ -2528,6 +2568,8 @@ def se_tax_assessment_2025(
             oasdi_tax_usd=ZERO_USD,
             medicare_tax_usd=ZERO_USD,
             se_tax_usd=ZERO_USD,
+            exempt_under_totalization=False,
+            coverage_basis=SE_TAX_BASIS_NO_EARNINGS,
         )
     se_taxable = round_cents(
         se_inputs.net_se_earnings_usd * SECA_NET_EARNINGS_FACTOR
@@ -2543,6 +2585,8 @@ def se_tax_assessment_2025(
         oasdi_tax_usd=oasdi_tax,
         medicare_tax_usd=medicare_tax,
         se_tax_usd=se_tax,
+        exempt_under_totalization=False,
+        coverage_basis=SE_TAX_BASIS_COMPUTED,
     )
 
 
