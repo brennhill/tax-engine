@@ -6,6 +6,7 @@ const state = {
   csrfToken: "",
   workspaceOpened: false,
   workspaceMode: null,  // "new" | "roll-forward" | null
+  runActive: false,     // true while a pipeline run is in flight
 };
 
 // ---------------------------------------------------------------------------
@@ -55,19 +56,28 @@ function setStepperCurrent(target) {
   }
 }
 
+// A step is locked (not navigable, must not fire data loads) until a
+// workspace is open. The screen-form and postures bindings attach their
+// own click handlers to the same [data-nav-target] elements, so they
+// each consult this before loading — otherwise clicking a locked step
+// would scaffold a workspace on disk for a year the user never opened.
+function navStepLocked(target) {
+  if (!state.workspaceOpened) return true;
+  const li = document.querySelector(`.stepper-step[data-nav-target="${target}"]`);
+  return !!(li && li.classList.contains("is-locked"));
+}
+
 function setStepperLocked(locked) {
   for (const li of document.querySelectorAll(".stepper-step")) {
     const target = li.dataset.navTarget;
     if (STEP_LOCK_PARENTS.includes(target)) continue;
+    // Route through setStepStatus so the status classes are mutually
+    // exclusive — it clears is-saved/is-done/etc. before applying the new
+    // one, so a re-locked step can't carry a stale "Saved" class.
     if (locked) {
-      li.classList.add("is-locked");
-      const badge = li.querySelector(`[data-step-status="${target}"]`);
-      if (badge) badge.textContent = STEP_STATUS_LABELS.locked;
+      setStepStatus(target, "locked");
     } else if (li.classList.contains("is-locked")) {
-      li.classList.remove("is-locked");
-      const badge = li.querySelector(`[data-step-status="${target}"]`);
-      if (badge) badge.textContent = STEP_STATUS_LABELS.empty;
-      li.classList.add("is-empty");
+      setStepStatus(target, "empty");
     }
   }
 }
@@ -202,6 +212,17 @@ function showWorkspaceForm(mode) {
   }
   const sourceField = document.querySelector('[data-workspace-field="source_year"]');
   if (sourceField) sourceField.hidden = mode !== "roll-forward";
+  // Prefill helpful defaults: the new-year field defaults to the prior
+  // calendar year, and roll-forward's source year to the year before that.
+  const yearInput = document.querySelector("#workspace-form input[name='year']");
+  if (yearInput && !yearInput.value) yearInput.value = state.year;
+  if (mode === "roll-forward") {
+    const sourceInput = document.querySelector("#workspace-form input[name='source_year']");
+    if (sourceInput && !sourceInput.value) {
+      const prior = parseInt(state.year, 10);
+      if (Number.isFinite(prior)) sourceInput.value = String(prior - 1);
+    }
+  }
 }
 
 function showWorkspaceActive(payload) {
@@ -211,8 +232,11 @@ function showWorkspaceActive(payload) {
   active.hidden = false;
   const value = document.getElementById("workspace-active-value");
   if (value) {
-    const yearLabel = state.year || "—";
-    const pathLabel = (payload && payload.year_root) || state.workspace || "default location";
+    // The server returns the resolved path under `workspace_root` (see
+    // workspace_metadata); show it so the user knows exactly where their
+    // tax data lives, falling back to the path they typed.
+    const yearLabel = (payload && payload.year) || state.year || "—";
+    const pathLabel = (payload && payload.workspace_root) || state.workspace || "default location";
     value.textContent = `${yearLabel} — ${pathLabel}`;
   }
 }
@@ -220,12 +244,17 @@ function showWorkspaceActive(payload) {
 async function handleQuickStart(mode) {
   if (mode === "demo") {
     try {
+      // The demo always lands in a dedicated ~/taxes/demo-2025 location
+      // chosen server-side; we send no year/workspace so the request
+      // cannot redirect the reset. Subsequent calls must target that
+      // resolved path, so we adopt it from the response as state.workspace
+      // (the "demo-2025" token alone resolves to the read-only repo copy).
       const payload = await apiRequest("/api/workspace/demo", {
         method: "POST",
-        body: JSON.stringify({ year: "2025" }),
+        body: JSON.stringify({}),
       });
-      state.year = "2025";
-      state.workspace = "";
+      state.year = "demo-2025";
+      state.workspace = (payload && payload.workspace_root) || "";
       state.workspaceOpened = true;
       renderJson("workspace-output", payload);
       showWorkspaceActive(payload);
@@ -345,16 +374,14 @@ async function uploadDocument(payload) {
     body: JSON.stringify(payload),
   });
   renderJson("documents-output", response);
-  setStepStatus("documents", "saved");
-  refreshReadiness().catch(() => {});
+  // Only mark the Documents step saved when the server actually stored a
+  // file. An unsupported file returns stored=false; treating that as
+  // "saved" would tell the user their document landed when it didn't.
+  if (response && response.stored) {
+    setStepStatus("documents", "saved");
+    refreshReadiness().catch(() => {});
+  }
   return response;
-}
-
-async function refreshReadiness() {
-  const params = new URLSearchParams({ year: state.year, workspace: state.workspace });
-  const payload = await apiRequest(`/api/readiness?${params.toString()}`);
-  renderJson("readiness-output", payload);
-  return payload;
 }
 
 async function refreshOutputs() {
@@ -867,17 +894,20 @@ function bindNavigation() {
 // Maps a readiness error/missing-key string to the screen the user
 // would visit to fix it. Falls back to "documents" for anything that
 // looks like a raw-input gap, and "workspace" for everything else.
+// Short tokens carry \b word boundaries so a substring can't misroute:
+// without them "refund" matched "fund" (→ vorabpauschale) and "awaiting"
+// matched "itin" (→ identity). First match wins, so order matters.
 const READINESS_FIELD_HINTS = [
   { pattern: /profile\.json|people\.csv|household|marital/i, target: "household" },
   { pattern: /payments\.csv|prepayment|estimated/i, target: "payments" },
   { pattern: /elections\.csv|posture|treaty/i, target: "postures" },
-  { pattern: /identity|tax id|ssn|itin|employer/i, target: "identity" },
-  { pattern: /bank|fbar|account/i, target: "bank_accounts" },
-  { pattern: /child|kinder|dependent/i, target: "children" },
-  { pattern: /carryover|carryforward|ftc/i, target: "carryovers" },
-  { pattern: /vorab|invstg|fund/i, target: "vorabpauschale" },
+  { pattern: /identity|tax id|\bssn\b|\bitin\b|employer/i, target: "identity" },
+  { pattern: /\bbank\b|\bfbar\b|\baccount/i, target: "bank_accounts" },
+  { pattern: /\bchild|kinder|dependent/i, target: "children" },
+  { pattern: /carryover|carryforward|\bftc\b/i, target: "carryovers" },
+  { pattern: /vorab|invstg|\bfund\b/i, target: "vorabpauschale" },
   { pattern: /außergewöhnliche|sonderausgaben|arbeitszimmer|deduction/i, target: "de_deductions" },
-  { pattern: /raw|upload|document|lohnsteuer|w-?2|1099/i, target: "documents" },
+  { pattern: /\braw\b|upload|document|lohnsteuer|\bw-?2\b|\b1099\b/i, target: "documents" },
 ];
 
 function resolveReadinessTarget(needle) {
@@ -1128,13 +1158,20 @@ function bindPaymentsForm() {
   });
 }
 
-async function fileToBase64(file) {
-  const bytes = await file.arrayBuffer();
-  let binary = "";
-  for (const value of new Uint8Array(bytes)) {
-    binary += String.fromCharCode(value);
-  }
-  return btoa(binary);
+function fileToBase64(file) {
+  // Use FileReader.readAsDataURL: the browser does the base64 encoding
+  // natively (off the per-byte JS string path that froze the tab on
+  // large files) and we slice off the "data:...;base64," prefix.
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || "");
+      const comma = result.indexOf(",");
+      resolve(comma === -1 ? result : result.slice(comma + 1));
+    };
+    reader.onerror = () => reject(reader.error || new Error("Failed to read file."));
+    reader.readAsDataURL(file);
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -1204,6 +1241,23 @@ function bindUploadForm() {
   if (clearAll) clearAll.addEventListener("click", () => clearUploadBatch());
 }
 
+// A row is committable when it's a classified-supported file, or an
+// unsupported file for which the user has chosen a bucket (stored as
+// evidence-only). Unsupported rows with no bucket are NOT committed —
+// committing them would silently drop the file (the server returns
+// stored=false), so we hold them in a "needs_bucket" state instead.
+function rowIsCommittable(row) {
+  if (row.status === "ready") return true;
+  if (row.status === "needs_bucket" && row.override) return true;
+  if (row.status === "error" && (row.prediction?.status === "supported" || row.override)) return true;
+  return false;
+}
+
+// Per-file ceiling. Must match the server's MAX_UPLOAD_BYTES (25 MB);
+// we check it client-side so an oversized file is rejected immediately
+// with a clear message instead of failing with a 413 mid-commit.
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+
 async function handleUploadFiles(files) {
   if (!files || files.length === 0) return;
   const newRows = files.map((file) => ({
@@ -1216,19 +1270,42 @@ async function handleUploadFiles(files) {
   }));
   uploadBatchState.rows.push(...newRows);
   renderUploadBatch();
+  // Reset the file input immediately so selecting the SAME file again
+  // re-fires the change event (browsers suppress change when value is
+  // unchanged). The File objects are already captured on the rows.
+  const input = document.getElementById("upload-dropzone-input");
+  if (input) input.value = "";
+
+  // Reject oversized files up front; only classify the rest.
+  const toClassify = [];
+  for (const row of newRows) {
+    if (row.file.size > MAX_UPLOAD_BYTES) {
+      row.status = "error";
+      row.error = `File is ${(row.file.size / (1024 * 1024)).toFixed(1)} MB — over the 25 MB limit.`;
+    } else {
+      toClassify.push(row);
+    }
+  }
+  if (toClassify.length === 0) {
+    renderUploadBatch();
+    return;
+  }
 
   try {
     const predictions = await apiRequest("/api/uploads/classify-batch", {
       method: "POST",
-      body: JSON.stringify({ filenames: newRows.map((r) => r.file.name) }),
+      body: JSON.stringify({ filenames: toClassify.map((r) => r.file.name) }),
     });
     const predList = (predictions && predictions.predictions) || [];
-    for (let i = 0; i < newRows.length; i++) {
-      newRows[i].prediction = predList[i] || null;
-      newRows[i].status = "ready";
+    for (let i = 0; i < toClassify.length; i++) {
+      const prediction = predList[i] || null;
+      toClassify[i].prediction = prediction;
+      // Unsupported files need a bucket before they can be kept; supported
+      // files are ready to store with their predicted (or overridden) bucket.
+      toClassify[i].status = prediction && prediction.status === "supported" ? "ready" : "needs_bucket";
     }
   } catch (error) {
-    for (const row of newRows) {
+    for (const row of toClassify) {
       row.status = "error";
       row.error = String(error);
     }
@@ -1244,11 +1321,16 @@ function clearUploadBatch() {
 }
 
 async function commitUploadBatch() {
-  const pending = uploadBatchState.rows.filter((r) => r.status === "ready" || r.status === "error");
-  if (pending.length === 0) return;
+  // Snapshot the committable rows BY ID so rows added or cleared during
+  // the (awaited) commit loop don't shift what we're iterating.
+  const targetIds = uploadBatchState.rows.filter(rowIsCommittable).map((r) => r.id);
+  if (targetIds.length === 0) return;
   const commitBtn = document.getElementById("upload-commit-all");
   if (commitBtn) commitBtn.disabled = true;
-  for (const row of pending) {
+  let storedAny = false;
+  for (const id of targetIds) {
+    const row = uploadBatchState.rows.find((r) => r.id === id);
+    if (!row) continue;  // removed via "Clear batch" mid-commit
     row.status = "uploading";
     renderUploadBatch();
     try {
@@ -1259,11 +1341,22 @@ async function commitUploadBatch() {
         filename: row.file.name,
         content_base64,
         manual_bucket: row.override || "",
-        evidence_only: false,
+        // Unsupported files are kept as evidence-only; supported files
+        // store normally. The server also infers evidence-only from a
+        // bucket override on an unsupported file, but we set the flag
+        // explicitly so intent is unambiguous.
+        evidence_only: row.prediction ? row.prediction.status !== "supported" : false,
       });
-      row.status = "done";
-      row.error = null;
-      row.result = response;
+      // Trust the server's report: only "done" when it actually stored.
+      if (response && response.stored) {
+        row.status = "done";
+        row.error = null;
+        row.result = response;
+        storedAny = true;
+      } else {
+        row.status = "needs_bucket";
+        row.error = "Not stored — choose a bucket to keep this file.";
+      }
     } catch (error) {
       row.status = "error";
       row.error = String(error);
@@ -1271,8 +1364,10 @@ async function commitUploadBatch() {
     renderUploadBatch();
   }
   if (commitBtn) commitBtn.disabled = false;
-  refreshDocumentsStatus().catch(() => {});
-  refreshReadiness().catch(() => {});
+  if (storedAny) {
+    refreshDocumentsStatus().catch(() => {});
+    refreshReadiness().catch(() => {});
+  }
 }
 
 function renderUploadBatch() {
@@ -1291,19 +1386,21 @@ function renderUploadBatch() {
   for (const row of uploadBatchState.rows) {
     const li = document.createElement("div");
     li.className = "upload-row";
-    if (row.status === "error") li.classList.add("is-error");
+    if (row.status === "error" || row.status === "needs_bucket") li.classList.add("is-error");
     if (row.status === "uploading" || row.status === "classifying") li.classList.add("is-uploading");
     if (row.status === "done") li.classList.add("is-done");
 
     const icon = document.createElement("span");
     icon.className = "upload-row-icon";
+    icon.setAttribute("aria-hidden", "true");
     icon.textContent = ({
       classifying: "…",
       ready: "↑",
+      needs_bucket: "?",
       uploading: "…",
       done: "✓",
       error: "!",
-    })[row.status] || "?";
+    })[row.status] || "·";
     li.appendChild(icon);
 
     const meta = document.createElement("div");
@@ -1319,9 +1416,12 @@ function renderUploadBatch() {
     } else if (row.status === "uploading") {
       detail.textContent = "Uploading…";
     } else if (row.status === "done") {
-      const r = row.result && row.result.entry ? row.result.entry : row.result;
-      const bucket = (r && r.bucket) || (row.prediction && row.prediction.bucket) || "unknown";
-      detail.textContent = `Uploaded → ${bucket}`;
+      const bucket = (row.result && row.result.bucket) || row.override || "unknown";
+      const evidence = row.result && row.result.status === "evidence_only";
+      detail.textContent = evidence ? `Kept as evidence → ${bucket}` : `Uploaded → ${bucket}`;
+    } else if (row.status === "needs_bucket") {
+      detail.textContent = row.error || "Not recognized — pick a bucket to keep this file as evidence.";
+      detail.classList.add("is-low-confidence");
     } else if (row.status === "error") {
       detail.textContent = row.error || "Upload failed.";
     } else if (row.prediction) {
@@ -1335,8 +1435,18 @@ function renderUploadBatch() {
     li.appendChild(meta);
 
     const select = document.createElement("select");
+    select.setAttribute(
+      "aria-label",
+      `Destination bucket for ${row.file.name}`,
+    );
     select.disabled = row.status === "uploading" || row.status === "done";
-    for (const option of BUCKET_OVERRIDES) {
+    // For unsupported (needs_bucket) rows there is no "Auto" prediction to
+    // fall back on, so the first option is a prompt rather than "Auto".
+    const options =
+      row.status === "needs_bucket"
+        ? [{ value: "", label: "Choose a bucket…" }, ...BUCKET_OVERRIDES.filter((o) => o.value)]
+        : BUCKET_OVERRIDES;
+    for (const option of options) {
       const opt = document.createElement("option");
       opt.value = option.value;
       opt.textContent = option.label;
@@ -1345,6 +1455,9 @@ function renderUploadBatch() {
     }
     select.addEventListener("change", () => {
       row.override = select.value;
+      // Picking a bucket for an unsupported file makes it committable;
+      // re-render so the row reflects the new state immediately.
+      if (row.status === "needs_bucket") renderUploadBatch();
     });
     li.appendChild(select);
 
@@ -1382,12 +1495,25 @@ function bindReadinessButton() {
 function bindRunButton() {
   const button = document.getElementById("run-button");
   button.addEventListener("click", async () => {
+    // Concurrency guard: a pipeline run mutates the workspace and streams
+    // its own progress board. A second concurrent run would interleave
+    // two event streams and race on the same files. Disable the button
+    // for the duration and bail if a run is already in flight.
+    if (state.runActive) return;
+    state.runActive = true;
+    button.disabled = true;
+    const originalLabel = button.textContent;
+    button.textContent = "Running…";
     try {
       await runPipelineWithStructuredError();
     } catch (_error) {
       // The wrapper already rendered the failure card; swallow the
       // re-raise so the click handler does not propagate to the
       // browser console as an uncaught promise rejection.
+    } finally {
+      state.runActive = false;
+      button.disabled = false;
+      button.textContent = originalLabel;
     }
   });
 }
@@ -1711,6 +1837,7 @@ function bindPosturesScreen() {
 
   for (const button of document.querySelectorAll("[data-nav-target='postures']")) {
     button.addEventListener("click", () => {
+      if (navStepLocked("postures")) return;
       loadPosturesScreen();
     });
   }
@@ -2594,6 +2721,7 @@ function bindScreenForm(screen) {
 
   for (const button of document.querySelectorAll(`[data-nav-target='${screen}']`)) {
     button.addEventListener("click", () => {
+      if (navStepLocked(screen)) return;
       loadScreen(screen);
     });
   }

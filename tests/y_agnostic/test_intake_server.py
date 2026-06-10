@@ -256,6 +256,39 @@ class IntakeServerTest(unittest.TestCase):
             self.assertEqual(blocked.status, 403, blocked_body)
             self.assertEqual(allowed.status, 201)
 
+    def test_http_rejects_foreign_host_header(self) -> None:
+        # DNS-rebinding defense: a request with a non-loopback Host header
+        # must be refused before the CSRF token is ever handed out, even
+        # though the socket itself is loopback.
+        server = build_server("127.0.0.1", 0, project_root=PROJECT_ROOT)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            port = server.server_address[1]
+            # Forged Host header (as a rebound attacker domain would send).
+            conn = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
+            conn.putrequest("GET", "/api/session", skip_host=True)
+            conn.putheader("Host", "evil.example.com")
+            conn.endheaders()
+            forged = conn.getresponse()
+            forged_body = forged.read().decode("utf-8")
+            conn.close()
+
+            # A normal loopback Host is accepted and yields the token.
+            conn = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
+            conn.request("GET", "/api/session")
+            ok = conn.getresponse()
+            ok_body = ok.read().decode("utf-8")
+            conn.close()
+        finally:
+            server.shutdown()
+            server.server_close()
+
+        self.assertEqual(forged.status, 403, forged_body)
+        self.assertNotIn("csrf_token", forged_body)
+        self.assertEqual(ok.status, 200)
+        self.assertIn("csrf_token", ok_body)
+
     def test_get_and_post_household_round_trip(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace_root = Path(tmp) / "2026"

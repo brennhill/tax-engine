@@ -175,7 +175,7 @@ _HIGHLIGHT_SPECS: tuple[dict[str, str], ...] = (
         "label": "U.S. — refund with treaty re-sourcing",
         "jsonpath": "usa.payments.refund_with_treaty_resourcing_usd",
         "currency": "USD",
-        "detail": "DBA-USA Art. 23 + IRS Pub. 514; refund after Article 23(5)(b) re-sourcing.",
+        "detail": "DBA-USA Art. 23 + IRS Pub. 514; refund after Article 23(5)(c) re-sourcing.",
     },
     {
         "label": "U.S. — total tax (treaty resourced)",

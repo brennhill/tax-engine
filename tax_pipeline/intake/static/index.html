@@ -146,7 +146,7 @@
           <button type="button" class="quick-start-card" data-quick-start="demo">
             <span class="qs-card-icon" aria-hidden="true">▶</span>
             <span class="qs-card-title">Try the demo</span>
-            <span class="qs-card-body">Open the built-in synthetic 2025 workspace. See what the engine produces against a sample cross-border household — no data entry required.</span>
+            <span class="qs-card-body">Open the built-in synthetic 2025 workspace in a dedicated sandbox folder. See what the engine produces against a sample cross-border household — no data entry required, and your real tax years are never touched.</span>
             <span class="qs-card-cta">Open demo workspace →</span>
           </button>
           <button type="button" class="quick-start-card" data-quick-start="new">
@@ -179,9 +179,9 @@
           </label>
           <label>
             <span class="field-label-row">Workspace path
-              <span class="info-marker" tabindex="0" data-tooltip="Optional. Pick a folder on your computer where this tax year's files will live. Leave blank to use the default folder under this project. Useful if you want to keep tax data on an encrypted drive.">i</span>
+              <span class="info-marker" tabindex="0" data-tooltip="Optional. Pick a folder where this tax year's files will live. Leave blank to use the default (~/taxes/<year>/). If you set a custom path for a numeric year, the folder must end in that year — e.g. /secure/taxes/2025 for 2025. Useful for keeping tax data on an encrypted drive.">i</span>
             </span>
-            <input name="workspace" placeholder="Optional custom folder path">
+            <input name="workspace" placeholder="Optional — e.g. /secure/taxes/2025">
           </label>
           <div class="form-actions">
             <button type="submit" id="workspace-submit">Open workspace</button>

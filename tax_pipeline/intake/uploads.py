@@ -221,9 +221,14 @@ def store_upload(
     preview = _classify_upload_name(filename)
 
     layout = _layout_for_workspace(paths)
+    valid_buckets = set(all_raw_bucket_names())
+    override = manual_bucket if manual_bucket in valid_buckets else None
 
     if preview["status"] == "supported":
-        bucket = str(preview["bucket"])
+        # Honor an explicit bucket override: a user who disagrees with the
+        # classifier's predicted bucket (e.g. "germany" vs "brokers") can
+        # redirect storage. Without an override the predicted bucket wins.
+        bucket = override or str(preview["bucket"])
         # Proposal 8: legacy workspaces keep storing under
         # ``raw/<bucket>/<filename>``; canonical workspaces store under
         # ``raw/jurisdictions/<iso>/<filename>`` or
@@ -239,18 +244,26 @@ def store_upload(
         entry = {
             **preview,
             "stored": True,
+            "bucket": bucket,
+            "bucket_overridden": bool(override and override != preview["bucket"]),
             "relative_path": relative_path.as_posix(),
         }
         _upsert_upload_entry(paths, entry)
         return entry
 
-    if evidence_only:
-        # Accept either the legacy flat names or the canonical ISO /
-        # asset-class names so the wizard's bucket selector can be
-        # rolled forward without breaking older clients.
-        if manual_bucket not in set(all_raw_bucket_names()):
-            raise ValueError(f"Evidence-only uploads require a supported manual bucket: {manual_bucket!r}")
-        bucket_dir = _bucket_destination(paths, str(manual_bucket), layout)
+    # Unsupported file: the classifier could not place it. We still keep
+    # it as evidence-only when the user has named a bucket (or set the
+    # evidence_only flag) — this prevents the silent data loss where an
+    # unclassifiable but real document is dropped on the floor. Without a
+    # bucket we return the preview unchanged (stored=False) so the UI can
+    # prompt the user to choose one rather than report a phantom success.
+    if evidence_only or override:
+        if override is None:
+            raise ValueError(
+                f"This file could not be auto-classified. Choose a bucket to keep it as "
+                f"evidence: one of {sorted(valid_buckets)}."
+            )
+        bucket_dir = _bucket_destination(paths, str(override), layout)
         relative_path = bucket_dir.relative_to(paths.raw_root) / ".evidence-only" / filename
         destination = _contained_destination(paths.raw_root, relative_path)
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -259,7 +272,7 @@ def store_upload(
             **preview,
             "status": "evidence_only",
             "stored": True,
-            "bucket": manual_bucket,
+            "bucket": override,
             "relative_path": relative_path.as_posix(),
         }
         _upsert_upload_entry(paths, entry)
@@ -275,21 +288,25 @@ def classify_upload_batch(filenames: list[str]) -> list[dict[str, object]]:
     drops N files, the server returns N classifier predictions (bucket,
     doc_type, provider, confidence, country), and the user confirms or
     overrides bucket before any bytes are written to disk. The classifier
-    only needs the filename/relative-path to predict — file content is
-    not read at this stage, so the preview is cheap.
+    only needs the filename to predict — file content is not read at this
+    stage, so the preview is cheap.
+
+    Uses ``_classify_upload_name`` (the same routine ``store_upload``
+    relies on) so the previewed bucket is the *real* destination bucket
+    (``germany``, ``brokers`` ...) rather than the raw filename, and the
+    preview's ``status``/``confidence`` match what storing will actually
+    do.
     """
     predictions: list[dict[str, object]] = []
     for raw_name in filenames:
         name = str(raw_name or "").strip()
         if not name:
-            predictions.append(
-                {
-                    "filename": "",
-                    "error": "Empty filename.",
-                }
-            )
+            predictions.append({"filename": "", "status": "unsupported", "error": "Empty filename."})
             continue
-        prediction = classify_relative_path(Path(name))
+        # Use only the basename for the preview: an absolute or
+        # nested path supplied by the browser must not influence the
+        # predicted bucket (and is rejected at store time anyway).
+        prediction = _classify_upload_name(Path(name).name)
         prediction["filename"] = name
         predictions.append(prediction)
     return predictions

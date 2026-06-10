@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import binascii
 import json
+import os
 import secrets
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -49,6 +50,49 @@ from tax_pipeline.run_year import StageFailure
 
 CSRF_HEADER = "X-Tax-Intake-CSRF"
 MAX_JSON_BODY_BYTES = 2 * 1024 * 1024
+# Larger body cap for /api/uploads only: a 25 MB file (the advertised
+# per-file ceiling, enforced post-decode by MAX_UPLOAD_BYTES) is ~33 MB
+# of base64 plus JSON envelope. 36 MB gives comfortable headroom.
+UPLOAD_JSON_BODY_BYTES = 36 * 1024 * 1024
+
+# Loopback host names always allowed. A request whose Host header is not in
+# the allowlist is rejected before any handling — this is the defense
+# against DNS-rebinding, where a malicious page rebinds its own domain to
+# 127.0.0.1 to become "same origin" and then reads the CSRF token / hits
+# the destructive endpoints. The browser sends the *attacker's* domain in
+# the Host header, so an allowlist of loopback names closes the hole even
+# though the socket itself is loopback. Operators can widen the list with
+# TAX_INTAKE_ALLOWED_HOSTS (comma-separated) for non-default binds.
+_DEFAULT_ALLOWED_HOSTS = frozenset({"127.0.0.1", "localhost", "::1", "[::1]"})
+
+
+def _allowed_hosts(bind_host: str) -> frozenset[str]:
+    hosts = set(_DEFAULT_ALLOWED_HOSTS)
+    if bind_host:
+        hosts.add(bind_host)
+    extra = os.environ.get("TAX_INTAKE_ALLOWED_HOSTS", "")
+    for token in extra.split(","):
+        token = token.strip()
+        if token:
+            hosts.add(token)
+    return frozenset(hosts)
+
+
+def _host_header_allowed(host_header: str | None, allowed: frozenset[str]) -> bool:
+    if not host_header:
+        # No Host header at all (HTTP/1.0 without one). Reject — a normal
+        # browser always sends Host; absence is anomalous.
+        return False
+    # Strip the optional :port. IPv6 literals arrive bracketed ("[::1]:8765").
+    hostname = host_header
+    if hostname.startswith("["):
+        # [::1]:port  ->  [::1]
+        closing = hostname.find("]")
+        if closing != -1:
+            hostname = hostname[: closing + 1]
+    elif ":" in hostname:
+        hostname = hostname.rsplit(":", 1)[0]
+    return hostname in allowed
 
 
 class IntakeHTTPServer(ThreadingHTTPServer):
@@ -56,6 +100,8 @@ class IntakeHTTPServer(ThreadingHTTPServer):
         super().__init__(server_address, request_handler_class)
         self.project_root = project_root.resolve()
         self.csrf_token = secrets.token_urlsafe(32)
+        bind_host = server_address[0] if server_address else ""
+        self.allowed_hosts = _allowed_hosts(bind_host)
 
 
 def _workspace_root_from_text(value: str | None) -> Path | None:
@@ -271,17 +317,14 @@ def dispatch_request(
             return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
 
     if method == "POST" and parsed.path == "/api/workspace/demo":
-        payload = body or {}
-        year = str(payload.get("year", "demo-2025")).strip() or "demo-2025"
-        workspace_root = _workspace_root_from_text(str(payload.get("workspace", "")).strip())
+        # The demo target is fixed (~/taxes/demo-2025) inside
+        # materialize_demo_into_workspace. We deliberately ignore any
+        # client-supplied 'year'/'workspace' so a forged request cannot
+        # redirect the destructive reset at an arbitrary directory.
         try:
-            return HTTPStatus.CREATED, materialize_demo_into_workspace(
-                project_root,
-                year,
-                workspace_root=workspace_root,
-            )
-        except FileNotFoundError as exc:
-            return HTTPStatus.NOT_FOUND, {"error": str(exc)}
+            return HTTPStatus.CREATED, materialize_demo_into_workspace(project_root)
+        except FileNotFoundError:
+            return HTTPStatus.NOT_FOUND, {"error": "The synthetic demo workspace is missing from this install."}
         except ValueError as exc:
             return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
 
@@ -301,8 +344,11 @@ def dispatch_request(
                 target_year=year,
                 workspace_root=workspace_root,
             )
-        except FileNotFoundError as exc:
-            return HTTPStatus.NOT_FOUND, {"error": str(exc)}
+        except FileNotFoundError:
+            # Redact the absolute source path (repo convention: path_redacted).
+            return HTTPStatus.NOT_FOUND, {
+                "error": f"No existing workspace found for {source_year} to roll forward from.",
+            }
         except ValueError as exc:
             return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
 
@@ -515,17 +561,37 @@ def _build_handler():
             self.end_headers()
             self.wfile.write(encoded)
 
-        def _read_json_body(self) -> dict[str, object]:
+        def _read_json_body(self, max_bytes: int = MAX_JSON_BODY_BYTES) -> dict[str, object]:
             try:
                 length = int(self.headers.get("Content-Length", "0"))
             except ValueError as exc:
                 raise ValueError("Invalid Content-Length") from exc
-            if length > MAX_JSON_BODY_BYTES:
+            if length > max_bytes:
                 raise ValueError("Request body exceeds maximum size")
             raw = self.rfile.read(length) if length else b"{}"
             return json.loads(raw.decode("utf-8"))
 
+        def _reject_bad_host(self) -> bool:
+            """Reject requests whose Host header is not allow-listed.
+
+            Closes the DNS-rebinding bypass: the CSRF token is handed out
+            on GET /api/session, so without a Host check a rebound
+            attacker domain could read it and then drive the destructive
+            POST endpoints. Returns True (and sends 403) when the request
+            must be rejected.
+            """
+            host = self.headers.get("Host")
+            if not _host_header_allowed(host, self.server.allowed_hosts):
+                self._send_json(
+                    {"error": "Forbidden host. This server only accepts local (loopback) requests."},
+                    HTTPStatus.FORBIDDEN,
+                )
+                return True
+            return False
+
         def do_GET(self) -> None:
+            if self._reject_bad_host():
+                return
             if urlparse(self.path).path == "/api/session":
                 self._send_json({"csrf_token": self.server.csrf_token})
                 return
@@ -533,6 +599,8 @@ def _build_handler():
             self._send_response(status, content_type, payload)
 
         def do_POST(self) -> None:
+            if self._reject_bad_host():
+                return
             if self.headers.get(CSRF_HEADER) != self.server.csrf_token:
                 self._send_json({"error": "Missing or invalid CSRF token"}, HTTPStatus.FORBIDDEN)
                 return
@@ -540,8 +608,18 @@ def _build_handler():
             if content_type and not content_type.lower().startswith("application/json"):
                 self._send_json({"error": "POST requests require application/json"}, HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
                 return
+            # File uploads carry base64-encoded bytes, which inflate ~4/3
+            # and must fit the 25 MB decoded cap (MAX_UPLOAD_BYTES). The
+            # default 2 MB JSON cap would throttle uploads to ~1.5 MB, so
+            # the uploads route gets a larger body cap. Every other route
+            # keeps the small cap.
+            max_body = (
+                UPLOAD_JSON_BODY_BYTES
+                if urlparse(self.path).path == "/api/uploads"
+                else MAX_JSON_BODY_BYTES
+            )
             try:
-                body = self._read_json_body()
+                body = self._read_json_body(max_body)
             except json.JSONDecodeError as exc:
                 self._send_json({"error": f"Invalid JSON request body: {exc}"}, HTTPStatus.BAD_REQUEST)
                 return

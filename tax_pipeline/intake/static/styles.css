@@ -2103,6 +2103,19 @@ pre:empty { display: none; }
   margin: 0 0 0.5rem;
   font-family: var(--font-display);
   font-size: 1rem;
+  color: var(--ink);
+}
+
+.run-summary.is-complete {
+  color: var(--ink);
+  border-left: var(--rule-thick) solid var(--ink);
+  padding-left: 0.6rem;
+}
+
+.run-summary.is-failed {
+  color: var(--alarm-deep);
+  border-left: var(--rule-thick) solid var(--alarm);
+  padding-left: 0.6rem;
 }
 
 /* ---------- Output preview panel (suggestion #5) ------------------------- */

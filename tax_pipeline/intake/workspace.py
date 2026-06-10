@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import io
 import json
+import os
 import shutil
 from pathlib import Path
 
@@ -75,23 +76,82 @@ def open_workspace(
     return workspace_metadata(paths)
 
 
+# Marker file the engine drops in every workspace it materializes. Its
+# presence is what licenses a destructive reset of that directory — we
+# never rmtree a directory that does not carry it, so a user folder that
+# merely happens to sit at the demo target can't be wiped. See
+# materialize_demo_into_workspace.
+WORKSPACE_MARKER_NAME = ".tax-engine-workspace"
+
+
+def _demo_target_root() -> Path:
+    """Fixed, dedicated location for the materialized demo workspace.
+
+    The demo always lands in ``~/taxes/demo-2025`` — a location that is
+    never a real numeric tax year (so "Try the demo" can never clobber a
+    user's ``~/taxes/2025``) and never the repo's read-only demo source.
+    The HTTP endpoint intentionally does NOT let the client choose this
+    path: an attacker-supplied ``workspace`` could otherwise point the
+    reset at any directory (the demo path previously rmtree'd it).
+
+    ``TAX_DEMO_WORKSPACE_ROOT`` overrides the target. It is a *server
+    operator* knob (env var, not request input), used by tests to keep
+    the demo materialization hermetic instead of writing into the real
+    home directory.
+    """
+    override = os.environ.get("TAX_DEMO_WORKSPACE_ROOT")
+    if override:
+        return Path(override).resolve()
+    return (Path.home() / "taxes" / "demo-2025").resolve()
+
+
+def _assert_safe_reset_target(target: Path, *, source: Path) -> None:
+    target = target.resolve()
+    home = Path.home().resolve()
+    if target == source.resolve():
+        raise ValueError("Refusing to overwrite the demo source workspace.")
+    if target == Path(target.anchor):
+        raise ValueError("Refusing to use a filesystem root as a workspace.")
+    if target == home:
+        raise ValueError("Refusing to use the home directory itself as a workspace.")
+    if target.is_symlink():
+        raise ValueError("Refusing to overwrite a symlinked workspace path.")
+    # Fail closed on a populated directory that the engine did not create:
+    # the marker file is the only thing that authorizes a destructive reset.
+    if target.exists():
+        has_contents = any(target.iterdir())
+        marker = target / WORKSPACE_MARKER_NAME
+        if has_contents and not marker.exists():
+            raise ValueError(
+                "Refusing to overwrite an existing non-Tax-Engine directory. "
+                "Move or remove it first, then retry."
+            )
+
+
 def materialize_demo_into_workspace(
     project_root: Path,
-    year_token: str,
+    year_token: str = "demo-2025",
     *,
     workspace_root: Path | None = None,
     demo_name: str = "demo-2025",
 ) -> dict[str, object]:
-    """Copy the synthetic demo workspace into the user's year tree.
+    """Copy the synthetic demo workspace into a dedicated demo location.
 
     Powers the intake wizard's "Try the demo" first-run path: a new user
-    gets a runnable workspace with no manual data entry. The demo lives
-    under ``years/<demo-name>/`` in the repo and is copied verbatim to
-    the resolved year root; the target year token is preserved so the
-    user can rename or roll forward later.
+    gets a runnable workspace with no manual data entry. The demo source
+    lives under ``years/<demo-name>/`` in the repo and is copied verbatim
+    into ``~/taxes/demo-2025`` (see ``_demo_target_root``).
+
+    Safety: the target is fixed (the client cannot redirect it), is never
+    a real numeric tax year, and is only reset when it is absent, empty,
+    or carries the engine marker file. A populated user directory at that
+    path is left untouched and the call fails closed.
     """
-    paths = resolve_workspace_paths(project_root, year_token, workspace_root=workspace_root)
     source = demo_source_root(demo_name=demo_name)
+    target_root = workspace_root.resolve() if workspace_root is not None else _demo_target_root()
+    _assert_safe_reset_target(target_root, source=source)
+
+    paths = YearPaths.for_workspace(project_root, target_root, 2025)
     if paths.year_root.exists():
         shutil.rmtree(paths.year_root)
     paths.year_root.mkdir(parents=True, exist_ok=True)
@@ -102,6 +162,11 @@ def materialize_demo_into_workspace(
         else:
             shutil.copy2(child, destination)
     paths.ensure_directories()
+    # Stamp the marker so a later "Try the demo" can safely reset this copy.
+    (paths.year_root / WORKSPACE_MARKER_NAME).write_text(
+        "Tax Engine demo workspace. Safe to reset via the intake wizard.\n",
+        encoding="utf-8",
+    )
     return workspace_metadata(paths)
 
 

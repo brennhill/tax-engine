@@ -18,6 +18,7 @@ by other y_agnostic / y2025 tests.
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -84,31 +85,74 @@ class StepperUITest(unittest.TestCase):
 class WorkspaceEndpointsTest(unittest.TestCase):
     """``/api/workspace/demo`` materializes the demo; ``/roll-forward`` copies config."""
 
-    def test_demo_endpoint_materializes_demo_workspace(self) -> None:
+    def test_demo_endpoint_uses_fixed_target_and_ignores_client_workspace(self) -> None:
+        # SECURITY: the demo reset target is operator-controlled, never
+        # client-controlled. A forged 'workspace' in the body must be
+        # ignored so a request can't redirect the destructive reset at an
+        # arbitrary directory. We pin the target to a temp dir via the
+        # operator env override and confirm the malicious path is untouched.
         with tempfile.TemporaryDirectory() as tmp:
-            workspace_root = Path(tmp) / "2025"
-            status, payload = dispatch_request(
-                PROJECT_ROOT,
-                "POST",
-                "/api/workspace/demo",
-                body={"year": "2025", "workspace": str(workspace_root)},
-            )
+            demo_target = Path(tmp) / "demo-here"
+            malicious = Path(tmp) / "victim_documents"
+            malicious.mkdir()
+            (malicious / "keep.txt").write_text("important", encoding="utf-8")
+            prior = os.environ.get("TAX_DEMO_WORKSPACE_ROOT")
+            os.environ["TAX_DEMO_WORKSPACE_ROOT"] = str(demo_target)
+            try:
+                status, payload = dispatch_request(
+                    PROJECT_ROOT,
+                    "POST",
+                    "/api/workspace/demo",
+                    body={"workspace": str(malicious), "year": "2025"},
+                )
+            finally:
+                if prior is None:
+                    os.environ.pop("TAX_DEMO_WORKSPACE_ROOT", None)
+                else:
+                    os.environ["TAX_DEMO_WORKSPACE_ROOT"] = prior
             self.assertEqual(status, 201, payload)
-            self.assertIn("year", payload)
-            # The materialized demo carries the synthetic config trio.
-            self.assertTrue((workspace_root / "config" / "profile.json").exists())
-            self.assertTrue((workspace_root / "config" / "people.csv").exists())
-            self.assertTrue((workspace_root / "config" / "payments.csv").exists())
+            # Demo landed in the operator target, carrying the config trio.
+            self.assertTrue((demo_target / "config" / "profile.json").exists())
+            self.assertTrue((demo_target / "config" / "people.csv").exists())
+            self.assertTrue((demo_target / "config" / "payments.csv").exists())
+            # The client-supplied malicious path was left completely alone.
+            self.assertTrue((malicious / "keep.txt").exists())
+            self.assertEqual((malicious / "keep.txt").read_text(encoding="utf-8"), "important")
+
+    def test_demo_refuses_to_overwrite_non_engine_directory(self) -> None:
+        # A populated directory at the demo target that the engine did not
+        # create (no marker file) must not be wiped — fail closed.
+        with tempfile.TemporaryDirectory() as tmp:
+            demo_target = Path(tmp) / "demo-here"
+            demo_target.mkdir()
+            (demo_target / "user_file.txt").write_text("mine", encoding="utf-8")
+            prior = os.environ.get("TAX_DEMO_WORKSPACE_ROOT")
+            os.environ["TAX_DEMO_WORKSPACE_ROOT"] = str(demo_target)
+            try:
+                status, payload = dispatch_request(
+                    PROJECT_ROOT, "POST", "/api/workspace/demo", body={}
+                )
+            finally:
+                if prior is None:
+                    os.environ.pop("TAX_DEMO_WORKSPACE_ROOT", None)
+                else:
+                    os.environ["TAX_DEMO_WORKSPACE_ROOT"] = prior
+            self.assertEqual(status, 400, payload)
+            self.assertIn("Refusing to overwrite", payload["error"])
+            # The user's file survives.
+            self.assertTrue((demo_target / "user_file.txt").exists())
 
     def test_roll_forward_requires_both_years_and_copies_config(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "2025"
             target = Path(tmp) / "2026"
-            # First materialize 2025 as the source.
+            # Seed the 2025 source via the create endpoint (scaffolds the
+            # config trio). The demo endpoint no longer accepts a custom
+            # target, so we use create for a temp-rooted source.
             status, payload = dispatch_request(
                 PROJECT_ROOT,
                 "POST",
-                "/api/workspace/demo",
+                "/api/workspace/create",
                 body={"year": "2025", "workspace": str(source)},
             )
             self.assertEqual(status, 201, payload)
@@ -207,6 +251,57 @@ class DragDropUploaderTest(unittest.TestCase):
         # Unrecognized → unknown + low confidence.
         self.assertEqual(predictions[2]["doc_type"], "unknown")
         self.assertEqual(predictions[2]["confidence"], "low")
+
+    def test_classify_batch_bare_filename_returns_real_bucket(self) -> None:
+        # Regression: the browser sends bare filenames (no bucket prefix).
+        # The preview must return the real destination bucket (germany),
+        # not echo the filename back as the "bucket".
+        status, payload = dispatch_request(
+            PROJECT_ROOT,
+            "POST",
+            "/api/uploads/classify-batch",
+            body={"filenames": ["Lohnsteuer-2025.pdf"]},
+        )
+        self.assertEqual(status, 200, payload)
+        pred = payload["predictions"][0]
+        self.assertEqual(pred["bucket"], "germany")
+        self.assertEqual(pred["doc_type"], "german_lohnsteuer_pdf")
+        self.assertEqual(pred["status"], "supported")
+        self.assertNotEqual(pred["bucket"], "lohnsteuer-2025.pdf")
+
+    def test_store_upload_honors_manual_bucket_override(self) -> None:
+        from tax_pipeline.intake.uploads import store_upload
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace_root = Path(tmp) / "2025"
+            paths = resolve_year_paths(PROJECT_ROOT, "2025", workspace_root=workspace_root)
+            paths.ensure_directories()
+            entry = store_upload(
+                paths,
+                "Lohnsteuer-2025.pdf",
+                b"hello",
+                manual_bucket="brokers",  # disagrees with the predicted "germany"
+            )
+            self.assertTrue(entry["stored"])
+            self.assertEqual(entry["bucket"], "brokers")
+            self.assertTrue(entry["bucket_overridden"])
+
+    def test_store_upload_unsupported_returns_not_stored(self) -> None:
+        from tax_pipeline.intake.uploads import store_upload
+
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace_root = Path(tmp) / "2025"
+            paths = resolve_year_paths(PROJECT_ROOT, "2025", workspace_root=workspace_root)
+            paths.ensure_directories()
+            # No bucket + unclassifiable → not stored (no phantom success).
+            entry = store_upload(paths, "totally_random.zip", b"hello")
+            self.assertFalse(entry["stored"])
+            self.assertEqual(entry["status"], "unsupported")
+            # With a bucket, it is kept as evidence-only instead of dropped.
+            entry2 = store_upload(paths, "totally_random.zip", b"hello", manual_bucket="receipts")
+            self.assertTrue(entry2["stored"])
+            self.assertEqual(entry2["status"], "evidence_only")
+            self.assertEqual(entry2["bucket"], "receipts")
 
     def test_classify_batch_rejects_missing_filenames(self) -> None:
         status, payload = dispatch_request(
