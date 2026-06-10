@@ -357,6 +357,7 @@ This repo is intentionally narrower than "all Germany and U.S. tax filing."
 - U.S. `single`, `mfs_nra_spouse`, and `married_joint` are supported end-to-end.
 - U.S. `married_joint` includes both ordinary joint filers and the explicit elected joint-return path with an NRA spouse.
 - Other U.S. filing statuses are not implemented yet.
+- The income side is modeled for a **wage earner**. Self-employment / freelance income (German § 18 / § 15, U.S. Schedule C, the Totalization Agreement) is not yet supported — a phased plan to add it is specced below.
 
 The detailed matrix lives in:
 
@@ -365,6 +366,10 @@ The detailed matrix lives in:
 The current Germany `married_separate` gap is documented here:
 
 - [DE_MARRIED_SEPARATE.md](DE_MARRIED_SEPARATE.md)
+
+The plan to extend the engine to self-employed / freelance taxpayers is documented here:
+
+- [FREELANCER-SUPPORT-SPEC.md](FREELANCER-SUPPORT-SPEC.md)
 
 ## Running A Year
 
