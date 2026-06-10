@@ -1,9 +1,48 @@
 # Freelancer / Self-Employment Support — Phase 0–4 Specification
 
-Status: **proposed** (no code written). This is a plan-of-record for
+Status: **Phase 0 landed; Phases 1–4 designed.** Plan-of-record for
 extending the engine from a pure wage-earner model to a cross-border
 **self-employed** taxpayer: a U.S. citizen resident in Germany who earns
 freelance / business income.
+
+## Implementation status (2026-06-10)
+
+- **Phase 0 — U.S.-Germany Totalization Agreement: DONE** (commit on
+  `main`). A German Certificate of Coverage yields an explicit § 1401
+  exemption (`exempt_under_totalization=True`, cited `coverage_basis`),
+  not a crash or a silent zero. Each branch of `se_tax_assessment_2025`
+  carries its own legal reference out.
+- **Verified authorities, ready to integrate:**
+  - **§ 4 Abs. 3 EStG EÜR netting** — `Gewinn = Überschuss der
+    Betriebseinnahmen über die Betriebsausgaben`, cash-basis; verified
+    2026-06-10 against gesetze-im-internet.de/estg/__4.html. No statutory
+    constant (pure arithmetic); loss not floored.
+  - **Schedule C net profit** — § 61 gross income − § 162 ordinary &
+    necessary expenses; verified 2026-06-10 against the IRS Schedule C
+    page. No constant; loss not floored.
+
+### Architectural constraint discovered (binds Phases 1–2)
+
+A legal calculation **cannot land as a standalone public function** in
+`germany_law.py` / `us_law.py` — the `LegalArchitectureEnforcement` test
+(`tests/y_agnostic/test_legal_architecture_enforcement.py`) requires every
+public law function to be **registered to an executed rule-graph stage**
+(`REGISTERED_LAW_FUNCTIONS_2025`) or explicitly marked a non-rule helper.
+Marking a genuine income determination as a "helper" would defeat the
+invariant. Therefore the EÜR and Schedule C net-profit rules must be
+built **together with** their graph stages (`DE25-EUER`, `US25-SCHEDULE-C`)
+in one slice that:
+
+1. adds the business receipts/expenses to the input loaders (defaulting to
+   zero for a wage earner, so the demo is unchanged in value),
+2. declares the stage with `input_fact_keys` / `output_keys` and
+   `form_line_refs`, registers the calculate function, and
+3. wires the net profit into the income summation (§ 2 EStG → § 32a on the
+   DE side; Schedule C → Schedule 1 → AGI on the U.S. side),
+
+managing the fingerprint impact of adding a new input to the income/AGI
+stage. This is the next slice; the verified netting rules above drop
+straight into its `calculate` bodies.
 
 It follows the existing architecture verbatim — the rule graph is the
 legal core (`ENGINE-RESTRUCTURE-PLAN.md`), every value is a **fact**, a
