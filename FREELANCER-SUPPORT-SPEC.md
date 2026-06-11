@@ -44,6 +44,11 @@ managing the fingerprint impact of adding a new input to the income/AGI
 stage. This is the next slice; the verified netting rules above drop
 straight into its `calculate` bodies.
 
+The first such slice — the German EÜR graph integration — is fully
+specified, with an exhaustive function/file/fact-key change-list and a
+**mandatory final legal-review gate**, in
+[FREELANCER-DE-EUER-SLICE-SPEC.md](FREELANCER-DE-EUER-SLICE-SPEC.md).
+
 It follows the existing architecture verbatim — the rule graph is the
 legal core (`ENGINE-RESTRUCTURE-PLAN.md`), every value is a **fact**, a
 cited **position**, or a deterministic legally-cited **operation**
