@@ -113,6 +113,14 @@ _NON_ENABLEMENT_ELECTIONS: frozenset[str] = frozenset(
         "elect_joint_return_with_nra_spouse",  # 26 U.S.C. § 6013(g) election.
         # German per-person elections.
         "germany_kirchensteuer_membership",  # § 51a EStG.
+        # Self-employment positions (Phase 1 freelancer support,
+        # FREELANCER-DE-EUER-SLICE-SPEC.md). worker_type drives whether
+        # § 18 / § 4 Abs. 3 EStG business income is required;
+        # de_self_employment_class is the cited § 18 vs § 15 position
+        # ("freiberuflich_18" supported; "gewerbe_15" fails closed —
+        # Gewerbesteuer not yet modeled).
+        "worker_type",
+        "de_self_employment_class",
         # Treaty/totalization disclosures.
         "acknowledges_totalization_agreement_germany_us",
     }

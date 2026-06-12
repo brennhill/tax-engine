@@ -7,6 +7,7 @@ from pathlib import Path
 
 from tax_pipeline.analysis_inputs import structured_input_files
 from tax_pipeline.y2025.germany_law import (
+    BusinessIncomeInputs2025,
     Child2025,
     GermanyChildrenFacts2025,
     JointOrdinaryInputs2025,
@@ -66,6 +67,94 @@ def _decimal_map(path: Path) -> dict[str, Decimal]:
 
 def _profile(paths: YearPaths) -> dict:
     return json.loads(paths.profile_path.read_text(encoding="utf-8"))
+
+
+# § 18 / § 4 Abs. 3 EStG business-income source (Phase 1 freelancer
+# support). config/business-income.csv carries the aggregated cash-basis
+# totals as ``key,amount_eur,source,note`` rows with keys
+# ``operating_receipts_eur`` / ``operating_expenses_eur``.
+BUSINESS_INCOME_FILE_NAME = "business-income.csv"
+ESTG_4_ABS3_URL = "https://www.gesetze-im-internet.de/estg/__4.html"
+ESTG_15_URL = "https://www.gesetze-im-internet.de/estg/__15.html"
+
+
+def _load_business_income_facts(paths: YearPaths) -> tuple[Decimal, Decimal, bool]:
+    """Return ``(receipts_eur, expenses_eur, file_declared)``.
+
+    File-presence semantics (CLAUDE.md null/zero/missing): an absent file
+    is "not declared" (``file_declared=False``); a header-only or
+    populated file is "declared" and the missing rows are an explicit
+    zero. The receiving loader uses ``file_declared`` to fail closed when
+    a self-employment posture is active but no business facts exist.
+    """
+    src = paths.config_root / BUSINESS_INCOME_FILE_NAME
+    if not src.exists():
+        return D("0.00"), D("0.00"), False
+    receipts = D("0.00")
+    expenses = D("0.00")
+    for row in _read_row_csv(src):
+        key = (row.get("key") or "").strip()
+        amount = (row.get("amount_eur") or "").strip()
+        if not key:
+            continue
+        value = D(amount) if amount else D("0.00")
+        if key == "operating_receipts_eur":
+            receipts += value
+        elif key == "operating_expenses_eur":
+            expenses += value
+        else:
+            raise ValueError(
+                f"Unknown business-income key {key!r} in {BUSINESS_INCOME_FILE_NAME}; "
+                "expected operating_receipts_eur / operating_expenses_eur "
+                "(§ 4 Abs. 3 EStG)."
+            )
+    return receipts, expenses, True
+
+
+def _load_business_income_position(paths: YearPaths, profile: dict) -> BusinessIncomeInputs2025 | None:
+    """Resolve the § 18 / § 4 Abs. 3 EStG self-employment position.
+
+    Returns ``None`` for a pure wage earner. Fails closed (with the cited
+    authority) when a self-employment ``worker_type`` is declared but the
+    § 18/§ 15 class is unsupported or the business-income facts are absent.
+    """
+    elections = profile.get("elections", {}) if isinstance(profile, dict) else {}
+    worker_type = str(elections.get("worker_type", "employee")).strip() or "employee"
+    if worker_type == "employee":
+        return None
+    if worker_type not in ("self_employed", "both"):
+        raise ValueError(
+            f"Unsupported worker_type {worker_type!r}; expected one of "
+            "'employee', 'self_employed', 'both'."
+        )
+    se_class = str(elections.get("de_self_employment_class", "")).strip()
+    if se_class == "gewerbe_15":
+        raise ValueError(
+            "elections.de_self_employment_class='gewerbe_15' (§ 15 EStG "
+            "Gewerbebetrieb) is not yet modeled — Gewerbesteuer and the "
+            "§ 35 EStG credit are out of scope. Authority: "
+            f"{ESTG_15_URL}."
+        )
+    if se_class != "freiberuflich_18":
+        raise ValueError(
+            "A self-employment worker_type requires "
+            "elections.de_self_employment_class='freiberuflich_18' "
+            "(§ 18 EStG selbständige Arbeit) for 2025; got "
+            f"{se_class!r}."
+        )
+    receipts, expenses, declared = _load_business_income_facts(paths)
+    if not declared:
+        raise ValueError(
+            "worker_type declares self-employment but no business-income "
+            f"facts were found ({BUSINESS_INCOME_FILE_NAME}). The § 4 Abs. 3 "
+            "EStG Einnahmenüberschussrechnung needs operating receipts and "
+            f"expenses. Authority: {ESTG_4_ABS3_URL}."
+        )
+    return BusinessIncomeInputs2025(
+        operating_receipts_eur=receipts,
+        operating_expenses_eur=expenses,
+        self_employment_class=se_class,
+    )
 
 
 # § 51a EStG attaches Kirchensteuer (church tax) at 8 % or 9 % of the assessed
@@ -736,6 +825,9 @@ def load_joint_ordinary_inputs_2025(paths: YearPaths) -> JointOrdinaryInputs2025
     filing_posture = _germany_filing_posture(paths, person_slots)
     staking_income_total, staking_allocations = _load_staking_income_allocations_2025(paths, person_slots)
     prepayments_total, prepayment_allocations = _load_germany_prepayments(paths, person_slots)
+    # § 18 / § 4 Abs. 3 EStG self-employment position (None for a wage
+    # earner; fail-closed if a self-employment posture is incomplete).
+    business_income = _load_business_income_position(paths, profile)
 
     people: list[PersonOrdinaryInputs2025] = []
     for person in person_slots:
@@ -782,4 +874,5 @@ def load_joint_ordinary_inputs_2025(paths: YearPaths) -> JointOrdinaryInputs2025
         joint_assessment_prerequisites_validated=filing_posture == "married_joint",
         other_income_22nr3_by_person_eur=staking_allocations,
         prepayments_by_person_eur=prepayment_allocations,
+        business_income=business_income,
     )

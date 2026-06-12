@@ -273,6 +273,59 @@ POSTURE_REGISTRY: tuple[PostureField, ...] = (
         storage_meta=(("section", "capital"), ("csv_key", "capital_guenstigerpruefung_requested")),
         default="0",
     ),
+    # ---- Self-employment (Phase 1 freelancer support) ----------------------
+    PostureField(
+        key="elections.worker_type",
+        label="Worker type",
+        widget="select",
+        options=(
+            ("employee", "Employee (wages only)"),
+            ("self_employed", "Self-employed / freelancer"),
+            ("both", "Both employee and self-employed"),
+        ),
+        tooltip=(
+            "Pick how you earn money. 'Employee' means you only have wages "
+            "from an employer. 'Self-employed' means you run your own "
+            "freelance business (Freiberufler) and report its profit. "
+            "'Both' means you have wages and freelance income. Choosing a "
+            "self-employed option asks you for your business receipts and "
+            "expenses, and the profit is taxed under § 18 / § 4 Abs. 3 EStG. "
+            "(Legal: § 2 Abs. 1 EStG; § 18 EStG)"
+        ),
+        legal_refs=("§ 2 Abs. 1 EStG", "§ 18 EStG"),
+        legal_urls=(
+            "https://www.gesetze-im-internet.de/estg/__2.html",
+            "https://www.gesetze-im-internet.de/estg/__18.html",
+        ),
+        section=SECTION_DE_ELECTIONS,
+        storage=STORAGE_PROFILE_JSON,
+        default="employee",
+    ),
+    PostureField(
+        key="elections.de_self_employment_class",
+        label="Self-employment class (§ 18 vs § 15)",
+        widget="select",
+        options=(
+            ("freiberuflich_18", "Freiberufler — selbständige Arbeit (§ 18)"),
+            ("gewerbe_15", "Gewerbe — trade business (§ 15) — coming soon"),
+        ),
+        tooltip=(
+            "If you are self-employed, pick whether your work is a liberal "
+            "profession (Freiberufler — e.g. consultant, developer, writer, "
+            "doctor) or a trade business (Gewerbe — e.g. a shop). Freiberufler "
+            "(§ 18) is supported. Gewerbe (§ 15) is not yet handled because it "
+            "also triggers trade tax (Gewerbesteuer); selecting it stops the "
+            "calculator rather than guessing. (Legal: § 18 EStG; § 15 EStG)"
+        ),
+        legal_refs=("§ 18 EStG", "§ 15 EStG"),
+        legal_urls=(
+            "https://www.gesetze-im-internet.de/estg/__18.html",
+            "https://www.gesetze-im-internet.de/estg/__15.html",
+        ),
+        section=SECTION_DE_ELECTIONS,
+        storage=STORAGE_PROFILE_JSON,
+        default="freiberuflich_18",
+    ),
     # ---- US elections ------------------------------------------------------
     PostureField(
         key="elections.elect_joint_return_with_nra_spouse",
