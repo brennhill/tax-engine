@@ -228,6 +228,34 @@ against the 2025 ELSTER forms (New-2 label-inventory ratchet).
 - **A4** — `p4_abs3.py` already signed; no new signed file in this slice
   unless a new shadow is added (then sign + register).
 
+## 7a. Implementation status (2026-06-12)
+
+Landed on `main`, full suite green (1372 tests, 0/0), A4 lock 125/125:
+
+- **Sub-slice 1 — DONE.** `euer_net_profit_2025` (§ 4 Abs. 3) + signed
+  shadow `p4_abs3.py`; `BusinessIncomeInputs2025`; `worker_type` /
+  `de_self_employment_class` positions (profile + posture registry);
+  loader `_load_business_income_position` with fail-closed wiring.
+- **Sub-slice 2 — DONE.** `DE25-EUER` stage declared + registered
+  (`euer_net_profit_2025 → DE25-EUER`); `de25_euer` calculate; business
+  receipts/expenses initial facts; `DE25-07` sums § 18 profit; structural
+  pins updated.
+- **Sub-slice 4 — DONE.** End-to-end tests through the full graph
+  (`tests/y2025/test_germany_euer.py`): profit-on-wages, zero-wage
+  freelancer, Verlust (not floored), and all loader fail-closed cases —
+  hand-derived euro outcomes confirmed.
+- **Narrative — DONE.** `DE25-EUER.jinja` (de/en, inputs by key, I12).
+- **Sub-slice 3 — REMAINING.** Anlage S schema + renderer + the
+  `form_line_refs` on `DE25-EUER`'s output (I3 bidirectional + I11
+  boundary). **Verified line number:** the Freiberufler net profit goes
+  on **Anlage S 2025 Zeile 4** (Gewinn aus freiberuflicher Tätigkeit =
+  Betriebseinnahmen − Betriebsausgaben; Zeile 5 for a second activity) —
+  corroborated by multiple tax-help sources (steuern.de, accountable.de,
+  sevdesk); **must be confirmed against the official ELSTER 2025 Anlage S
+  PDF before merge** (the official ELSTER form URL 404'd on fetch; the
+  § 9 gate requires this confirmation, and the New-2 label-inventory
+  ratchet requires an ELSTER-VERIFIED marker on the Zeile-4 label).
+
 ## 8. Build order (sub-slices, each green before the next)
 
 1. Loader + `BusinessIncomeInputs2025` + `worker_type`/class positions
