@@ -734,6 +734,16 @@ def main() -> None:
             "sonderausgaben_pauschbetrag_eur": fmt(
                 getattr(ordinary, "sonderausgaben_pauschbetrag_applied_eur", D("0.00"))
             ),
+            # FREELANCER-DE-EUER-SLICE-SPEC.md sub-slice 3: § 18 EStG
+            # selbständige Arbeit net profit (§ 4 Abs. 3 EStG EÜR Gewinn).
+            # This is the declared DE25-EUER scalar output
+            # ``de.ordinary.business_profit_eur`` flowing through the
+            # executor's StageResult fingerprint chain; the _write_anlage_s
+            # renderer wraps it in a LegalValue (I11) and lands it on
+            # the Anlage S Freiberufler-Gewinn line. Zero for a wage earner
+            # (demo unchanged).
+            # https://www.gesetze-im-internet.de/estg/__18.html
+            "business_profit_eur": fmt(getattr(ordinary, "business_profit_eur", D("0.00"))),
             "total_special_expenses_eur": fmt(getattr(ordinary, "total_special_expenses_eur", D("0.00"))),
             "joint_taxable_income_eur": fmt(ordinary.joint_taxable_income_eur),
             "joint_income_tax_eur": fmt(ordinary.joint_income_tax_eur),

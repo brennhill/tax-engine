@@ -121,6 +121,7 @@ def _write_index(paths: YearPaths, results: dict, profile: dict, filing_posture:
         f"- {markdown_link(f'{paths.year}_anlage_sonderausgaben.md', f'{paths.year}_anlage_sonderausgaben.md')}",
         f"- {markdown_link(f'{paths.year}_anlage_aus.md', f'{paths.year}_anlage_aus.md')}",
         f"- {markdown_link(f'{paths.year}_anlage_so.md', f'{paths.year}_anlage_so.md')}",
+        f"- {markdown_link(f'{paths.year}_anlage_s.md', f'{paths.year}_anlage_s.md')}",
         "",
         "## Source Files",
         "- `final-legal-output.json`",
@@ -1501,6 +1502,49 @@ def _write_anlage_so(paths: YearPaths, results: dict, provenance: Mapping[str, A
     )
 
 
+def _write_anlage_s(paths: YearPaths, results: dict, provenance: Mapping[str, Any] | None) -> None:
+    # FREELANCER-DE-EUER-SLICE-SPEC.md Phase 1 sub-slice 3: Anlage S
+    # (Einkünfte aus selbständiger Arbeit, § 18 EStG). The § 4 Abs. 3 EStG
+    # EÜR net profit produced by stage DE25-EUER
+    # (``de.ordinary.business_profit_eur``) lands on the Anlage S
+    # Freiberufler-Gewinn line (Zeile per the anlage_s schema). A wage
+    # earner with no self-employment has a legitimate zero profit (§ 2 Abs. 1
+    # Nr. 3 EStG: the Einkunftsart simply does not arise) — the line still
+    # renders as 0.00, never blank, per the null/zero/missing contract.
+    # The value transits the I11 ``legal_value_entry`` boundary; the
+    # ``provenance_output_key`` override binds the form-line scalar to
+    # DE25-EUER's StageResult fingerprint in ``_provenance.form_lines.DE``.
+    # https://www.gesetze-im-internet.de/estg/__18.html
+    # https://www.gesetze-im-internet.de/estg/__4.html
+    schema = load_form_schema("anlage_s")
+    write_form(
+        paths.germany_forms_root / f"{paths.year}_anlage_s.md",
+        f"{paths.year} {schema.display_name}",
+        [
+            "§ 18 EStG selbständige Arbeit; Gewinn nach § 4 Abs. 3 EStG (EÜR).",
+            "A wage earner with no freelance activity reports 0.00 here.",
+        ],
+        [
+            legal_value_entry(
+                schema.label("zeile_4_gewinn"),
+                legal_value_from_dict(
+                    results["ordinary"], "business_profit_eur",
+                    country=GERMANY_COUNTRY,
+                    section="results.ordinary",
+                    provenance=provenance,
+                    provenance_output_key="de.ordinary.business_profit_eur",
+                ),
+                currency=Currency.EUR,
+                source="germany-model-results.json",
+                notes="§ 18 EStG Gewinn aus freiberuflicher Tätigkeit (§ 4 Abs. 3 EStG EÜR: Betriebseinnahmen − Betriebsausgaben) from stage DE25-EUER.",
+            ),
+        ],
+        [
+            "A § 4 Abs. 3 Verlust (negative Gewinn) is reported with its sign and reduces the Summe der Einkünfte (§ 2 Abs. 3 EStG); it is not floored at zero.",
+        ],
+    )
+
+
 def render_germany_forms(paths: YearPaths) -> None:
     _ensure_supported_year(paths)
     clear_markdown_outputs(paths.germany_forms_root)
@@ -1554,3 +1598,8 @@ def render_germany_forms(paths: YearPaths) -> None:
     # https://www.gesetze-im-internet.de/estg/__34c.html
     _write_anlage_aus(paths, results, provenance)
     _write_anlage_so(paths, results, provenance)
+    # FREELANCER-DE-EUER-SLICE-SPEC.md Phase 1 sub-slice 3: Anlage S 2025 —
+    # § 18 EStG selbständige Arbeit, § 4 Abs. 3 EStG EÜR net profit (DE25-EUER
+    # → de.ordinary.business_profit_eur on the Anlage S Freiberufler-Gewinn line).
+    # https://www.gesetze-im-internet.de/estg/__18.html
+    _write_anlage_s(paths, results, provenance)

@@ -1,0 +1,35 @@
+# Anlage S 2025 — Einkünfte aus selbständiger Arbeit (§ 18 EStG)
+# Authority: § 18 EStG (Einkünfte aus selbständiger Arbeit / Freiberufler);
+#   § 4 Abs. 3 EStG (EÜR: Gewinn = Betriebseinnahmen − Betriebsausgaben).
+# https://www.gesetze-im-internet.de/estg/__18.html
+# https://www.gesetze-im-internet.de/estg/__4.html
+#
+# FREELANCER-DE-EUER-SLICE-SPEC.md Phase 1 sub-slice 3 (form rendering).
+# The § 18 EStG Freiberufler net profit (the § 4 Abs. 3 EÜR Gewinn produced
+# by stage DE25-EUER as ``de.ordinary.business_profit_eur``) lands on
+# Anlage S Zeile 4 ("Gewinn ... aus freiberuflicher Tätigkeit"); a second
+# freelance activity would use Zeile 5.
+#
+# ELSTER-NEEDS-VERIFICATION 2026-06-12 — The Zeile-4 mapping is corroborated
+# by multiple tax-help sources (steuern.de, accountable.de, sevdesk) and by
+# the field layout of two non-official Anlage S form mirrors that were
+# reachable on 2026-06-12 (amtsvordrucke.de form; smartsteuer 2021 Anlage S
+# PDF), both of which place the "Gewinn aus freiberuflicher Tätigkeit" line
+# at Zeile 4 (Zeile 5 = a second activity). The OFFICIAL 2025 ELSTER/BMF
+# Anlage S PDF could NOT be reached: the ELSTER form pages /anls, /anls2024,
+# /anls2025 return 404 (the all-forms index is a JS app exposing no direct
+# PDF link), the BMF Anlage-S-2025 download path 404s (though Anlage EÜR
+# 2025 is served from the same server), and the BMF Formularserver printout
+# endpoint 404s. New-2 convention (tests/y_agnostic/test_label_inventory_verified.py):
+# carry the NEEDS-VERIFICATION marker until the official 2025 Anlage S is
+# confirmed (the § 9 final-review gate in the slice spec).
+
+form_id = "anlage_s"
+form_year = 2025
+display_name = "Anlage S"
+canonical_form_name = "Anlage S"
+authority_url = "https://www.gesetze-im-internet.de/estg/__18.html"
+
+[[lines]]
+line_id = "zeile_4_gewinn"
+label = "Anlage S Zeile 4"

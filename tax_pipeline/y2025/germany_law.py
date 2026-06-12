@@ -854,6 +854,15 @@ class JointOrdinaryAssessment2025:
     spendenabzug_deductible_eur: Decimal
     unterhaltsleistungen_deductible_eur: Decimal
     sonderausgaben_pauschbetrag_applied_eur: Decimal
+    # FREELANCER-DE-EUER-SLICE-SPEC.md Phase 1 sub-slice 3: the § 18 EStG
+    # selbständige Arbeit net profit (§ 4 Abs. 3 EStG EÜR Gewinn) produced
+    # by stage DE25-EUER (``de.ordinary.business_profit_eur``). Surfaced on
+    # the typed view so the germany_model projection can land it on the
+    # Anlage S Freiberufler-Gewinn line (Zeile per the anlage_s schema)
+    # carrying the executor's StageResult fingerprint via I11 (zero for a
+    # wage earner — a legitimate "no business" value, not a default).
+    # https://www.gesetze-im-internet.de/estg/__18.html
+    business_profit_eur: Decimal
     joint_taxable_income_eur: Decimal
     joint_income_tax_eur: Decimal
     joint_solidarity_surcharge_eur: Decimal

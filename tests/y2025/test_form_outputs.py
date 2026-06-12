@@ -80,6 +80,13 @@ def _render_germany_forms_from_final(paths: YearPaths) -> None:
         ordinary.setdefault("sonderausgaben_spenden_eur", "0.00")
         ordinary.setdefault("sonderausgaben_unterhalt_eur", "0.00")
         ordinary.setdefault("sonderausgaben_pauschbetrag_eur", "0.00")
+        # FREELANCER-DE-EUER-SLICE-SPEC.md sub-slice 3: § 18 EStG selbständige
+        # Arbeit net profit (§ 4 Abs. 3 EStG EÜR Gewinn) produced by DE25-EUER
+        # (de.ordinary.business_profit_eur). Synthetic form fixtures are wage
+        # earners with no self-employment → a legitimate explicit zero so the
+        # Anlage S Freiberufler-Gewinn line is auditable on the no-business
+        # posture. https://www.gesetze-im-internet.de/estg/__18.html
+        ordinary.setdefault("business_profit_eur", "0.00")
         # C5 (FORM-MAPPING-FOLLOWUP, 2026-05-03): Anlage Kind extension —
         # § 32 Abs. 6 EStG Kinderfreibetrag/BEA household total +
         # § 31 EStG Günstigerprüfung counterfactual saving + Kindergeld
@@ -705,6 +712,7 @@ class TestGermanyForms(unittest.TestCase):
                 paths.germany_forms_root / "2025_anlage_kap_person_1.md",
                 paths.germany_forms_root / "2025_anlage_kap_inv.md",
                 paths.germany_forms_root / "2025_anlage_so.md",
+                paths.germany_forms_root / "2025_anlage_s.md",
             ]
             for path in expected_files:
                 self.assertTrue(path.exists(), path)
@@ -724,6 +732,7 @@ class TestGermanyForms(unittest.TestCase):
             kap_inv_text = (paths.germany_forms_root / "2025_anlage_kap_inv.md").read_text()
             n_person_1_text = (paths.germany_forms_root / "2025_anlage_n_person_1.md").read_text()
             so_text = (paths.germany_forms_root / "2025_anlage_so.md").read_text()
+            anlage_s_text = (paths.germany_forms_root / "2025_anlage_s.md").read_text()
 
             self.assertIn(
                 f"Final modeled result: **{germany_result_phrase}**.",
@@ -775,6 +784,63 @@ class TestGermanyForms(unittest.TestCase):
             self.assertIn("| Anlage SO Zeilen 14-21 | 0.00 EUR |", so_text)
             self.assertIn("| Anlage SO Zeilen 41-47 | 0.00 EUR | germany-model-results.json | Current documented private-sale result (Coinbase crypto bucket) from the saved model; § 23 EStG private Veräußerungsgeschäfte at virtuelle Währungen / sonstige Token. |", so_text)
             self.assertIn("| Anlage SO Zeile 62 |  | germany-elster-entry-sheet.md | Prior-year carryforward handling remains in the audit entry sheet. |", so_text)
+            # FREELANCER-DE-EUER-SLICE-SPEC.md sub-slice 3: the demo is a wage
+            # earner with no § 18 EStG selbständige Arbeit → the § 4 Abs. 3
+            # EÜR Gewinn (DE25-EUER → de.ordinary.business_profit_eur) is a
+            # legitimate 0.00, rendered (not blank) on the Anlage S
+            # Freiberufler-Gewinn line. https://www.gesetze-im-internet.de/estg/__18.html
+            self.assertIn("| Anlage S Zeile 4 | 0.00 EUR | germany-model-results.json | § 18 EStG Gewinn aus freiberuflicher Tätigkeit (§ 4 Abs. 3 EStG EÜR: Betriebseinnahmen − Betriebsausgaben) from stage DE25-EUER. |", anlage_s_text)
+
+    def test_anlage_s_renders_section_18_profit_for_self_employed(self) -> None:
+        # FREELANCER-DE-EUER-SLICE-SPEC.md sub-slice 3 + § 9 numeric gate.
+        # § 18 EStG selbständige Arbeit, § 4 Abs. 3 EStG EÜR:
+        #   Gewinn = Betriebseinnahmen − Betriebsausgaben
+        #          = 80,000.00 − 18,250.00 = 61,750.00.
+        # https://www.gesetze-im-internet.de/estg/__18.html
+        # https://www.gesetze-im-internet.de/estg/__4.html
+        from tax_pipeline.forms.germany import _write_anlage_s
+
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = YearPaths.for_year(Path(tmp), 2025)
+            paths.ensure_directories()
+            results = {"ordinary": {"business_profit_eur": "61750.00"}}
+            # Provenance carrying the DE25-EUER StageResult fingerprint for
+            # the form-line scalar — exercises the I11 stage-backed path
+            # (not the synthetic-fingerprint fallback).
+            provenance = {
+                "form_lines": {
+                    "DE": {
+                        "de.ordinary.business_profit_eur": {
+                            "stage_id": "DE25-EUER",
+                            "output_key": "de.ordinary.business_profit_eur",
+                            "fingerprint": "euer-fingerprint-deadbeef",
+                        }
+                    }
+                }
+            }
+            _write_anlage_s(paths, results, provenance)
+            text = (paths.germany_forms_root / "2025_anlage_s.md").read_text()
+            self.assertIn(
+                "| Anlage S Zeile 4 | 61750.00 EUR | germany-model-results.json | "
+                "§ 18 EStG Gewinn aus freiberuflicher Tätigkeit (§ 4 Abs. 3 EStG "
+                "EÜR: Betriebseinnahmen − Betriebsausgaben) from stage DE25-EUER. |",
+                text,
+            )
+
+    def test_anlage_s_renders_zero_for_wage_earner_not_blank(self) -> None:
+        # § 2 Abs. 1 Nr. 3 EStG: a wage earner has no selbständige Arbeit, so
+        # the § 18 / § 4 Abs. 3 Gewinn is a legitimate explicit zero and must
+        # render as 0.00 (not blank) per the null/zero/missing contract.
+        # https://www.gesetze-im-internet.de/estg/__18.html
+        from tax_pipeline.forms.germany import _write_anlage_s
+
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = YearPaths.for_year(Path(tmp), 2025)
+            paths.ensure_directories()
+            results = {"ordinary": {"business_profit_eur": "0.00"}}
+            _write_anlage_s(paths, results, None)
+            text = (paths.germany_forms_root / "2025_anlage_s.md").read_text()
+            self.assertIn("| Anlage S Zeile 4 | 0.00 EUR |", text)
 
     def test_render_germany_anlage_n_uses_projected_final_output_entries(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

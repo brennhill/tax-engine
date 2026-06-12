@@ -75,6 +75,12 @@ BMF_FORM_ANLAGE_VORSORGE_URL = "https://www.bundesfinanzministerium.de/Web/DE/Th
 BMF_FORM_ANLAGE_KAP_URL = "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Steuererklaerung-Steuerformulare/Wichtige-Informationen-rund-ums-Thema-Steuern/Abgeltungsteuer/Anlage-KAP/anlage-kap.html"
 BMF_FORM_ANLAGE_KAP_INV_URL = "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Steuererklaerung-Steuerformulare/Wichtige-Informationen-rund-ums-Thema-Steuern/Abgeltungsteuer/Anlage-KAP-INV/anlage-kap-inv.html"
 BMF_FORM_ANLAGE_SO_URL = "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Steuererklaerung-Steuerformulare/Wichtige-Informationen-rund-ums-Thema-Steuern/Lohnsteuer-und-Einkommensteuer/Anlage-SO/anlage-so.html"
+# Anlage S (Einkünfte aus selbständiger Arbeit, § 18 EStG). The official
+# 2025 ELSTER/BMF Anlage S PDF was not reachable on 2026-06-12 (see the
+# NEEDS-VERIFICATION marker on tax_pipeline/forms/schemas/anlage_s.toml), so
+# the FormLineRef url points at the controlling § 18 EStG provision on
+# gesetze-im-internet rather than a (404) form landing page.
+ESTG_18_FORM_ANLAGE_S_URL = "https://www.gesetze-im-internet.de/estg/__18.html"
 
 
 
@@ -285,12 +291,24 @@ def germany_ordinary_law_stages_2025() -> tuple[LawStage, ...]:
             narrative_templates={"de": "DE25-EUER", "en": "DE25-EUER"},
             outputs=(
                 # § 18 selbständige Arbeit profit lands on Anlage S via the
-                # Anlage-S FormEntry projection (Phase 1 slice 3), not via
-                # ``_required_form_line``. PER_POSTEN_AGGREGATION captures
-                # the receipts−expenses netting.
+                # Anlage-S FormEntry projection (Phase 1 slice 3) — the
+                # ``_write_anlage_s`` renderer reads it through the I11
+                # ``legal_value_entry`` boundary. PER_POSTEN_AGGREGATION
+                # captures the receipts−expenses netting. The FormLineRef
+                # binds the output to the Anlage S Freiberufler-Gewinn line
+                # (Zeile per the anlage_s schema; I3 bidirectional). The Zeile
+                # number carries a NEEDS-VERIFICATION marker on the form schema
+                # until the official 2025 ELSTER Anlage S is confirmed.
                 # https://www.gesetze-im-internet.de/estg/__18.html
                 OutputDeclaration(
                     key="de.ordinary.business_profit_eur",
+                    form_line_refs=(
+                        FormLineRef(
+                            form="Anlage S",
+                            line="4",
+                            url=ESTG_18_FORM_ANLAGE_S_URL,
+                        ),
+                    ),
                     audit_waypoints=frozenset({AuditWaypoint.PER_POSTEN_AGGREGATION}),
                 ),
             ),

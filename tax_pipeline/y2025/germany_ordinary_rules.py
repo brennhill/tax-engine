@@ -1130,6 +1130,14 @@ def germany_ordinary_assessment_from_final_facts(
         "de.ordinary.sonderausgaben_pauschbetrag_applied_eur"
     ]
     total_special = final_facts["de.ordinary.total_special_expenses"]
+    # FREELANCER-DE-EUER-SLICE-SPEC.md sub-slice 3: § 18 EStG selbständige
+    # Arbeit net profit (§ 4 Abs. 3 EStG EÜR Gewinn) produced by DE25-EUER.
+    # Surfaced on the typed view so it lands on the Anlage S
+    # Freiberufler-Gewinn line (Zeile per the anlage_s schema) via I11.
+    # https://www.gesetze-im-internet.de/estg/__18.html
+    business_profit_eur: Decimal = q2(
+        final_facts["de.ordinary.business_profit_eur"]["total_eur"]
+    )
     taxable_income = final_facts["de.ordinary.taxable_income"]
     income_tax = final_facts["de.ordinary.income_tax"]
     soli = final_facts["de.ordinary.solidarity_surcharge"]
@@ -1197,6 +1205,7 @@ def germany_ordinary_assessment_from_final_facts(
         spendenabzug_deductible_eur=q2(spendenabzug_deductible_eur),
         unterhaltsleistungen_deductible_eur=q2(unterhaltsleistungen_deductible_eur),
         sonderausgaben_pauschbetrag_applied_eur=q2(sonderausgaben_pauschbetrag_applied_eur),
+        business_profit_eur=business_profit_eur,
         total_special_expenses_eur=q2(total_special["total_eur"]),
         joint_taxable_income_eur=q2(taxable_income["joint_taxable_income_eur"]),
         joint_income_tax_eur=q2(income_tax["joint_income_tax_eur"]),
