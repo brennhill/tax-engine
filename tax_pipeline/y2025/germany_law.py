@@ -37,6 +37,7 @@ ESTG_10_URL = "https://www.gesetze-im-internet.de/estg/__10.html"
 # https://www.gesetze-im-internet.de/estg/__10b.html
 ESTG_10B_URL = "https://www.gesetze-im-internet.de/estg/__10b.html"
 ESTG_10C_URL = "https://www.gesetze-im-internet.de/estg/__10c.html"
+ESTG_18_URL = "https://www.gesetze-im-internet.de/estg/__18.html"
 ESTG_19_URL = "https://www.gesetze-im-internet.de/estg/__19.html"
 ESTG_20_URL = "https://www.gesetze-im-internet.de/estg/__20.html"
 ESTG_22_URL = "https://www.gesetze-im-internet.de/estg/__22.html"
@@ -418,6 +419,7 @@ NON_RULE_PUBLIC_HELPERS_2025 = {
 }
 
 REGISTERED_LAW_FUNCTIONS_2025 = {
+    "euer_net_profit_2025": ("DE25-EUER",),
     "german_income_tax_single_2025": ("DE25-08-INCOME-TAX-TARIFF",),
     "german_income_tax_split_2025": ("DE25-08-INCOME-TAX-TARIFF",),
     "german_soli_assessment_2025": ("DE25-09-ORDINARY-SOLI", "DE25-19-CAPITAL-SOLI"),
@@ -531,6 +533,103 @@ def _require_unit_interval(value: Decimal, *, label: str) -> Decimal:
     if value < D("0.00") or value > D("1.00"):
         raise ValueError(f"{label} must be between 0 and 1 inclusive.")
     return value
+
+
+# ---------------------------------------------------------------------------
+# § 4 Abs. 3 EStG — Einnahmenüberschussrechnung (EÜR); § 18 EStG income
+#
+# Phase 1 (freelancer support, FREELANCER-SUPPORT-SPEC.md /
+# FREELANCER-DE-EUER-SLICE-SPEC.md). The cash-basis profit of a
+# self-employed person not required to keep books is the excess of
+# operating receipts over operating expenses ("… können als Gewinn den
+# Überschuss der Betriebseinnahmen über die Betriebsausgaben ansetzen",
+# § 4 Abs. 3 Satz 1 EStG; verified 2026-06-10 against gesetze-im-internet).
+# For selbständige Arbeit (§ 18 EStG) this Gewinn is the Einkünfte
+# (§ 2 Abs. 2 Satz 1 Nr. 1 EStG) that join the Summe der Einkünfte. Pure
+# arithmetic — no statutory constant. The net may be negative (a Verlust
+# that offsets other income under § 2 Abs. 3 EStG); it is not floored.
+# https://www.gesetze-im-internet.de/estg/__4.html
+# https://www.gesetze-im-internet.de/estg/__18.html
+# ---------------------------------------------------------------------------
+ESTG_4_ABS3_URL = "https://www.gesetze-im-internet.de/estg/__4.html"
+
+EUER_LEGAL_BASIS = (
+    "§ 4 Abs. 3 EStG — Einnahmenüberschussrechnung: Gewinn = Überschuss der "
+    "Betriebseinnahmen über die Betriebsausgaben (Zufluss-Abfluss-Prinzip); "
+    "§ 18 EStG selbständige Arbeit"
+)
+
+
+@dataclass(frozen=True)
+class GermanyEuerInputs2025:
+    """§ 4 Abs. 3 EStG Einnahmenüberschussrechnung inputs (cash-basis).
+
+    ``operating_receipts_eur`` (Betriebseinnahmen) and
+    ``operating_expenses_eur`` (Betriebsausgaben) are the aggregated, already
+    cash-recognized totals for the trade/profession. Both are non-negative;
+    the netting may still yield a loss.
+    """
+
+    operating_receipts_eur: Decimal
+    operating_expenses_eur: Decimal
+
+
+@dataclass(frozen=True)
+class GermanyEuerResult2025:
+    """§ 4 Abs. 3 EStG net profit (Gewinn / Verlust) breakdown.
+
+    ``net_profit_eur`` may be negative (a § 4 Abs. 3 Verlust). ``legal_basis``
+    names the controlling authority for this result so a single EÜR result
+    cross-audits against the law in isolation.
+    """
+
+    operating_receipts_eur: Decimal
+    operating_expenses_eur: Decimal
+    net_profit_eur: Decimal
+    legal_basis: str = EUER_LEGAL_BASIS
+
+
+@dataclass(frozen=True)
+class BusinessIncomeInputs2025:
+    """Declared self-employment business-income inputs for one household.
+
+    ``self_employment_class`` is the cited § 18/§ 15 position:
+    ``"freiberuflich_18"`` (selbständige Arbeit, supported) or
+    ``"gewerbe_15"`` (Gewerbebetrieb — out of scope this slice; the loader
+    fails closed because Gewerbesteuer is not yet modeled).
+    """
+
+    operating_receipts_eur: Decimal
+    operating_expenses_eur: Decimal
+    self_employment_class: str = "freiberuflich_18"
+
+
+def euer_net_profit_2025(*, inputs: GermanyEuerInputs2025) -> GermanyEuerResult2025:
+    """Compute the § 4 Abs. 3 EStG EÜR net profit (cash-basis).
+
+    Pure function of its declared inputs. Receipts and expenses must each be
+    non-negative; the net (receipts − expenses) may be negative — a Verlust
+    that offsets other income under § 2 Abs. 3 EStG, so it is NOT floored at
+    zero. Registered to the DE25-EUER stage (REGISTERED_LAW_FUNCTIONS_2025).
+
+    Authority: § 4 Abs. 3 Satz 1 EStG (Überschuss der Betriebseinnahmen über
+    die Betriebsausgaben), § 18 EStG (selbständige Arbeit).
+    https://www.gesetze-im-internet.de/estg/__4.html
+    """
+    _require_non_negative_decimal(
+        inputs.operating_receipts_eur, label="operating_receipts_eur"
+    )
+    _require_non_negative_decimal(
+        inputs.operating_expenses_eur, label="operating_expenses_eur"
+    )
+    receipts = q2(inputs.operating_receipts_eur)
+    expenses = q2(inputs.operating_expenses_eur)
+    return GermanyEuerResult2025(
+        operating_receipts_eur=receipts,
+        operating_expenses_eur=expenses,
+        net_profit_eur=q2(receipts - expenses),
+        legal_basis=EUER_LEGAL_BASIS,
+    )
 
 
 # Map of CSV row keys (in years/<workspace>/normalized/reference-data/de-tax-constants.csv)
@@ -679,6 +778,12 @@ class JointOrdinaryInputs2025:
     arbeitszimmer_claimed: bool = False
     arbeitszimmer_qualifies_as_mittelpunkt: bool = False
     arbeitszimmer_actual_costs_eur: Decimal = D("0.00")
+    # § 18 / § 4 Abs. 3 EStG self-employment income. None = the household
+    # has no self-employment (wage earner); the DE25-EUER stage then sees
+    # zero receipts/expenses and emits a zero § 18 profit. Populated only
+    # when worker_type includes self-employment (loader fail-closes if the
+    # business-income facts are missing under an active posture).
+    business_income: BusinessIncomeInputs2025 | None = None
 
 
 @dataclass(frozen=True)

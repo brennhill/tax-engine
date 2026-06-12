@@ -16,11 +16,13 @@ from tax_pipeline.y2025.germany_law import (
     ESTG_3_URL,
     ESTG_4_5_6B_URL,
     ESTG_4_5_6C_URL,
+    ESTG_4_ABS3_URL,
     ESTG_9_URL,
     ESTG_9A_URL,
     ESTG_10_URL,
     ESTG_10B_URL,
     ESTG_10C_URL,
+    ESTG_18_URL,
     ESTG_20_URL,
     ESTG_22_URL,
     ESTG_24A_URL,
@@ -249,6 +251,46 @@ def germany_ordinary_law_stages_2025() -> tuple[LawStage, ...]:
                 # https://www.gesetze-im-internet.de/estg/__22.html
                 OutputDeclaration(
                     key="de.ordinary.other_income_22nr3_taxable",
+                    audit_waypoints=frozenset({AuditWaypoint.PER_POSTEN_AGGREGATION}),
+                ),
+            ),
+        ),
+        # § 18 EStG selbständige Arbeit, computed by § 4 Abs. 3 EStG EÜR.
+        # The Gewinn is an Einkunftsart (§ 2 Abs. 1 Nr. 3 / Abs. 2 Satz 1
+        # Nr. 1 EStG) that joins net_employment_income + other_income in
+        # DE25-07-TAXABLE-INCOME before the Gesamtbetrag-der-Einkünfte
+        # deductions. A wage earner has no business income → zero profit
+        # (the demo is unchanged in value). A Verlust is NOT floored
+        # (§ 2 Abs. 3 Verlustausgleich). Phase 1 (FREELANCER-DE-EUER-SLICE
+        # -SPEC.md); freiberuflich only — § 15 Gewerbe fails closed in the
+        # loader.
+        # https://www.gesetze-im-internet.de/estg/__18.html
+        # https://www.gesetze-im-internet.de/estg/__4.html
+        LawStage(
+            stage_id="DE25-EUER",
+            country_or_scope="DE-2025",
+            legal_refs=(
+                "§ 18 EStG",
+                "§ 4 Abs. 3 EStG",
+                "§ 2 Abs. 2 Satz 1 Nr. 1 EStG",
+            ),
+            authority_urls=(ESTG_18_URL, ESTG_4_ABS3_URL, ESTG_2_URL),
+            input_fact_keys=(
+                "de.ordinary.business_receipts_eur",
+                "de.ordinary.business_expenses_eur",
+            ),
+            rounding_policy="EÜR receipts/expenses rounded to cents (q2); the net profit is not floored.",
+            law_order_note="§ 4 Abs. 3 EÜR profit is an Einkunftsart under § 2 Abs. 1 Nr. 3; computed before the Gesamtbetrag-der-Einkünfte deductions so it joins net_employment_income + other_income_22nr3_taxable in DE25-07.",
+            legal_formula="de.ordinary.business_profit_eur = business_receipts_eur - business_expenses_eur per § 4 Abs. 3 Satz 1 EStG (Überschuss der Betriebseinnahmen über die Betriebsausgaben; may be negative)",
+            narrative_templates={"de": "DE25-EUER", "en": "DE25-EUER"},
+            outputs=(
+                # § 18 selbständige Arbeit profit lands on Anlage S via the
+                # Anlage-S FormEntry projection (Phase 1 slice 3), not via
+                # ``_required_form_line``. PER_POSTEN_AGGREGATION captures
+                # the receipts−expenses netting.
+                # https://www.gesetze-im-internet.de/estg/__18.html
+                OutputDeclaration(
+                    key="de.ordinary.business_profit_eur",
                     audit_waypoints=frozenset({AuditWaypoint.PER_POSTEN_AGGREGATION}),
                 ),
             ),
@@ -760,11 +802,12 @@ def germany_ordinary_law_stages_2025() -> tuple[LawStage, ...]:
         LawStage(
             stage_id="DE25-07-TAXABLE-INCOME",
             country_or_scope="DE-2025",
-            legal_refs=("§ 2 Abs. 3 EStG", "§ 2 Abs. 4 EStG", "§ 2 Abs. 5 EStG", "§ 26b EStG", "§ 24a EStG", "§ 33 EStG", "§ 33a EStG", "§ 33b EStG", "§ 10b EStG", "§ 4 Abs. 5 EStG"),
-            authority_urls=(ESTG_2_URL, ESTG_26B_URL, ESTG_24A_URL, ESTG_33_URL, ESTG_33A_URL, ESTG_33B_URL, ESTG_10B_URL, ESTG_4_5_6B_URL),
+            legal_refs=("§ 2 Abs. 3 EStG", "§ 2 Abs. 4 EStG", "§ 2 Abs. 5 EStG", "§ 18 EStG", "§ 26b EStG", "§ 24a EStG", "§ 33 EStG", "§ 33a EStG", "§ 33b EStG", "§ 10b EStG", "§ 4 Abs. 5 EStG"),
+            authority_urls=(ESTG_2_URL, ESTG_18_URL, ESTG_26B_URL, ESTG_24A_URL, ESTG_33_URL, ESTG_33A_URL, ESTG_33B_URL, ESTG_10B_URL, ESTG_4_5_6B_URL),
             input_fact_keys=(
                 "de.ordinary.net_employment_income",
                 "de.ordinary.other_income_22nr3_taxable",
+                "de.ordinary.business_profit_eur",
                 "de.ordinary.altersentlastungsbetrag",
                 "de.ordinary.arbeitszimmer",
                 "de.ordinary.total_special_expenses",
@@ -776,8 +819,8 @@ def germany_ordinary_law_stages_2025() -> tuple[LawStage, ...]:
                 "de.constants.sonderausgaben_pauschbetrag_single",
             ),
             rounding_policy="Taxable income remains cent-level; tariff functions apply statutory euro rounding.",
-            law_order_note="The income sum and special expenses (incl. § 4 Abs. 5 Satz 1 Nr. 6b Arbeitszimmer, § 24a, § 10b, § 33, § 33a, § 33b) must be resolved before the tariff base.",
-            legal_formula="de.ordinary.taxable_income = household-level sum(net_employment_income) + other_income_22nr3_taxable - § 24a altersentlastungsbetrag - § 4 Abs. 5 Satz 1 Nr. 6b arbeitszimmer - total_special_expenses - § 10b spendenabzug - § 33 aussergewoehnliche_belastungen_deductible - § 33a unterhaltsleistungen_deductible - § 33b behinderung_pauschbetrag if married_joint (per § 26b aggregation); otherwise sum per-person taxable bases (per § 2 Abs. 5 single assessment, with each person's GdB allowance subtracted from their own base)",
+            law_order_note="The income sum (incl. § 18 selbständige Arbeit profit) and special expenses (incl. § 4 Abs. 5 Satz 1 Nr. 6b Arbeitszimmer, § 24a, § 10b, § 33, § 33a, § 33b) must be resolved before the tariff base.",
+            legal_formula="de.ordinary.taxable_income = household-level sum(net_employment_income) + other_income_22nr3_taxable + § 18 business_profit_eur - § 24a altersentlastungsbetrag - § 4 Abs. 5 Satz 1 Nr. 6b arbeitszimmer - total_special_expenses - § 10b spendenabzug - § 33 aussergewoehnliche_belastungen_deductible - § 33a unterhaltsleistungen_deductible - § 33b behinderung_pauschbetrag if married_joint (per § 26b aggregation); otherwise sum per-person taxable bases (per § 2 Abs. 5 single assessment, with each person's GdB allowance subtracted from their own base)",
             narrative_templates={
                 "de": "DE25-07-TAXABLE-INCOME",
                 "en": "DE25-07-TAXABLE-INCOME",

@@ -49,6 +49,7 @@ class Germany2025StagesTest(unittest.TestCase):
                 "DE25-02-WERBUNGSKOSTEN",
                 "DE25-03-NET-EMPLOYMENT",
                 "DE25-04-OTHER-22NR3",
+                "DE25-EUER",
                 "DE25-ALTERSENTLASTUNGSBETRAG",
                 "DE25-ARBEITSZIMMER",
                 "DE25-05-RETIREMENT-SA",
@@ -73,18 +74,22 @@ class Germany2025StagesTest(unittest.TestCase):
         self.assertIn("§ 26b EStG", gate_refs)
         # Tariff stage cites both § 32a Abs. 1 and § 32a Abs. 5 because the
         # branch is selected at run time by the input filing_posture.
-        tariff_refs = " ".join(stages[15].legal_refs)
+        # Selected by stage_id (not position) so inserting an upstream
+        # income stage like DE25-EUER cannot silently re-target the assert.
+        by_id = {stage.stage_id: stage for stage in stages}
+        tariff_refs = " ".join(by_id["DE25-08-INCOME-TAX-TARIFF"].legal_refs)
         self.assertIn("§ 32a Abs. 1 EStG", tariff_refs)
         self.assertIn("§ 32a Abs. 5 EStG", tariff_refs)
         self.assertIn("§ 26b EStG", tariff_refs)
         # Sonderausgaben stage continues to cite § 10c.
-        self.assertIn("§ 10c EStG", stages[9].legal_refs)
+        sonderausgaben = by_id["DE25-06B-SONDERAUSGABEN-PAUSCHBETRAG"]
+        self.assertIn("§ 10c EStG", sonderausgaben.legal_refs)
         # C4 (FORM-MAPPING-FOLLOWUP, 2026-05-03): DE25-06B exposes a
         # second declared scalar output for the § 10c Pauschbetrag amount
         # so the Anlage Sonderausgaben renderer reads a fingerprinted
         # Decimal directly via I11.
         self.assertEqual(
-            stages[9].output_keys,
+            sonderausgaben.output_keys,
             (
                 "de.ordinary.total_special_expenses",
                 "de.ordinary.sonderausgaben_pauschbetrag_applied_eur",

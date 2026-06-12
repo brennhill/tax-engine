@@ -155,6 +155,11 @@ hash = "sha256:c29450c7fd8f9718e73a0c35f51dfab5207725d4849712a897b3273ab9aeb4c3"
 audited_by = "brenn@dontbugme.com"
 audited_on = "2026-05-09"
 
+["law/germany/year_2025/estg/p4_abs3.py"]
+hash = "sha256:b2195e6d278e6c1e2748611221c15ed18298e2084c7c036179ca5c279431141f"
+audited_by = "brenn@Mac.fritz.box"
+audited_on = "2026-06-12"
+
 ["law/germany/year_2025/estg/p51a.py"]
 hash = "sha256:7ad893eba9309c222ee51744965b1ee36668d76d21bb089b20bcd99fb29a953a"
 audited_by = "brenn@dontbugme.com"

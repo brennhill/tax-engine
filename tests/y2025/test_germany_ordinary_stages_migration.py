@@ -31,6 +31,7 @@ EXPECTED_ORDINARY_STAGE_IDS = (
     "DE25-02-WERBUNGSKOSTEN",
     "DE25-03-NET-EMPLOYMENT",
     "DE25-04-OTHER-22NR3",
+    "DE25-EUER",
     "DE25-ALTERSENTLASTUNGSBETRAG",
     "DE25-ARBEITSZIMMER",
     "DE25-05-RETIREMENT-SA",
@@ -103,6 +104,7 @@ class GermanyOrdinaryStagesMigratedToOutputsShape(unittest.TestCase):
             "DE25-02-WERBUNGSKOSTEN": ("de.ordinary.work_expenses",),
             "DE25-03-NET-EMPLOYMENT": ("de.ordinary.net_employment_income",),
             "DE25-04-OTHER-22NR3": ("de.ordinary.other_income_22nr3_taxable",),
+            "DE25-EUER": ("de.ordinary.business_profit_eur",),
             "DE25-ALTERSENTLASTUNGSBETRAG": ("de.ordinary.altersentlastungsbetrag",),
             "DE25-ARBEITSZIMMER": ("de.ordinary.arbeitszimmer",),
             "DE25-05-RETIREMENT-SA": (

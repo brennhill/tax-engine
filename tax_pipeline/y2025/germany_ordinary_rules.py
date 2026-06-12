@@ -58,6 +58,8 @@ from tax_pipeline.y2025.germany_law import (
     behinderung_pauschbetrag_2025,
     ceil_euro,
     deductible_basic_health_contribution_2025,
+    euer_net_profit_2025,
+    GermanyEuerInputs2025,
     german_income_tax_single_2025,
     german_income_tax_split_2025,
     german_soli_assessment_2025,
@@ -684,13 +686,40 @@ def _validate_disability_pauschbetrag_split_2025(
     return tuple(shares)
 
 
+def de25_euer(facts: Mapping[str, Any]) -> Mapping[str, Any]:
+    # § 18 EStG selbständige Arbeit, computed by § 4 Abs. 3 EStG
+    # Einnahmenüberschussrechnung: Gewinn = Betriebseinnahmen −
+    # Betriebsausgaben (cash-basis; may be negative, NOT floored — a
+    # Verlust offsets other income under § 2 Abs. 3 EStG). A wage earner
+    # has zero receipts/expenses → zero profit, so the demo is unchanged.
+    # https://www.gesetze-im-internet.de/estg/__4.html
+    # https://www.gesetze-im-internet.de/estg/__18.html
+    receipts = Decimal(str(facts["de.ordinary.business_receipts_eur"]))
+    expenses = Decimal(str(facts["de.ordinary.business_expenses_eur"]))
+    result = euer_net_profit_2025(
+        inputs=GermanyEuerInputs2025(
+            operating_receipts_eur=receipts,
+            operating_expenses_eur=expenses,
+        )
+    )
+    return {
+        "de.ordinary.business_profit_eur": {
+            "total_eur": result.net_profit_eur,
+        }
+    }
+
+
 def de25_07_taxable_income(facts: Mapping[str, Any]) -> Mapping[str, Any]:
     # § 2 Abs. 4 / Abs. 5 EStG taxable-income assembly. § 24a EStG
     # Altersentlastungsbetrag and § 33 EStG außergewöhnliche Belastungen
     # reduce the Gesamtbetrag der Einkünfte / Einkommen on the way to zvE.
+    # § 18 EStG selbständige Arbeit profit (DE25-EUER) joins the income
+    # sum as an Einkunftsart (§ 2 Abs. 1 Nr. 3 EStG); a Verlust reduces it
+    # (§ 2 Abs. 3 Verlustausgleich), attributed to the taxpayer (person 1).
     posture: str = facts["de.ordinary.filing_posture"]
     net_employment = facts["de.ordinary.net_employment_income"]
     other_income = facts["de.ordinary.other_income_22nr3_taxable"]
+    business_profit_total = q2(facts["de.ordinary.business_profit_eur"]["total_eur"])
     altersentlastungsbetrag = facts["de.ordinary.altersentlastungsbetrag"]
     arbeitszimmer = facts["de.ordinary.arbeitszimmer"]
     spendenabzug = facts["de.ordinary.spendenabzug"]
@@ -707,6 +736,7 @@ def de25_07_taxable_income(facts: Mapping[str, Any]) -> Mapping[str, Any]:
         joint_taxable_income = q2(
             net_employment["total_eur"]
             + other_income["total_eur"]
+            + business_profit_total  # § 18 selbständige Arbeit (§ 2 Abs. 3)
             - altersentlastungsbetrag["total_eur"]
             - arbeitszimmer_eur
             - total_special["total_eur"]
@@ -736,18 +766,25 @@ def de25_07_taxable_income(facts: Mapping[str, Any]) -> Mapping[str, Any]:
                 + unterhalt_eur
                 + arbeitszimmer_eur
             )
-        for net_p, other_p, age_relief_p, no_pausch_p, joint_extra, behind_p in zip(
+        # § 18 selbständige Arbeit profit is attributed to the taxpayer
+        # (person 0) for this slice; per-owner attribution for a
+        # spouse-freelancer in married_separate is a declared follow-on.
+        business_extras = [ZERO_EUR] * n_people
+        if n_people:
+            business_extras[0] = business_profit_total
+        for net_p, other_p, age_relief_p, no_pausch_p, joint_extra, business_p, behind_p in zip(
             net_employment["by_person"],
             other_income["by_person"],
             altersentlastungsbetrag["by_person"],
             total_special["by_person_no_pauschbetrag"],
             joint_extras,
+            business_extras,
             behinderung["by_person"],
             strict=True,
         ):
             person_special_expenses = q2(no_pausch_p + pauschbetrag_single)
             person_taxable = q2(
-                net_p + other_p - age_relief_p - person_special_expenses - joint_extra - behind_p
+                net_p + other_p + business_p - age_relief_p - person_special_expenses - joint_extra - behind_p
             )
             by_person_taxable.append(person_taxable)
         joint_taxable_income = q2(sum(by_person_taxable, ZERO_EUR))
@@ -907,6 +944,7 @@ _RULE_FUNCTIONS = {
     "DE25-02-WERBUNGSKOSTEN": de25_02_werbungskosten,
     "DE25-03-NET-EMPLOYMENT": de25_03_net_employment,
     "DE25-04-OTHER-22NR3": de25_04_other_22nr3,
+    "DE25-EUER": de25_euer,
     "DE25-ALTERSENTLASTUNGSBETRAG": de25_altersentlastungsbetrag,
     "DE25-ARBEITSZIMMER": de25_arbeitszimmer,
     "DE25-05-RETIREMENT-SA": de25_05_retirement_sa,
@@ -977,6 +1015,20 @@ def germany_ordinary_initial_facts_2025(
             "prepayments_by_person_eur": inputs.prepayments_by_person_eur,
         },
         "de.ordinary.people": inputs.people,
+        # § 18 / § 4 Abs. 3 EStG self-employment receipts/expenses. When the
+        # household has no business income (wage earner) both default to a
+        # legitimate explicit zero (CLAUDE.md null/zero/missing) → DE25-EUER
+        # emits a zero § 18 profit and the demo is unchanged in value.
+        "de.ordinary.business_receipts_eur": (
+            q2(inputs.business_income.operating_receipts_eur)
+            if inputs.business_income is not None
+            else ZERO_EUR
+        ),
+        "de.ordinary.business_expenses_eur": (
+            q2(inputs.business_income.operating_expenses_eur)
+            if inputs.business_income is not None
+            else ZERO_EUR
+        ),
         "de.ordinary.other_income_22nr3": inputs.other_income_22nr3_eur,
         "de.ordinary.other_income_22nr3_threshold": inputs.other_income_22nr3_threshold_eur,
         "de.ordinary.other_income_22nr3_by_person": inputs.other_income_22nr3_by_person_eur,
@@ -1168,6 +1220,7 @@ __all__ = [
     "de25_02_werbungskosten",
     "de25_03_net_employment",
     "de25_04_other_22nr3",
+    "de25_euer",
     "de25_altersentlastungsbetrag",
     "de25_arbeitszimmer",
     "de25_05_retirement_sa",

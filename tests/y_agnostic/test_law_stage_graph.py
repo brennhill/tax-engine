@@ -364,6 +364,11 @@ class LawStageGraphContractsTest(unittest.TestCase):
             "de.profile.joint_assessment_prerequisites",
             "de.profile.separate_assessment_allocations",
             "de.ordinary.people",
+            # § 18 / § 4 Abs. 3 EStG self-employment receipts/expenses —
+            # initial facts assembled by germany_ordinary_initial_facts_2025
+            # (zero for a wage earner), consumed by DE25-EUER.
+            "de.ordinary.business_receipts_eur",
+            "de.ordinary.business_expenses_eur",
             "de.ordinary.other_income_22nr3",
             "de.ordinary.other_income_22nr3_threshold",
             "de.ordinary.other_income_22nr3_by_person",
@@ -510,7 +515,12 @@ class LawStageGraphContractsTest(unittest.TestCase):
         # downstream tax stage.
         # https://www.law.cornell.edu/uscode/text/26/6038D
         # https://www.law.cornell.edu/cfr/text/31/1010.350
-        self.assertEqual(len(validation.stage_ids), 64)
+        # 65 = 64 + DE25-EUER (§ 18 / § 4 Abs. 3 EStG selbständige Arbeit
+        # EÜR profit) added by Phase 1 freelancer support
+        # (FREELANCER-DE-EUER-SLICE-SPEC.md). Feeds DE25-07 taxable income.
+        # https://www.gesetze-im-internet.de/estg/__18.html
+        # https://www.gesetze-im-internet.de/estg/__4.html
+        self.assertEqual(len(validation.stage_ids), 65)
 
     def test_union_law_stage_graph_fails_when_bridge_keys_are_omitted(self) -> None:
         # Counterpart: removing the bridge keys MUST surface as a missing-input
@@ -538,6 +548,11 @@ class LawStageGraphContractsTest(unittest.TestCase):
             "de.profile.joint_assessment_prerequisites",
             "de.profile.separate_assessment_allocations",
             "de.ordinary.people",
+            # § 18 / § 4 Abs. 3 EStG self-employment receipts/expenses —
+            # initial facts assembled by germany_ordinary_initial_facts_2025
+            # (zero for a wage earner), consumed by DE25-EUER.
+            "de.ordinary.business_receipts_eur",
+            "de.ordinary.business_expenses_eur",
             "de.ordinary.other_income_22nr3",
             "de.ordinary.other_income_22nr3_threshold",
             "de.ordinary.other_income_22nr3_by_person",
