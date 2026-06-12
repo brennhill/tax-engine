@@ -193,7 +193,9 @@ DE deduction positions).
 - Knock-on to `estg/p10.*` (Vorsorge): a self-employed person pays the
   **full** Kranken-/Pflegeversicherung (no employer split) — the § 10
   deductible-contribution math changes; the Arbeitnehmer-Pauschbetrag
-  (§ 9a) no longer applies to business income.
+  (§ 9a) no longer applies to business income. The self-employed § 10
+  Vorsorge input path is its own follow-on slice, fully specified in
+  [FREELANCER-DE-VORSORGE-SLICE-SPEC.md](FREELANCER-DE-VORSORGE-SLICE-SPEC.md).
 
 **Rules (graph stages in `tax_pipeline/y2025/germany_*_rules.py`).** New
 stages: EÜR aggregation → § 18/§ 15 classification → income integration
