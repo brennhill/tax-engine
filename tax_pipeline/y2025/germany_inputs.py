@@ -8,6 +8,7 @@ from pathlib import Path
 from tax_pipeline.analysis_inputs import structured_input_files
 from tax_pipeline.y2025.germany_law import (
     BusinessIncomeInputs2025,
+    BusinessVorsorgeInputs2025,
     Child2025,
     GermanyChildrenFacts2025,
     JointOrdinaryInputs2025,
@@ -155,6 +156,151 @@ def _load_business_income_position(paths: YearPaths, profile: dict) -> BusinessI
         operating_expenses_eur=expenses,
         self_employment_class=se_class,
     )
+
+
+# § 10 Abs. 1 Nr. 2 / Nr. 3 / Nr. 3a EStG self-employed Vorsorge source
+# (Phase 1 freelancer support). A pure freelancer pays Kranken-/Pflege-/
+# Rentenversicherung out of pocket — there is no Lohnsteuerbescheinigung,
+# so these contributions must be declared as facts. Per-person file keyed by
+# the people.csv slot, header ``slot,key,amount_eur,source,note`` with keys
+# retirement / basic_health / nursing_care / other_vorsorge.
+# https://www.gesetze-im-internet.de/estg/__10.html
+BUSINESS_VORSORGE_FILE_NAME = "business-vorsorge.csv"
+ESTG_10_URL = "https://www.gesetze-im-internet.de/estg/__10.html"
+_BUSINESS_VORSORGE_KEYS = (
+    "retirement",
+    "basic_health",
+    "nursing_care",
+    "other_vorsorge",
+)
+
+
+def _load_business_vorsorge_facts(
+    paths: YearPaths,
+) -> tuple[tuple[dict[str, object], ...], bool]:
+    """Return ``(rows, file_declared)`` for the self-employed Vorsorge file.
+
+    File-presence semantics (CLAUDE.md null/zero/missing): an absent file is
+    "not declared" (``file_declared=False``); a header-only or populated file
+    is "declared". The receiving loader uses ``file_declared`` to fail closed
+    when a self-employment posture is active but no Vorsorge facts exist —
+    never silently understating the § 10 deduction.
+
+    Mirrors ``_load_business_income_facts`` exactly. Rows are aggregated per
+    (slot, key) so multiple receipts for the same person/key sum. Fails closed
+    on an unknown key with the § 10 citation.
+    """
+    src = paths.config_root / BUSINESS_VORSORGE_FILE_NAME
+    if not src.exists():
+        return (), False
+    by_slot: dict[str, dict[str, Decimal]] = {}
+    for row in _read_row_csv(src):
+        slot = (row.get("slot") or "").strip()
+        key = (row.get("key") or "").strip()
+        amount = (row.get("amount_eur") or "").strip()
+        if not slot and not key:
+            continue
+        if not slot:
+            raise ValueError(
+                f"business-vorsorge row missing slot in {BUSINESS_VORSORGE_FILE_NAME}; "
+                "every § 10 Abs. 1 Nr. 2/3/3a contribution must name a person slot. "
+                f"Authority: {ESTG_10_URL}."
+            )
+        if key not in _BUSINESS_VORSORGE_KEYS:
+            raise ValueError(
+                f"Unknown business-vorsorge key {key!r} in {BUSINESS_VORSORGE_FILE_NAME}; "
+                "expected retirement / basic_health / nursing_care / other_vorsorge "
+                f"(§ 10 Abs. 1 Nr. 2/3/3a EStG). Authority: {ESTG_10_URL}."
+            )
+        value = D(amount) if amount else D("0.00")
+        if value < D("0.00"):
+            raise ValueError(
+                f"business-vorsorge {slot}.{key} must be non-negative under § 10 EStG."
+            )
+        slot_totals = by_slot.setdefault(slot, {k: D("0.00") for k in _BUSINESS_VORSORGE_KEYS})
+        slot_totals[key] += value
+    rows = tuple(
+        {"slot": slot, **{k: totals[k] for k in _BUSINESS_VORSORGE_KEYS}}
+        for slot, totals in by_slot.items()
+    )
+    return rows, True
+
+
+def _load_business_vorsorge_positions(
+    paths: YearPaths,
+    profile: dict,
+    person_slots: list[dict[str, str]],
+    people: list[PersonOrdinaryInputs2025],
+) -> tuple[BusinessVorsorgeInputs2025, ...]:
+    """Resolve the § 10 EStG self-employed Vorsorge position.
+
+    Returns ``()`` for a pure wage earner (``worker_type == "employee"``).
+    When ``worker_type ∈ {self_employed, both}`` the business-vorsorge file
+    is REQUIRED: if it is absent the loader fails closed with the § 10 Abs. 1
+    Nr. 2/3/3a citation — the engine refuses to compute a return that would
+    silently understate the freelancer's § 10 deduction (CLAUDE.md
+    fail-closed; the headline fix this slice exists for).
+
+    Mirrors ``_load_business_income_position``. Also validates the § 10 Abs. 4
+    cap consistency: a self-employed person who funds their own KV takes the
+    €2,800 cap (Satz 1), NOT the €1,900 Satz 2 reduced cap — declaring €1,900
+    for a freelancer fails closed.
+    """
+    elections = profile.get("elections", {}) if isinstance(profile, dict) else {}
+    worker_type = str(elections.get("worker_type", "employee")).strip() or "employee"
+    if worker_type == "employee":
+        return ()
+    if worker_type not in ("self_employed", "both"):
+        raise ValueError(
+            f"Unsupported worker_type {worker_type!r}; expected one of "
+            "'employee', 'self_employed', 'both'."
+        )
+    rows, declared = _load_business_vorsorge_facts(paths)
+    if not declared:
+        raise ValueError(
+            "worker_type declares self-employment but no business-vorsorge "
+            f"facts were found ({BUSINESS_VORSORGE_FILE_NAME}). A freelancer's "
+            "out-of-pocket Kranken-/Pflege-/Rentenversicherung (§ 10 Abs. 1 "
+            "Nr. 2/3/3a EStG) must be declared; the engine refuses to compute "
+            "a return that would silently understate the § 10 Vorsorge "
+            f"deduction. Authority: {ESTG_10_URL}."
+        )
+    valid_slots = {str(p.get("slot")) for p in person_slots}
+    cap_by_slot = {p.slot: p.other_vorsorge_cap_eur for p in people}
+    positions: list[BusinessVorsorgeInputs2025] = []
+    for row in rows:
+        slot = str(row["slot"])
+        if slot not in valid_slots:
+            raise ValueError(
+                f"business-vorsorge slot {slot!r} is not a declared person "
+                f"in people.csv. Authority: {ESTG_10_URL}."
+            )
+        # § 10 Abs. 4 EStG cap consistency: a self-employed person who funds
+        # their own KV takes the €2,800 cap. Declaring €1,900 (the Satz 2
+        # reduced cap for taxpayers covered without own expense) for a
+        # freelancer who pays their own KV/PV is inconsistent — fail closed.
+        cap = cap_by_slot.get(slot)
+        has_own_kv = (
+            row["basic_health"] > D("0.00") or row["nursing_care"] > D("0.00")
+        )
+        if has_own_kv and cap == OTHER_VORSORGE_CAP_EMPLOYEE_EUR:
+            raise ValueError(
+                f"people.csv {slot}.german_other_vorsorge_cap_eur=1900.00 is "
+                "inconsistent with a self-employed person who funds their own "
+                "Kranken-/Pflegeversicherung: § 10 Abs. 4 Satz 1 EStG grants "
+                "the €2,800 cap (the €1,900 Satz 2 cap is for taxpayers covered "
+                f"without their own expense). Authority: {ESTG_10_URL}."
+            )
+        positions.append(
+            BusinessVorsorgeInputs2025(
+                slot=slot,
+                retirement_contributions_eur=D(str(row["retirement"])),
+                basic_health_contributions_eur=D(str(row["basic_health"])),
+                nursing_care_contributions_eur=D(str(row["nursing_care"])),
+                other_vorsorge_contributions_eur=D(str(row["other_vorsorge"])),
+            )
+        )
+    return tuple(positions)
 
 
 # § 51a EStG attaches Kirchensteuer (church tax) at 8 % or 9 % of the assessed
@@ -861,6 +1007,13 @@ def load_joint_ordinary_inputs_2025(paths: YearPaths) -> JointOrdinaryInputs2025
             )
         )
 
+    # § 10 Abs. 1 Nr. 2/3/3a EStG self-employed Vorsorge position. ()
+    # for a wage earner; fail-closed if a self-employment posture is active
+    # but no business-vorsorge facts are declared (no silent § 10 zero).
+    business_vorsorge = _load_business_vorsorge_positions(
+        paths, profile, person_slots, people
+    )
+
     return JointOrdinaryInputs2025(
         people=tuple(people),
         other_income_22nr3_eur=staking_income_total,
@@ -875,4 +1028,5 @@ def load_joint_ordinary_inputs_2025(paths: YearPaths) -> JointOrdinaryInputs2025
         other_income_22nr3_by_person_eur=staking_allocations,
         prepayments_by_person_eur=prepayment_allocations,
         business_income=business_income,
+        business_vorsorge=business_vorsorge,
     )

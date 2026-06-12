@@ -604,6 +604,36 @@ class BusinessIncomeInputs2025:
     self_employment_class: str = "freiberuflich_18"
 
 
+@dataclass(frozen=True)
+class BusinessVorsorgeInputs2025:
+    """A self-employed person's own § 10 EStG Vorsorgeaufwendungen.
+
+    A pure freelancer (Freiberufler) funds their own
+    Kranken-/Pflege-/Rentenversicherung out of pocket — there is no
+    Lohnsteuerbescheinigung carrying an employee/employer split. These
+    contributions feed the SAME § 10 stages (DE25-05 retirement, DE25-06
+    health/other) and the SAME caps as wage-derived Vorsorge; the employer
+    share is simply €0 for a freelancer.
+
+    Authority:
+    - § 10 Abs. 1 Nr. 2 EStG (Altersvorsorge / Basisrente / RV /
+      berufsständisches Versorgungswerk; 100% deductible from 2023 up to
+      the § 10 Abs. 3 Höchstbetrag).
+    - § 10 Abs. 1 Nr. 3 EStG (base Kranken- + Pflegeversicherung, fully
+      deductible).
+    - § 10 Abs. 1 Nr. 3a EStG (sonstige Vorsorgeaufwendungen, within the
+      § 10 Abs. 4 cap — the self-employed who fund their own KV take the
+      €2,800 cap per Satz 1, not the €1,900 Satz 2 reduced cap).
+    https://www.gesetze-im-internet.de/estg/__10.html
+    """
+
+    slot: str
+    retirement_contributions_eur: Decimal       # § 10 Abs. 1 Nr. 2
+    basic_health_contributions_eur: Decimal      # § 10 Abs. 1 Nr. 3 (KV base)
+    nursing_care_contributions_eur: Decimal      # § 10 Abs. 1 Nr. 3 (PV)
+    other_vorsorge_contributions_eur: Decimal    # § 10 Abs. 1 Nr. 3a
+
+
 def euer_net_profit_2025(*, inputs: GermanyEuerInputs2025) -> GermanyEuerResult2025:
     """Compute the § 4 Abs. 3 EStG EÜR net profit (cash-basis).
 
@@ -784,6 +814,17 @@ class JointOrdinaryInputs2025:
     # when worker_type includes self-employment (loader fail-closes if the
     # business-income facts are missing under an active posture).
     business_income: BusinessIncomeInputs2025 | None = None
+    # § 10 Abs. 1 Nr. 2 / Nr. 3 / Nr. 3a EStG self-employed Vorsorge. An
+    # empty tuple means "this household declared no self-employed
+    # contributions" (a legitimate explicit zero, e.g. a pure wage earner) —
+    # NOT "missing". The loader converts "missing under an active
+    # self-employment posture" into a fail-closed error BEFORE this
+    # container is built, so () reaching a rule always means a legitimate
+    # "no self-employed Vorsorge" (CLAUDE.md null/zero/missing; mirrors the
+    # EÜR business_income=None contract). Per-person (keyed by slot) so
+    # ``both`` and mixed-spouse joint households work.
+    # https://www.gesetze-im-internet.de/estg/__10.html
+    business_vorsorge: tuple[BusinessVorsorgeInputs2025, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -1563,17 +1604,35 @@ def retirement_special_expense_deduction_2025(
 
 def joint_retirement_special_expense_deductions_2025(
     people: tuple[PersonOrdinaryInputs2025, ...],
+    *,
+    se_retirement_contributions: tuple[Decimal, ...] | None = None,
 ) -> tuple[Decimal, ...]:
     # § 10 Abs. 3 Sätze 1, 2, 5 und 6 EStG doubles the cap for jointly assessed
     # spouses, applies that cap to the combined retirement base, then subtracts
     # all tax-free § 3 Nr. 62 employer shares. Per-spouse allocation is audit output only.
+    #
+    # § 10 Abs. 1 Nr. 2 EStG: a self-employed spouse's own Altersvorsorge
+    # (Basisrente / RV / Versorgungswerk) is part of the SAME combined base the
+    # § 10 Abs. 3 joint cap is applied to — there is no employer share for a
+    # freelancer, so it adds to the employee (own-contribution) side and is
+    # NOT subtracted again. ``se_retirement_contributions`` is per-person
+    # aligned with ``people`` (None = legitimately none, treated as zeros);
+    # passing it keeps the cap applied exactly once over the combined base.
     joint_cap = RETIREMENT_SPECIAL_EXPENSE_CAP_SINGLE_EUR * D("2")
+    se_shares = (
+        tuple(D("0.00") for _ in people)
+        if se_retirement_contributions is None
+        else se_retirement_contributions
+    )
+    if len(se_shares) != len(people):
+        raise ValueError("se_retirement_contributions must match the people count.")
     employee_shares = tuple(
         _require_non_negative_decimal(
             person.wage.employee_pension_contribution_eur,
             label="employee_pension_contribution_eur",
         )
-        for person in people
+        + _require_non_negative_decimal(se, label="se_retirement_contributions_eur")
+        for person, se in zip(people, se_shares, strict=True)
     )
     employer_shares = tuple(
         _require_non_negative_decimal(

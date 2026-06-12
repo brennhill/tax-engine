@@ -293,17 +293,33 @@ def de25_05_retirement_sa(facts: Mapping[str, Any]) -> Mapping[str, Any]:
     # § 10 Abs. 1 Nr. 2, § 10 Abs. 3, § 3 Nr. 62 EStG: retirement
     # Vorsorgeaufwendungen with employer-share subtraction; married_joint
     # applies the spousal cap aggregator.
+    #
+    # § 10 Abs. 1 Nr. 2 EStG: a self-employed person funds their own
+    # Altersvorsorge (Basisrente / RV / Versorgungswerk) out of pocket — there
+    # is no Lohnsteuerbescheinigung and no employer share. The per-person SE
+    # retirement contribution is added to the EMPLOYEE (own-contribution)
+    # argument; the employer argument stays the wage value (€0 for a pure
+    # freelancer). It therefore flows through the SAME § 10 Abs. 3 cap as
+    # wage-derived contributions — one capped base, no parallel deduction.
+    # https://www.gesetze-im-internet.de/estg/__10.html
     posture: str = facts["de.ordinary.filing_posture"]
     people = facts["de.ordinary.people"]
-    per_person_retirement = tuple(
-        retirement_special_expense_deduction_2025(
-            person.wage.employee_pension_contribution_eur,
-            person.wage.employer_pension_contribution_eur,
-        )
+    se_vorsorge_by_slot = facts["de.ordinary.se_vorsorge_by_slot"]
+    se_retirement_by_person = tuple(
+        q2(se_vorsorge_by_slot.get(person.slot, {}).get("retirement", ZERO_EUR))
         for person in people
     )
+    per_person_retirement = tuple(
+        retirement_special_expense_deduction_2025(
+            person.wage.employee_pension_contribution_eur + se_retirement,
+            person.wage.employer_pension_contribution_eur,
+        )
+        for person, se_retirement in zip(people, se_retirement_by_person, strict=True)
+    )
     if posture == "married_joint":
-        per_person_retirement = joint_retirement_special_expense_deductions_2025(people)
+        per_person_retirement = joint_retirement_special_expense_deductions_2025(
+            people, se_retirement_contributions=se_retirement_by_person
+        )
     retirement_total = q2(sum(per_person_retirement, ZERO_EUR))
     # C3 (FORM-MAPPING-FOLLOWUP, 2026-05-03):
     # ``de.ordinary.retirement_special_expenses_total_eur`` is the
@@ -326,18 +342,44 @@ def de25_05_retirement_sa(facts: Mapping[str, Any]) -> Mapping[str, Any]:
 def de25_06_health_vorsorge_sa(facts: Mapping[str, Any]) -> Mapping[str, Any]:
     # § 10 Abs. 1 Nr. 3 + Nr. 3a + § 10 Abs. 4 EStG: deductible health/nursing
     # contributions plus other Vorsorge subject to posture cap.
+    #
+    # § 10 Abs. 1 Nr. 3 / Nr. 3a EStG: a self-employed person funds their own
+    # base Kranken-/Pflegeversicherung and sonstige Vorsorge out of pocket.
+    # SE basic_health adds to the health argument, SE nursing to the nursing
+    # argument (both flowing through deductible_basic_health_contribution_2025
+    # with the person's own sick-pay reduction rate — 0% for a freelancer with
+    # no Krankengeld-Anspruch, § 10 Abs. 1 Nr. 3 Satz 4 EStG), and SE other
+    # adds to the sonstige argument that the § 10 Abs. 4 cap (€2,800 for a
+    # freelancer) is applied to. One capped base, no parallel deduction.
+    # https://www.gesetze-im-internet.de/estg/__10.html
     posture: str = facts["de.ordinary.filing_posture"]
     people = facts["de.ordinary.people"]
-    per_person_health = tuple(
-        deductible_basic_health_contribution_2025(
-            person.wage.employee_health_insurance_eur,
-            person.wage.employee_nursing_care_insurance_eur,
-            statutory_health_sick_pay_reduction_rate=person.health_insurance_sick_pay_reduction_rate,
-        )
+    se_vorsorge_by_slot = facts["de.ordinary.se_vorsorge_by_slot"]
+    se_basic_health_by_person = tuple(
+        q2(se_vorsorge_by_slot.get(person.slot, {}).get("basic_health", ZERO_EUR))
         for person in people
     )
+    se_nursing_by_person = tuple(
+        q2(se_vorsorge_by_slot.get(person.slot, {}).get("nursing_care", ZERO_EUR))
+        for person in people
+    )
+    se_other_by_person = tuple(
+        q2(se_vorsorge_by_slot.get(person.slot, {}).get("other_vorsorge", ZERO_EUR))
+        for person in people
+    )
+    per_person_health = tuple(
+        deductible_basic_health_contribution_2025(
+            person.wage.employee_health_insurance_eur + se_health,
+            person.wage.employee_nursing_care_insurance_eur + se_nursing,
+            statutory_health_sick_pay_reduction_rate=person.health_insurance_sick_pay_reduction_rate,
+        )
+        for person, se_health, se_nursing in zip(
+            people, se_basic_health_by_person, se_nursing_by_person, strict=True
+        )
+    )
     per_person_other_contributions = tuple(
-        person.wage.employee_unemployment_insurance_eur for person in people
+        q2(person.wage.employee_unemployment_insurance_eur + se_other)
+        for person, se_other in zip(people, se_other_by_person, strict=True)
     )
     per_person_other_allowed = tuple(
         other_vorsorge_allowed_employee_2025(
@@ -1029,6 +1071,24 @@ def germany_ordinary_initial_facts_2025(
             if inputs.business_income is not None
             else ZERO_EUR
         ),
+        # § 10 Abs. 1 Nr. 2 / Nr. 3 / Nr. 3a EStG self-employed Vorsorge,
+        # keyed by person slot. A pure freelancer's out-of-pocket
+        # Kranken-/Pflege-/Rentenversicherung feeds the SAME § 10 stages
+        # (DE25-05 retirement, DE25-06 health/other) and the SAME caps as
+        # wage-derived Vorsorge; the employer pension share is €0. An empty
+        # mapping (no business_vorsorge declared) is a legitimate explicit
+        # "no self-employed contributions" → the wage-earner demo is
+        # value-unchanged (CLAUDE.md null/zero/missing).
+        # https://www.gesetze-im-internet.de/estg/__10.html
+        "de.ordinary.se_vorsorge_by_slot": {
+            bv.slot: {
+                "retirement": q2(bv.retirement_contributions_eur),
+                "basic_health": q2(bv.basic_health_contributions_eur),
+                "nursing_care": q2(bv.nursing_care_contributions_eur),
+                "other_vorsorge": q2(bv.other_vorsorge_contributions_eur),
+            }
+            for bv in inputs.business_vorsorge
+        },
         "de.ordinary.other_income_22nr3": inputs.other_income_22nr3_eur,
         "de.ordinary.other_income_22nr3_threshold": inputs.other_income_22nr3_threshold_eur,
         "de.ordinary.other_income_22nr3_by_person": inputs.other_income_22nr3_by_person_eur,

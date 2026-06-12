@@ -16,9 +16,9 @@ audited_by = "brenn@dontbugme.com"
 audited_on = "2026-05-09"
 
 ["law/germany/year_2025/estg/p10.py"]
-hash = "sha256:333f4c67b4d993a5c809e5e254c183593a7578d2a5e0622275983a2ba8f82723"
-audited_by = "brenn@dontbugme.com"
-audited_on = "2026-05-09"
+hash = "sha256:6ffdbae73b1c55cabe948d47493540518f9ec02a7a185c4380ab466071e01ab3"
+audited_by = "brennhill@gmail.com"
+audited_on = "2026-06-12"
 
 ["law/germany/year_2025/estg/p10.toml"]
 hash = "sha256:65220ac74d6ebc54795d85e86ca874a6dcbf9f27bdeef63ed4cb040e07024e2b"

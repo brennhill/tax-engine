@@ -369,6 +369,10 @@ class LawStageGraphContractsTest(unittest.TestCase):
             # (zero for a wage earner), consumed by DE25-EUER.
             "de.ordinary.business_receipts_eur",
             "de.ordinary.business_expenses_eur",
+            # § 10 Abs. 1 Nr. 2/3/3a EStG self-employed Vorsorge by slot —
+            # initial fact (empty mapping for a wage earner), consumed by
+            # DE25-05-RETIREMENT-SA / DE25-06-HEALTH-VORSORGE-SA.
+            "de.ordinary.se_vorsorge_by_slot",
             "de.ordinary.other_income_22nr3",
             "de.ordinary.other_income_22nr3_threshold",
             "de.ordinary.other_income_22nr3_by_person",
@@ -553,6 +557,10 @@ class LawStageGraphContractsTest(unittest.TestCase):
             # (zero for a wage earner), consumed by DE25-EUER.
             "de.ordinary.business_receipts_eur",
             "de.ordinary.business_expenses_eur",
+            # § 10 Abs. 1 Nr. 2/3/3a EStG self-employed Vorsorge by slot —
+            # initial fact (empty mapping for a wage earner), consumed by
+            # DE25-05-RETIREMENT-SA / DE25-06-HEALTH-VORSORGE-SA.
+            "de.ordinary.se_vorsorge_by_slot",
             "de.ordinary.other_income_22nr3",
             "de.ordinary.other_income_22nr3_threshold",
             "de.ordinary.other_income_22nr3_by_person",

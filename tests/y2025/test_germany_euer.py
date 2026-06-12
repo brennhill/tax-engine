@@ -156,6 +156,13 @@ class EuerLoaderFailClosedTest(unittest.TestCase):
                 "operating_expenses_eur,18250.00,test,\n",
                 encoding="utf-8",
             )
+            # § 10 EStG self-employed Vorsorge is now also required under an
+            # active self-employment posture (DE25-SE-VORSORGE slice).
+            (paths.config_root / "business-vorsorge.csv").write_text(
+                "slot,key,amount_eur,source,note\n"
+                "person_1,retirement,12000.00,test,\n",
+                encoding="utf-8",
+            )
             inputs = load_joint_ordinary_inputs_2025(paths)
             self.assertIsNotNone(inputs.business_income)
             self.assertEqual(inputs.business_income.operating_receipts_eur, D("80000.00"))

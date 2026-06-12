@@ -1,6 +1,7 @@
 ## {{ rule.title }}
 
 {% set out = rule.outputs[0].value | from_json -%}
+{% set se_vorsorge = rule.inputs_by_key["de.ordinary.se_vorsorge_by_slot"].value | from_json -%}
 {% if rule.language == "de" -%}
 [§ 10 Abs. 1 Nr. 2 EStG](https://www.gesetze-im-internet.de/estg/__10.html) erlaubt den Abzug von Beiträgen zur gesetzlichen Rentenversicherung (sowie zu vergleichbaren berufsständischen Versorgungswerken und zu Basisrenten) als Sonderausgaben. [§ 10 Abs. 3 EStG](https://www.gesetze-im-internet.de/estg/__10.html) begrenzt den Abzug; [§ 3 Nr. 62 EStG](https://www.gesetze-im-internet.de/estg/__3.html) stellt den Arbeitgeberanteil steuerfrei, sodass nur der Arbeitnehmeranteil tatsächlich nochmal abgezogen wird (kein Doppelabzug). Bei `married_joint` werden die Höchstbeträge gemeinsam ausgeschöpft ([§ 10 Abs. 3 Satz 5 und 6 EStG](https://www.gesetze-im-internet.de/estg/__10.html)).
 
@@ -8,6 +9,9 @@ Für 2025:
 
 - Anerkannter Rentenanteil je Person: {% for v in out.by_person %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
 - Haushalts-Rentenbeiträge gesamt (geht in den Sonderausgabenblock DE25-06B ein): **{{ out.total_eur | money(currency="EUR") }}**
+{% if se_vorsorge -%}
+- Darin enthalten: selbst getragene Altersvorsorgebeiträge (Selbständige; [§ 10 Abs. 1 Nr. 2 EStG](https://www.gesetze-im-internet.de/estg/__10.html)) ohne Arbeitgeberanteil: {% for slot, v in se_vorsorge | dictsort %}{{ slot }} **{{ v.retirement | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}. Diese fließen in dieselbe Bemessungsgrundlage und denselben Höchstbetrag ([§ 10 Abs. 3 EStG](https://www.gesetze-im-internet.de/estg/__10.html)) ein.
+{% endif -%}
 
 Diese Beträge werden in der Anlage Vorsorgeaufwand (Zeilen 4-9) ausgewiesen.
 {% else -%}
@@ -17,6 +21,9 @@ For 2025:
 
 - Allowed retirement contribution per person: {% for v in out.by_person %}**{{ v | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}
 - Household total retirement contribution (flows into Sonderausgaben at DE25-06B): **{{ out.total_eur | money(currency="EUR") }}**
+{% if se_vorsorge -%}
+- Of which: self-funded retirement contributions (self-employed; [§ 10 Abs. 1 Nr. 2 EStG](https://www.gesetze-im-internet.de/estg/__10.html)) with no employer share: {% for slot, v in se_vorsorge | dictsort %}{{ slot }} **{{ v.retirement | money(currency="EUR") }}**{% if not loop.last %}, {% endif %}{% endfor %}. These enter the same base and the same [§ 10 Abs. 3](https://www.gesetze-im-internet.de/estg/__10.html) Höchstbetrag.
+{% endif -%}
 
 These amounts populate Anlage Vorsorgeaufwand (lines 4-9).
 {% endif %}

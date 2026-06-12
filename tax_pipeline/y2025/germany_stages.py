@@ -405,10 +405,14 @@ def germany_ordinary_law_stages_2025() -> tuple[LawStage, ...]:
             country_or_scope="DE-2025",
             legal_refs=("§ 10 Abs. 1 Nr. 2 EStG", "§ 10 Abs. 3 EStG", "§ 3 Nr. 62 EStG"),
             authority_urls=(ESTG_10_URL, ESTG_3_URL),
-            input_fact_keys=("de.ordinary.people", "de.ordinary.filing_posture"),
+            input_fact_keys=(
+                "de.ordinary.people",
+                "de.ordinary.filing_posture",
+                "de.ordinary.se_vorsorge_by_slot",
+            ),
             rounding_policy="Joint caps and employer-share subtraction are resolved to cent-level Decimal amounts.",
             law_order_note="Retirement Vorsorgeaufwendungen are determined before total special expenses.",
-            legal_formula="de.ordinary.retirement_special_expenses[per_person] = retirement_special_expense_deduction_2025(employee_pension, employer_pension); married_joint applies joint_retirement_special_expense_deductions_2025 across spouses; de.ordinary.retirement_special_expenses_total_eur = sum(per_person)",
+            legal_formula="for each person the retirement base = employee_pension + se_retirement (a freelancer's own § 10 Abs. 1 Nr. 2 Altersvorsorge, no employer share); de.ordinary.retirement_special_expenses[per_person] = retirement_special_expense_deduction_2025(employee_pension + se_retirement, employer_pension), capped at the § 10 Abs. 3 Höchstbetrag; married_joint applies joint_retirement_special_expense_deductions_2025(people, se_retirement_contributions) so the SE contributions enter the combined capped base; de.ordinary.retirement_special_expenses_total_eur = sum(per_person)",
             narrative_templates={
                 "de": "DE25-05-RETIREMENT-SA",
                 "en": "DE25-05-RETIREMENT-SA",
@@ -457,10 +461,14 @@ def germany_ordinary_law_stages_2025() -> tuple[LawStage, ...]:
             country_or_scope="DE-2025",
             legal_refs=("§ 10 Abs. 1 Nr. 3 EStG", "§ 10 Abs. 1 Nr. 3a EStG", "§ 10 Abs. 4 EStG"),
             authority_urls=(ESTG_10_URL,),
-            input_fact_keys=("de.ordinary.people", "de.ordinary.filing_posture"),
+            input_fact_keys=(
+                "de.ordinary.people",
+                "de.ordinary.filing_posture",
+                "de.ordinary.se_vorsorge_by_slot",
+            ),
             rounding_policy="Basic health/nursing and other Vorsorge caps remain cent-level Decimal amounts.",
             law_order_note="Health/nursing and other Vorsorge deductions are resolved before the section 10c minimum is added.",
-            legal_formula="de.ordinary.health_vorsorge_special_expenses[per_person] = deductible_basic_health_contribution_2025 + other_vorsorge_allowed_employee_2025; married_joint applies joint_other_vorsorge_allowed_employee_2025 across spouses; de.ordinary.health_vorsorge_total_eur = sum(per_person_health + per_person_other_allowed); de.ordinary.health_vorsorge_basic_health_eur = sum(per_person_health); de.ordinary.health_vorsorge_other_allowed_eur = sum(per_person_other_allowed)",
+            legal_formula="for each person health base = employee_health + se_basic_health, nursing base = employee_nursing + se_nursing, other base = employee_unemployment + se_other (a freelancer's own § 10 Abs. 1 Nr. 3 / Nr. 3a contributions); de.ordinary.health_vorsorge_special_expenses[per_person] = deductible_basic_health_contribution_2025(health base, nursing base) + other_vorsorge_allowed_employee_2025(health+nursing, other base, cap_eur); married_joint applies joint_other_vorsorge_allowed_employee_2025 across spouses; de.ordinary.health_vorsorge_total_eur = sum(per_person_health + per_person_other_allowed); de.ordinary.health_vorsorge_basic_health_eur = sum(per_person_health); de.ordinary.health_vorsorge_other_allowed_eur = sum(per_person_other_allowed)",
             narrative_templates={
                 "de": "DE25-06-HEALTH-VORSORGE-SA",
                 "en": "DE25-06-HEALTH-VORSORGE-SA",

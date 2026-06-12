@@ -22,7 +22,7 @@ amended_by:
   - Sozialversicherungs-Rechengrößenverordnung 2025 (BMAS) — BBG knappschaftliche RV €118,800
 audited_by: claude-opus-4-7
 audited_on: 2026-05-03
-audit_hash: sha256:333f4c67b4d993a5c809e5e254c183593a7578d2a5e0622275983a2ba8f82723
+audit_hash: sha256:6ffdbae73b1c55cabe948d47493540518f9ec02a7a185c4380ab466071e01ab3
 ---
 """
 # Shadow extraction of § 10 EStG Sonderausgaben (Phase 2 leaf §). Mirrors
@@ -139,6 +139,8 @@ def retirement_special_expense_deduction_2025(
 
 def joint_retirement_special_expense_deductions_2025(
     people: tuple[object, ...],
+    *,
+    se_retirement_contributions: tuple[Decimal, ...] | None = None,
 ) -> tuple[Decimal, ...]:
     """§ 10 Abs. 3 Sätze 1, 2, 5, 6 EStG household retirement deductions.
 
@@ -146,17 +148,40 @@ def joint_retirement_special_expense_deductions_2025(
     applies that cap to the combined retirement base, then subtracts all
     tax-free § 3 Nr. 62 employer shares. Per-spouse allocation is
     audit-output-only (the tax base uses the joint deduction).
+
+    § 10 Abs. 1 Nr. 2 EStG: a self-employed spouse's own Altersvorsorge has
+    no employer share, so it joins the combined base on the own-contribution
+    side via ``se_retirement_contributions`` (per-person, aligned with
+    ``people``; None = legitimately none). The § 10 Abs. 3 cap is applied
+    exactly once over the combined base.
+    https://www.gesetze-im-internet.de/estg/__10.html
     """
     # § 10 Abs. 3 Sätze 1, 2, 5 und 6 EStG doubles the cap for jointly assessed
     # spouses, applies that cap to the combined retirement base, then subtracts
     # all tax-free § 3 Nr. 62 employer shares. Per-spouse allocation is audit output only.
+    #
+    # § 10 Abs. 1 Nr. 2 EStG: a self-employed spouse's own Altersvorsorge
+    # (Basisrente / RV / Versorgungswerk) is part of the SAME combined base the
+    # § 10 Abs. 3 joint cap is applied to — there is no employer share for a
+    # freelancer, so it adds to the employee (own-contribution) side and is
+    # NOT subtracted again. ``se_retirement_contributions`` is per-person
+    # aligned with ``people`` (None = legitimately none, treated as zeros);
+    # passing it keeps the cap applied exactly once over the combined base.
     joint_cap = RETIREMENT_SPECIAL_EXPENSE_CAP_SINGLE_EUR * D("2")
+    se_shares = (
+        tuple(D("0.00") for _ in people)
+        if se_retirement_contributions is None
+        else se_retirement_contributions
+    )
+    if len(se_shares) != len(people):
+        raise ValueError("se_retirement_contributions must match the people count.")
     employee_shares = tuple(
         _require_non_negative_decimal(
             person.wage.employee_pension_contribution_eur,
             label="employee_pension_contribution_eur",
         )
-        for person in people
+        + _require_non_negative_decimal(se, label="se_retirement_contributions_eur")
+        for person, se in zip(people, se_shares, strict=True)
     )
     employer_shares = tuple(
         _require_non_negative_decimal(
