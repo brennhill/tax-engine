@@ -355,6 +355,11 @@ hash = "sha256:f65b2911b1455460916929d63251c86918dbcbcee8392f6ae5bc9fc5b2313154"
 audited_by = "brenn@dontbugme.com"
 audited_on = "2026-05-09"
 
+["law/usa/year_2025/usc26/p162.py"]
+hash = "sha256:49db684fa6491bc59e744c6045f2006eb2cc0f294c490b09da91a17daf511ca3"
+audited_by = "brenn@Brenns-MacBook-Pro-2.local"
+audited_on = "2026-06-13"
+
 ["law/usa/year_2025/usc26/p164.py"]
 hash = "sha256:efed478990b033808ccb19fa443a7c85e0cf488c674b471450a7b5a6e4195be4"
 audited_by = "brenn@dontbugme.com"

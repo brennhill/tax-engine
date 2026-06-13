@@ -13,7 +13,11 @@ from tax_pipeline.y2025.treaty_bridge import (
     convert_germany_treaty_dividend_items_to_us_2025,
 )
 from tax_pipeline.y2025.us_law import (
+    BUSINESS_INCOME_SOURCE_FOREIGN,
+    BUSINESS_INCOME_SOURCE_US_EFFECTIVELY_CONNECTED,
+    BUSINESS_INCOME_SOURCES,
     GermanyTreatyDividendPacketItem2025,
+    IRS_SCHEDULE_C_URL,
     MFS_CAPITAL_LOSS_LIMIT_USD,
     STANDARD_CAPITAL_LOSS_LIMIT_USD,
     USAssessmentInputs2025,
@@ -25,10 +29,15 @@ from tax_pipeline.y2025.us_law import (
     USForeignFinancialAccount2025,
     USFTCInputs2025,
     USReturnProfile2025,
+    USScheduleCInputs2025,
     USSelfEmploymentInputs2025,
+    USC_162_URL,
+    USC_199A_URL,
+    USC_61_URL,
     USTaxConstants2025,
     USTreatyDividendItem2025,
     USTreatyInputs2025,
+    schedule_c_net_profit_2025,
 )
 
 from datetime import date
@@ -58,6 +67,118 @@ def _profile(paths: YearPaths) -> dict:
 
 def _manual_overrides(paths: YearPaths) -> dict:
     return json.loads(paths.manual_overrides_path.read_text(encoding="utf-8"))
+
+
+# 26 U.S.C. § 61 / § 162 Schedule C business-income source (Phase 2 freelancer
+# support — the U.S. mirror of the German § 18 / § 4 Abs. 3 EÜR loader).
+# config/us-business-income.csv carries the aggregated cash-basis totals as
+# ``key,amount_usd,source,note`` rows with keys ``gross_receipts_usd`` /
+# ``business_expenses_usd``. The jurisdiction-boundary rule: one economic fact,
+# two legal classifications (the same receipts/expenses the German EÜR nets are
+# the Schedule C gross income less § 162 expenses, restated in U.S. dollars).
+US_BUSINESS_INCOME_FILE_NAME = "us-business-income.csv"
+
+
+def _load_us_business_income_facts(paths: YearPaths) -> tuple[Decimal, Decimal, bool]:
+    """Return ``(gross_receipts_usd, business_expenses_usd, file_declared)``.
+
+    File-presence semantics (CLAUDE.md null/zero/missing): an absent file is
+    "not declared" (``file_declared=False``); a header-only or populated file is
+    "declared" and the missing rows are an explicit zero. The receiving loader
+    uses ``file_declared`` to fail closed when a self-employment posture is
+    active but no business facts exist. Mirrors ``germany_inputs.py``'s
+    ``_load_business_income_facts`` exactly (same ``(value, file_declared)``
+    contract). Authority: 26 U.S.C. § 61 / § 162; IRS Schedule C (Form 1040).
+    """
+    src = paths.config_root / US_BUSINESS_INCOME_FILE_NAME
+    if not src.exists():
+        return Decimal("0.00"), Decimal("0.00"), False
+    gross_receipts = Decimal("0.00")
+    business_expenses = Decimal("0.00")
+    for row in _read_row_csv(src):
+        key = (row.get("key") or "").strip()
+        amount = (row.get("amount_usd") or "").strip()
+        if not key:
+            continue
+        value = Decimal(amount) if amount else Decimal("0.00")
+        if key == "gross_receipts_usd":
+            gross_receipts += value
+        elif key == "business_expenses_usd":
+            business_expenses += value
+        else:
+            raise ValueError(
+                f"Unknown us-business-income key {key!r} in "
+                f"{US_BUSINESS_INCOME_FILE_NAME}; expected gross_receipts_usd / "
+                f"business_expenses_usd (26 U.S.C. § 61 / § 162). Authority: "
+                f"{IRS_SCHEDULE_C_URL}."
+            )
+    return gross_receipts, business_expenses, True
+
+
+def _load_us_business_income_position(
+    paths: YearPaths, profile: dict
+) -> USScheduleCInputs2025 | None:
+    """Resolve the 26 U.S.C. § 61 / § 162 Schedule C self-employment position.
+
+    Returns ``None`` for a pure wage earner (``worker_type == "employee"``).
+    Fails closed (with the cited authority) when a self-employment
+    ``worker_type`` is declared but the business-income facts are absent, and
+    fails closed on ``business_income_source == "us_effectively_connected"``
+    (the 26 U.S.C. § 199A QBI-granting path is not yet modeled — the W-2-wage /
+    UBIA / SSTB above-threshold limits need verified 2025 thresholds).
+
+    ``worker_type`` is the SAME shared position the German § 18 loader reads
+    (``elections.worker_type``): a U.S.-citizen freelancer in Germany is
+    self-employed on both sides. ``business_income_source`` defaults to
+    ``foreign`` (the cited § 199A(c)(3)(A)(i) / § 864(c) position for this
+    engine's taxpayer); see ``qbi_gate_2025``.
+    """
+    elections = profile.get("elections", {}) if isinstance(profile, dict) else {}
+    worker_type = str(elections.get("worker_type", "employee")).strip() or "employee"
+    if worker_type == "employee":
+        return None
+    if worker_type not in ("self_employed", "both"):
+        raise ValueError(
+            f"Unsupported worker_type {worker_type!r}; expected one of "
+            "'employee', 'self_employed', 'both'."
+        )
+    business_income_source = (
+        str(elections.get("business_income_source", BUSINESS_INCOME_SOURCE_FOREIGN)).strip()
+        or BUSINESS_INCOME_SOURCE_FOREIGN
+    )
+    if business_income_source not in BUSINESS_INCOME_SOURCES:
+        raise ValueError(
+            f"Unsupported business_income_source {business_income_source!r}; "
+            f"expected one of {BUSINESS_INCOME_SOURCES} "
+            f"(26 U.S.C. § 199A(c)(3)(A)(i) / § 864(c)). Authority: {USC_199A_URL}."
+        )
+    if business_income_source == BUSINESS_INCOME_SOURCE_US_EFFECTIVELY_CONNECTED:
+        # The § 199A QBI-granting path (US-effectively-connected business
+        # income) is not modeled: the W-2-wage / UBIA / SSTB above-threshold
+        # limits need VERIFIED 2025 § 199A taxable-income thresholds from the
+        # Rev. Proc. The engine fails closed rather than guessing a granted
+        # deduction (a LEAK-class over-deduction is the inverse of an
+        # understatement, equally forbidden).
+        raise NotImplementedError(
+            "elections.business_income_source='us_effectively_connected' would "
+            "grant a 26 U.S.C. § 199A QBI deduction, but the W-2-wage / UBIA / "
+            "SSTB above-threshold limits (verified 2025 § 199A thresholds) are "
+            f"not modeled. The engine fails closed. Authority: {USC_199A_URL}."
+        )
+    gross_receipts, business_expenses, declared = _load_us_business_income_facts(paths)
+    if not declared:
+        raise ValueError(
+            "worker_type declares self-employment but no U.S. business-income "
+            f"facts were found ({US_BUSINESS_INCOME_FILE_NAME}). The 26 U.S.C. "
+            "§ 61 / § 162 Schedule C netting needs gross receipts and business "
+            f"expenses. Authority: {USC_61_URL} / {USC_162_URL} / "
+            f"{IRS_SCHEDULE_C_URL}."
+        )
+    return USScheduleCInputs2025(
+        gross_receipts_usd=gross_receipts,
+        business_expenses_usd=business_expenses,
+        business_income_source=business_income_source,
+    )
 
 
 def _usa_filing_posture(profile: dict) -> str:
@@ -902,15 +1023,48 @@ def load_us_assessment_inputs_2025(
             "recommended for a German-employer-wage posture) or wire a "
             "different SSA-coverage profile."
         )
-    se_net_earnings = manual_overrides.get("se_net_earnings_usd", "0.00")
+    # 26 U.S.C. § 61 / § 162 Schedule C business-income position (Phase 2
+    # freelancer support). ``None`` for a pure wage earner; otherwise the
+    # § 61/§ 162 gross-receipts/expenses facts under a self-employed
+    # ``worker_type`` (fails closed on missing facts / us_effectively_connected).
+    schedule_c_inputs = _load_us_business_income_position(paths, profile)
+
     us_source_medicare_wages = manual_overrides.get(
         "us_source_medicare_taxable_wages_usd", "0.00"
     )
     totalization_certificate = bool(
         manual_overrides.get("totalization_agreement_certificate_present", False)
     )
+    # Derive the § 1402(a)(12) self-employment-tax base from the Schedule C net
+    # profit when self-employment is declared (the headline cross-border wiring:
+    # the SAME § 61/§ 162 net profit is both income → AGI and the SE-tax base).
+    # A Schedule C LOSS produces zero net SE earnings (SE tax applies only to
+    # positive net earnings from self-employment under § 1402(a)). For a wage
+    # earner (no Schedule C position) the manual override is kept for
+    # back-compat so the demo and existing SE-tax tests are unchanged. If both
+    # a self-employed Schedule C position AND a non-zero
+    # ``se_net_earnings_usd`` override are set, fail closed rather than silently
+    # picking one — the SE base must have a single unambiguous source.
+    se_net_earnings_override = manual_overrides.get("se_net_earnings_usd", "0.00")
+    if schedule_c_inputs is not None:
+        if Decimal(str(se_net_earnings_override)) != Decimal("0.00"):
+            raise ValueError(
+                "Both a self-employed Schedule C position (config/"
+                f"{US_BUSINESS_INCOME_FILE_NAME}) and a non-zero manual "
+                "se_net_earnings_usd override are declared. Under a self-"
+                "employment worker_type the § 1402(a)(12) SE-tax base is "
+                "DERIVED from Schedule C net profit; the manual override is "
+                "only for the wage-earner posture. Remove one. Authority: "
+                f"{USC_162_URL}."
+            )
+        net_profit = schedule_c_net_profit_2025(inputs=schedule_c_inputs).net_profit_usd
+        # § 1402(a): self-employment tax applies to NET EARNINGS from self-
+        # employment; a Schedule C loss is not negative SE earnings.
+        se_net_earnings = max(Decimal("0.00"), net_profit)
+    else:
+        se_net_earnings = Decimal(str(se_net_earnings_override))
     se_inputs = USSelfEmploymentInputs2025(
-        net_se_earnings_usd=Decimal(str(se_net_earnings)),
+        net_se_earnings_usd=se_net_earnings,
         us_w2_medicare_taxable_wages_usd=Decimal(str(us_source_medicare_wages)),
         totalization_certificate_present=totalization_certificate,
     )
@@ -1010,6 +1164,7 @@ def load_us_assessment_inputs_2025(
         ),
         feie_inputs=feie_inputs,
         se_inputs=se_inputs,
+        schedule_c_inputs=schedule_c_inputs,
         children_facts=load_us_children_facts_2025(paths),
         # Group D (FORM-MAPPING-FOLLOWUP, 2026-05-03): FATCA Form 8938
         # / FBAR FinCEN 114 inputs. Loader fails closed with

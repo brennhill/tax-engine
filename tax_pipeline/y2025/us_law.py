@@ -16,6 +16,39 @@ getcontext().prec = 28
 # - tax_pipeline/law_spec/usa/2025/treaty_resourcing.md
 
 USC_61_URL = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section61&num=0&edition=prelim"
+# 26 U.S.C. § 162 — ordinary and necessary trade-or-business expenses.
+# Schedule C net profit = § 61(a)(2) gross income from business minus
+# § 162(a) ordinary & necessary expenses; the netting is constant-free.
+# https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section162
+USC_162_URL = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section162&num=0&edition=prelim"
+# 26 U.S.C. § 199A — Qualified Business Income (QBI) deduction. § 199A(c)(3)(A)(i)
+# limits "qualified items of income" to income "effectively connected with the
+# conduct of a trade or business within the United States" (cross-referencing
+# § 864(c)). German-source freelance income earned by a U.S. citizen resident in
+# Germany is conducted in a trade or business WITHIN GERMANY, not within the
+# United States — it is therefore NOT QBI, and NO § 199A deduction is allowed on
+# it. The engine models § 199A as a fail-closed GATE that grants zero deduction
+# for foreign-source income (a cited not_applicable status, never a Form 8995
+# zero line) rather than granting any 20 % deduction.
+# https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section199A
+USC_199A_URL = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section199A&num=0&edition=prelim"
+# 26 U.S.C. § 864(c) — definition of income effectively connected with the
+# conduct of a trade or business within the United States. Cross-referenced by
+# § 199A(c)(3)(A)(i) to scope QBI to U.S.-effectively-connected income.
+# https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section864
+USC_864_URL = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section864&num=0&edition=prelim"
+# IRS Schedule C (Form 1040) — Profit or Loss From Business.
+# IRS-VERIFIED 2026-06-13 against the official 2025 Schedule C PDF
+# (https://www.irs.gov/pub/irs-pdf/f1040sc.pdf, Cat. No. 11334P, created
+# 4/3/25): Part I Income — line 7 "Gross income"; Part II — line 28 "Total
+# expenses"; line 31 "Net profit or (loss). Subtract line 30 from line 29".
+# IRS-VERIFIED 2026-06-13 — line 29 is tentative profit (line 7 − line 28) and
+# line 30 is business-use-of-home; with no home-office deduction (the modeled
+# posture) net profit (line 31) = gross income (line 7) − total expenses
+# (line 28). Line 31 carries to "Schedule 1 (Form 1040), line 3, and on
+# Schedule SE, line 2" per the on-form instruction.
+# https://www.irs.gov/forms-pubs/about-schedule-c-form-1040
+IRS_SCHEDULE_C_URL = "https://www.irs.gov/forms-pubs/about-schedule-c-form-1040"
 USC_63_URL = "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section63&num=0&edition=prelim"
 # 26 U.S.C. § 164(f) — one-half of § 1401 SE tax (OASDI + Medicare,
 # excluding § 1401(b)(2) Additional Medicare) is allowed as an
@@ -412,6 +445,10 @@ REGISTERED_LAW_FUNCTIONS_2025 = {
         "US25-09-REGULAR-TAX",
     ),
     "wages_usd_2025": ("US25-01-WAGE-TRANSLATION",),
+    # 26 U.S.C. § 61 / § 162 Schedule C net profit (constant-free netting).
+    "schedule_c_net_profit_2025": ("US25-02A-SCHEDULE-C",),
+    # 26 U.S.C. § 199A(c)(3)(A)(i) / § 864(c) QBI applicability gate.
+    "qbi_gate_2025": ("US25-08A-QBI-GATE",),
     "adjusted_gross_income_2025": ("US25-07-AGI",),
     "taxable_income_2025": ("US25-08-TAXABLE-INCOME",),
     "tax_from_schedule_y2_2025": ("US25-09-REGULAR-TAX",),
@@ -461,6 +498,7 @@ REGISTERED_LAW_FUNCTIONS_2025 = {
         "US25-00-FILING-POSITION",
         "US25-01-WAGE-TRANSLATION",
         "US25-02-INCOME-SIDE-INPUTS",
+        "US25-02A-SCHEDULE-C",
         "US25-03-CAPITAL-BUCKETS",
         "US25-04-SECTION-1256",
         "US25-05-CAPITAL-LOSS-LINE-7A",
@@ -472,6 +510,7 @@ REGISTERED_LAW_FUNCTIONS_2025 = {
         "US25-SE-TAX",
         "US25-07-AGI",
         "US25-08-TAXABLE-INCOME",
+        "US25-08A-QBI-GATE",
         "US25-09-REGULAR-TAX",
         "US25-10-FORM-1116-PREFERENTIAL-GATE",
         "US25-11-FTC-DENOMINATOR",
@@ -694,6 +733,93 @@ class USSelfEmploymentInputs2025:
     totalization_certificate_present: bool
 
 
+# 26 U.S.C. § 199A(c)(3)(A)(i) / § 864(c) — the cited ``business_income_source``
+# position. ``foreign`` (the default for a U.S. citizen resident in Germany
+# earning German-source freelance income) means the business is NOT conducted
+# within the United States, so the income is NOT QBI and no § 199A deduction is
+# allowed (the gate returns ``not_applicable``). ``us_effectively_connected``
+# (the QBI-granting path) is NOT modeled in this slice and fails closed at the
+# loader: the W-2-wage / UBIA / SSTB limits need verified 2025 § 199A thresholds
+# (Rev. Proc.) that are out of scope.
+BUSINESS_INCOME_SOURCE_FOREIGN = "foreign"
+BUSINESS_INCOME_SOURCE_US_EFFECTIVELY_CONNECTED = "us_effectively_connected"
+BUSINESS_INCOME_SOURCES = (
+    BUSINESS_INCOME_SOURCE_FOREIGN,
+    BUSINESS_INCOME_SOURCE_US_EFFECTIVELY_CONNECTED,
+)
+
+# Controlling-authority strings carried out of ``qbi_gate_2025`` so the gate's
+# result names the law it rests on (cross-audit at the function boundary).
+QBI_GATE_BASIS_FOREIGN_NOT_APPLICABLE = (
+    "26 U.S.C. § 199A(c)(3)(A)(i) / § 864(c): qualified business income must be "
+    "effectively connected with the conduct of a trade or business WITHIN the "
+    "United States. German-source freelance income earned by a U.S. citizen "
+    "resident in Germany is conducted within Germany, not within the United "
+    "States, so it is NOT QBI and NO § 199A deduction is allowed. The deduction "
+    "is not_applicable (zero), never a Form 8995 zero line."
+)
+QBI_GATE_STATUS_NOT_APPLICABLE = "not_applicable"
+
+
+@dataclass(frozen=True)
+class USScheduleCInputs2025:
+    """26 U.S.C. § 61 / § 162 Schedule C business-income facts.
+
+    IRS-VERIFIED 2026-06-13 against the 2025 Schedule C PDF
+    (https://www.irs.gov/pub/irs-pdf/f1040sc.pdf):
+    ``gross_receipts_usd`` is § 61(a)(2) gross income from the trade or
+    business (Schedule C line 7); ``business_expenses_usd`` is the total of
+    § 162(a) ordinary & necessary business expenses (Schedule C line 28). The
+    netting in ``schedule_c_net_profit_2025`` is constant-free.
+    ``business_income_source`` is the cited § 199A(c)(3)(A)(i) / § 864(c)
+    position driving the § 199A gate (see ``qbi_gate_2025``).
+    """
+
+    gross_receipts_usd: Decimal
+    business_expenses_usd: Decimal
+    business_income_source: str
+
+
+@dataclass(frozen=True)
+class USScheduleCResult2025:
+    """Schedule C net-profit breakdown (26 U.S.C. § 61 / § 162).
+
+    IRS-VERIFIED 2026-06-13 (2025 Schedule C, https://www.irs.gov/pub/irs-pdf/f1040sc.pdf):
+    ``net_profit_usd`` = gross receipts − business expenses; it is the single
+    amount that (a) flows to Schedule 1 line 3 → Form 1040 income → AGI and
+    (b) is the § 1402(a)(12) self-employment-tax base (Schedule SE line 2).
+    A loss is NOT floored on Schedule C itself — the net (positive or negative)
+    is what reaches Form 1040. ``law_basis`` carries the controlling authority
+    so the result cross-audits in isolation.
+    """
+
+    gross_receipts_usd: Decimal
+    business_expenses_usd: Decimal
+    net_profit_usd: Decimal
+    business_income_source: str
+    law_basis: str = "26 U.S.C. §§ 61, 162; IRS Schedule C (Form 1040)"
+
+
+@dataclass(frozen=True)
+class USQBIGateAssessment2025:
+    """26 U.S.C. § 199A QBI applicability gate.
+
+    For foreign-source business income the deduction is ``not_applicable``
+    (``qbi_deduction_usd == 0``, ``applicable == False``) with the
+    § 199A(c)(3)(A)(i) / § 864(c) citation in ``basis``. Taxable income is
+    UNCHANGED by § 199A in this posture (no Form 8995 line is rendered — an
+    explicitly absent, cited status per invariant I13, never a zero line).
+    The ``us_effectively_connected`` QBI-granting path is not modeled and fails
+    closed before this gate is reached.
+    """
+
+    status: str
+    applicable: bool
+    business_income_source: str
+    qbi_deduction_usd: Decimal
+    basis: str
+
+
 @dataclass(frozen=True)
 class USChild2025:
     """Per-child fact block sourced from ``config/children.csv``.
@@ -778,6 +904,12 @@ class USAssessmentInputs2025:
             totalization_certificate_present=False,
         )
     )
+    # 26 U.S.C. § 61 / § 162 Schedule C business income. ``None`` for a pure
+    # wage earner (the demo posture): the US25-02A-SCHEDULE-C stage then emits a
+    # zero net profit, so AGI / taxable income / SE base are value-identical to
+    # the wage-only baseline. The loader populates this from
+    # ``config/us-business-income.csv`` under a self-employed worker_type.
+    schedule_c_inputs: "USScheduleCInputs2025 | None" = None
     children_facts: USChildrenFacts2025 = field(
         default_factory=lambda: USChildrenFacts2025(
             children=(),
@@ -1457,6 +1589,102 @@ def net_capital_gain_for_preferential_tax_2025(capital: USCapitalAssessment2025)
     if schedule_d_line_15 <= ZERO_USD or schedule_d_line_16 <= ZERO_USD:
         return ZERO_USD
     return round_cents(min(schedule_d_line_15, schedule_d_line_16))
+
+
+def schedule_c_net_profit_2025(
+    *,
+    inputs: USScheduleCInputs2025,
+) -> USScheduleCResult2025:
+    """Compute Schedule C net profit = § 61 gross receipts − § 162 expenses.
+
+    Authority (IRS-VERIFIED 2026-06-13, 2025 Schedule C
+    https://www.irs.gov/pub/irs-pdf/f1040sc.pdf):
+      - 26 U.S.C. § 61(a)(2) — gross income derived from business.
+      - 26 U.S.C. § 162(a) — ordinary & necessary trade-or-business expenses.
+      - IRS Schedule C (Form 1040) line 31 = line 7 (gross income) − line 28
+        (total expenses), in the no-home-office posture (IRS-VERIFIED
+        2026-06-13: line 31 = line 29 tentative profit − line 30 home-office;
+        line 30 = 0 here):
+        https://www.irs.gov/forms-pubs/about-schedule-c-form-1040
+
+    The netting is constant-free. A loss (expenses > receipts) is carried
+    through as a negative net — it is NOT floored on Schedule C itself; the
+    income that reaches Form 1040 / Schedule SE is the signed net. Receipts and
+    expenses must each be non-negative (a negative receipt/expense is a data
+    error, not a legal value).
+    """
+    _require_non_negative(inputs.gross_receipts_usd, label="gross_receipts_usd")
+    _require_non_negative(inputs.business_expenses_usd, label="business_expenses_usd")
+    if inputs.business_income_source not in BUSINESS_INCOME_SOURCES:
+        raise ValueError(
+            f"Unsupported business_income_source {inputs.business_income_source!r}; "
+            f"expected one of {BUSINESS_INCOME_SOURCES} "
+            "(26 U.S.C. § 199A(c)(3)(A)(i) / § 864(c))."
+        )
+    net_profit = round_cents(inputs.gross_receipts_usd - inputs.business_expenses_usd)
+    return USScheduleCResult2025(
+        gross_receipts_usd=round_cents(inputs.gross_receipts_usd),
+        business_expenses_usd=round_cents(inputs.business_expenses_usd),
+        net_profit_usd=net_profit,
+        business_income_source=inputs.business_income_source,
+    )
+
+
+def qbi_gate_2025(
+    *,
+    schedule_c_inputs: USScheduleCInputs2025 | None,
+) -> USQBIGateAssessment2025:
+    """26 U.S.C. § 199A QBI applicability gate (grants ZERO for foreign source).
+
+    Authority:
+      - 26 U.S.C. § 199A(c)(3)(A)(i) — "qualified items of income" must be
+        effectively connected with the conduct of a trade or business WITHIN
+        the United States (§ 864(c)).
+      - 26 U.S.C. § 864(c) — effectively-connected-income definition.
+      https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section199A
+
+    For the engine's modeled taxpayer (U.S. citizen resident in Germany,
+    German-source freelance income, ``business_income_source == "foreign"``),
+    the income is NOT effectively connected with a U.S. trade or business → NOT
+    QBI → the § 199A deduction is ``not_applicable`` and ZERO. Taxable income is
+    unchanged by § 199A in this posture; no Form 8995 line is rendered (an
+    explicitly cited absent status per invariant I13, never a zero line).
+
+    A pure wage earner (``schedule_c_inputs is None``) has no business income
+    and is therefore likewise not_applicable with zero deduction.
+
+    The ``us_effectively_connected`` QBI-granting path is NOT modeled here and
+    fails closed at the loader (the W-2-wage / UBIA / SSTB above-threshold
+    limits need verified 2025 § 199A thresholds, out of scope). Should an
+    ``us_effectively_connected`` source ever reach this gate, fail closed rather
+    than guess a granted number.
+    """
+    source = (
+        schedule_c_inputs.business_income_source
+        if schedule_c_inputs is not None
+        else BUSINESS_INCOME_SOURCE_FOREIGN
+    )
+    if source == BUSINESS_INCOME_SOURCE_US_EFFECTIVELY_CONNECTED:
+        raise NotImplementedError(
+            "business_income_source='us_effectively_connected' would grant a "
+            "26 U.S.C. § 199A QBI deduction, but the W-2-wage / UBIA / SSTB "
+            "above-threshold limits (verified 2025 § 199A taxable-income "
+            "thresholds from the Rev. Proc.) are not modeled. The engine fails "
+            "closed rather than granting an unverified deduction. Authority: "
+            f"{USC_199A_URL}."
+        )
+    if source != BUSINESS_INCOME_SOURCE_FOREIGN:
+        raise ValueError(
+            f"Unsupported business_income_source {source!r}; expected one of "
+            f"{BUSINESS_INCOME_SOURCES} (26 U.S.C. § 199A(c)(3)(A)(i) / § 864(c))."
+        )
+    return USQBIGateAssessment2025(
+        status=QBI_GATE_STATUS_NOT_APPLICABLE,
+        applicable=False,
+        business_income_source=BUSINESS_INCOME_SOURCE_FOREIGN,
+        qbi_deduction_usd=ZERO_USD,
+        basis=QBI_GATE_BASIS_FOREIGN_NOT_APPLICABLE,
+    )
 
 
 def wages_usd_2025(gross_wages_eur: Decimal, eur_per_usd_yearly_average_2025: Decimal) -> Decimal:

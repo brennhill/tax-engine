@@ -328,6 +328,41 @@ POSTURE_REGISTRY: tuple[PostureField, ...] = (
     ),
     # ---- US elections ------------------------------------------------------
     PostureField(
+        key="elections.business_income_source",
+        label="Business income source for § 199A (QBI)",
+        widget="select",
+        options=(
+            ("foreign", "Foreign-source business (not US-effectively-connected)"),
+            (
+                "us_effectively_connected",
+                "US-effectively-connected business (§ 864(c)) — coming soon",
+            ),
+        ),
+        tooltip=(
+            "If you are self-employed, pick whether your business income is "
+            "earned from a trade or business carried on inside the United "
+            "States or outside it. For a U.S. citizen living in Germany who "
+            "freelances for German clients, the income is 'foreign-source' — "
+            "it is NOT effectively connected with a U.S. trade or business, so "
+            "the § 199A 20% Qualified Business Income deduction does NOT apply "
+            "and the calculator grants zero. 'US-effectively-connected' would "
+            "allow a § 199A deduction, but that path is not yet handled "
+            "(it needs the W-2-wage / UBIA / SSTB limits with verified 2025 "
+            "thresholds), so selecting it stops the calculator rather than "
+            "guessing. (Legal: 26 U.S.C. § 199A(c)(3)(A)(i); § 864(c))"
+        ),
+        legal_refs=("26 U.S.C. § 199A(c)(3)(A)(i)", "26 U.S.C. § 864(c)"),
+        legal_urls=(
+            "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section199A&num=0&edition=prelim",
+            "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section864&num=0&edition=prelim",
+        ),
+        section=SECTION_US_ELECTIONS,
+        storage=STORAGE_PROFILE_JSON,
+        default="foreign",
+        engine_supported=True,  # foreign is supported; us_effectively_connected fails closed
+        coming_soon_wave="",
+    ),
+    PostureField(
         key="elections.elect_joint_return_with_nra_spouse",
         label="§ 6013(g) joint election with NRA spouse",
         widget="checkbox",

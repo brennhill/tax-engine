@@ -1,0 +1,28 @@
+# Schedule C (Form 1040) — Profit or Loss From Business
+# Authority: 26 U.S.C. § 61 (gross income from business), § 162 (ordinary &
+# necessary business expenses); IRS Schedule C (Form 1040) instructions.
+# IRS-VERIFIED 2026-06-13 against the official 2025 Schedule C PDF
+# (https://www.irs.gov/pub/irs-pdf/f1040sc.pdf, Cat. No. 11334P, created
+# 4/3/25): line 7 "Gross income", line 28 "Total expenses", line 31
+# "Net profit or (loss)" (= line 7 − line 28 in the no-home-office posture).
+# https://www.irs.gov/forms-pubs/about-schedule-c-form-1040
+#
+# Y2 / P5 form-schema-as-data.
+
+form_id = "schedule_c"
+form_year = 2025
+display_name = "Schedule C — Profit or Loss From Business"
+canonical_form_name = "Schedule C"
+authority_url = "https://www.irs.gov/forms-pubs/about-schedule-c-form-1040"
+
+[[lines]]
+line_id = "7"
+label = "Line 7"
+
+[[lines]]
+line_id = "28"
+label = "Line 28"
+
+[[lines]]
+line_id = "31"
+label = "Line 31"

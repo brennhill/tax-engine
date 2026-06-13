@@ -1,0 +1,30 @@
+## {{ rule.title }}
+
+The [§ 199A](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section199A&num=0&edition=prelim) Qualified Business Income (QBI) deduction can shelter up to 20 % of qualified business income — but it does **not** apply to this return, and the engine grants **zero** § 199A deduction.
+
+{% set gate = rule.outputs[0].value | from_json -%}
+{% if gate.business_income_source == "foreign" -%}
+[§ 199A(c)(3)(A)(i)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section199A&num=0&edition=prelim) defines a "qualified item of income" as one **effectively connected with the conduct of a trade or business within the United States** (cross-referencing [§ 864(c)](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section864&num=0&edition=prelim)). A U.S. citizen resident in Germany earning German-source freelance income is conducting that business **within Germany, not within the United States**. The income is therefore **not** effectively connected with a U.S. trade or business, it is **not** QBI, and **no § 199A deduction is allowed** on it.
+
+Accordingly the § 199A status here is **{{ gate.status }}**: the deduction is **{{ gate.qbi_deduction_usd | money(currency="USD") }}**, and your taxable income is **unchanged** by § 199A. Taxable income before the gate is {{ gate.taxable_income_before_qbi_usd | money(currency="USD") }} and after the gate is {{ gate.taxable_income_after_qbi_usd | money(currency="USD") }} — the gate subtracts nothing. No Form 8995 line is rendered: § 199A is explicitly not applicable (a cited status), never a zero deduction line.
+
+Granting a 20 % deduction here would be an over-deduction the taxpayer is not entitled to. The engine refuses to do so.
+{% else -%}
+{# us_effectively_connected fails closed in the loader / qbi_gate_2025 before this narrative renders; the foreign-source branch is the only reachable posture in this slice. #}
+The § 199A status is **{{ gate.status }}** with a **{{ gate.qbi_deduction_usd | money(currency="USD") }}** deduction.
+{% endif %}
+
+**Audit links — read the law yourself**
+
+{% if (rule.authority_urls | length) == (rule.legal_refs | length) -%}
+{% for i in range(rule.legal_refs | length) -%}
+- [{{ rule.legal_refs[i] }}]({{ rule.authority_urls[i] }})
+{% endfor -%}
+{% else -%}
+{% for ref in rule.legal_refs -%}
+- {{ ref }}
+{% endfor -%}
+{% for url in rule.authority_urls -%}
+- <{{ url }}>
+{% endfor -%}
+{% endif %}

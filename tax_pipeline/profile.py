@@ -121,6 +121,13 @@ _NON_ENABLEMENT_ELECTIONS: frozenset[str] = frozenset(
         # Gewerbesteuer not yet modeled).
         "worker_type",
         "de_self_employment_class",
+        # U.S. self-employment § 199A position (Phase 2 freelancer support,
+        # FREELANCER-US-SCHEDULE-C-SLICE-SPEC.md). business_income_source is
+        # the cited 26 U.S.C. § 199A(c)(3)(A)(i) / § 864(c) position
+        # ("foreign" supported → § 199A not_applicable / zero QBI;
+        # "us_effectively_connected" fails closed — the QBI-granting W-2 /
+        # UBIA / SSTB limits are not yet modeled).
+        "business_income_source",
         # Treaty/totalization disclosures.
         "acknowledges_totalization_agreement_germany_us",
     }

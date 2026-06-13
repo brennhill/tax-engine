@@ -30,6 +30,7 @@ from tax_pipeline.pipeline_context import (
 )
 from tax_pipeline.y2025.us_law import (
     ADDITIONAL_MEDICARE_RATE,
+    BUSINESS_INCOME_SOURCE_FOREIGN,
     IRS_GERMANY_TECH,
     IRS_I1040,
     IRS_I1040SD,
@@ -37,6 +38,7 @@ from tax_pipeline.y2025.us_law import (
     IRS_I8960,
     IRS_P514,
     IRS_P550,
+    IRS_SCHEDULE_C_URL,
     IRS_YEARLY_AVG_RATES,
     NIIT_RATE,
     USAssessmentInputs2025,
@@ -49,6 +51,9 @@ from tax_pipeline.y2025.us_law import (
     USC_61_URL,
     USC_63_URL,
     USC_152_URL,
+    USC_162_URL,
+    USC_199A_URL,
+    USC_864_URL,
     USC_901_URL,
     USC_904_URL,
     USC_1211_URL,
@@ -61,7 +66,10 @@ from tax_pipeline.y2025.us_law import (
     USLawStage2025,
     USNIITAssessment2025,
     USOverallAssessment2025,
+    USQBIGateAssessment2025,
     USRegularTaxAssessment2025,
+    USScheduleCInputs2025,
+    USScheduleCResult2025,
     USTreatyResourcingAssessment2025,
     adjusted_gross_income_2025,
     additional_medicare_assessment_2025,
@@ -75,8 +83,10 @@ from tax_pipeline.y2025.us_law import (
     feie_assessment_2025,
     ftc_limitation_2025,
     net_capital_gain_for_preferential_tax_2025,
+    qbi_gate_2025,
     regular_tax_2025,
     round_cents,
+    schedule_c_net_profit_2025,
     se_tax_assessment_2025,
     section_1256_split_2025,
     standard_deduction_allocation_2025,
@@ -163,14 +173,37 @@ def us25_01_wage_translation(facts: Mapping[str, Any]) -> Mapping[str, Any]:
     return {"us.stage.wages_usd": round_cents(eur / fx)}
 
 
+def _schedule_c_net_profit(inputs: USAssessmentInputs2025) -> Decimal:
+    # 26 U.S.C. § 61 / § 162 Schedule C net profit. ``None`` (pure wage earner)
+    # is zero profit; otherwise the constant-free netting in
+    # ``schedule_c_net_profit_2025``. Deterministic: US25-02 and US25-02A both
+    # call this on the same inputs and obtain the same value (the amount is
+    # counted once — in schedule_1_other_income_usd — never double-counted).
+    # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section61
+    # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section162
+    if inputs.schedule_c_inputs is None:
+        return ZERO_USD
+    return schedule_c_net_profit_2025(inputs=inputs.schedule_c_inputs).net_profit_usd
+
+
 def us25_02_income_side_inputs(facts: Mapping[str, Any]) -> Mapping[str, Any]:
-    # 26 U.S.C. § 61 / Pub. 525 / Pub. 550 income-side classification:
-    # dividends, interest, Schedule 1 other (substitute payments + staking),
-    # qualified dividends, capital gain distributions.
+    # 26 U.S.C. § 61 / § 162 / Pub. 525 / Pub. 550 income-side classification:
+    # dividends, interest, Schedule 1 other (substitute payments + staking +
+    # Schedule C net profit), qualified dividends, capital gain distributions.
+    # IRS-VERIFIED 2026-06-13 (2025 Schedule C / Schedule 1 PDFs): the § 61 /
+    # § 162 Schedule C net profit (Schedule C line 31) lands on Schedule 1
+    # line 3, which the engine aggregates into schedule_1_other_income_usd →
+    # AGI. For a wage earner (no Schedule C facts) the net profit is zero, so
+    # this value is identical to the wage-only baseline.
+    # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section61
+    # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section162
     inputs = _inputs(facts)
     capital_facts = inputs.capital_facts
+    schedule_c_net_profit = _schedule_c_net_profit(inputs)
     schedule_1_other = round_cents(
-        capital_facts.substitute_payments_usd + capital_facts.staking_income_usd
+        capital_facts.substitute_payments_usd
+        + capital_facts.staking_income_usd
+        + schedule_c_net_profit
     )
     return {
         "us.stage.income_side_inputs": {
@@ -180,8 +213,55 @@ def us25_02_income_side_inputs(facts: Mapping[str, Any]) -> Mapping[str, Any]:
             "schedule_1_other_income_usd": schedule_1_other,
             "substitute_payments_usd": round_cents(capital_facts.substitute_payments_usd),
             "staking_income_usd": round_cents(capital_facts.staking_income_usd),
+            "schedule_c_net_profit_usd": round_cents(schedule_c_net_profit),
             "capital_gain_distributions_usd": round_cents(capital_facts.capital_gain_distributions_usd),
         }
+    }
+
+
+def us25_02a_schedule_c(facts: Mapping[str, Any]) -> Mapping[str, Any]:
+    # 26 U.S.C. § 61 / § 162 Schedule C net profit = gross receipts − ordinary
+    # & necessary business expenses. IRS-VERIFIED 2026-06-13 against the 2025
+    # Schedule C PDF (line 31 = line 7 gross income − line 28 total expenses, in
+    # the no-home-office posture). The single net-profit amount feeds the income
+    # side (Schedule 1 line 3, via US25-02-INCOME-SIDE-INPUTS) and the SE-tax
+    # base (derived by the loader); these are the SAME profit, not double-
+    # counted. For a wage earner the Schedule C facts are absent and every
+    # output is zero (invariant I13).
+    # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section61
+    # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section162
+    # https://www.irs.gov/forms-pubs/about-schedule-c-form-1040
+    inputs = _inputs(facts)
+    if inputs.schedule_c_inputs is None:
+        gross_receipts = ZERO_USD
+        business_expenses = ZERO_USD
+        net_profit = ZERO_USD
+        source = BUSINESS_INCOME_SOURCE_FOREIGN
+        declared = False
+        law_basis = "26 U.S.C. §§ 61, 162; IRS Schedule C (Form 1040)"
+    else:
+        result = schedule_c_net_profit_2025(inputs=inputs.schedule_c_inputs)
+        gross_receipts = result.gross_receipts_usd
+        business_expenses = result.business_expenses_usd
+        net_profit = result.net_profit_usd
+        source = result.business_income_source
+        declared = True
+        law_basis = result.law_basis
+    return {
+        "us.stage.schedule_c": {
+            "gross_receipts_usd": gross_receipts,
+            "business_expenses_usd": business_expenses,
+            "net_profit_usd": net_profit,
+            "business_income_source": source,
+            "declared": declared,
+            "law_basis": law_basis,
+        },
+        # Schedule C line-level decomposition (1:1 mirror of the bundle;
+        # invariants I2 / I3 / I11). Line 7 = gross income, line 28 = total
+        # expenses, line 31 = net profit (IRS-VERIFIED 2026-06-13).
+        "us.tax.schedule_c_line_7_gross_income_usd": gross_receipts,
+        "us.tax.schedule_c_line_28_total_expenses_usd": business_expenses,
+        "us.tax.schedule_c_line_31_net_profit_usd": net_profit,
     }
 
 
@@ -385,6 +465,39 @@ def us25_08_taxable_income(facts: Mapping[str, Any]) -> Mapping[str, Any]:
             base,
             inputs.constants.standard_deduction_2025_usd,
         )
+    }
+
+
+def us25_08a_qbi_gate(facts: Mapping[str, Any]) -> Mapping[str, Any]:
+    # 26 U.S.C. § 199A(c)(3)(A)(i) / § 864(c) QBI applicability GATE. For
+    # foreign-source business income (the engine's taxpayer: U.S. citizen
+    # resident in Germany, German-source freelance income) the deduction is
+    # not_applicable and ZERO — German-source income is NOT effectively
+    # connected with a U.S. trade or business, so it is NOT QBI. Taxable income
+    # is UNCHANGED by § 199A in this posture (the gate subtracts nothing). This
+    # is an explicit cited not_applicable status (invariant I13), never a Form
+    # 8995 zero line; granting any 20 % deduction would be a LEAK-class
+    # over-deduction. ``us_effectively_connected`` fails closed in qbi_gate_2025.
+    # ``us.stage.taxable_income`` is read so US25-08A records a real input edge
+    # (invariant I7); § 199A does not change it for foreign source.
+    # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section199A
+    # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section864
+    inputs = _inputs(facts)
+    taxable_income = facts["us.stage.taxable_income"]
+    assessment = qbi_gate_2025(schedule_c_inputs=inputs.schedule_c_inputs)
+    return {
+        "us.stage.qbi_gate": {
+            "status": assessment.status,
+            "applicable": assessment.applicable,
+            "business_income_source": assessment.business_income_source,
+            "qbi_deduction_usd": assessment.qbi_deduction_usd,
+            "taxable_income_before_qbi_usd": round_cents(taxable_income),
+            # Taxable income is unchanged by § 199A for foreign-source income;
+            # carry the post-gate value so downstream readers see the gate left
+            # it untouched (no Form 8995 line; not_applicable per I13).
+            "taxable_income_after_qbi_usd": round_cents(taxable_income),
+            "basis": assessment.basis,
+        }
     }
 
 
@@ -1568,6 +1681,7 @@ _RULE_FUNCTIONS = {
     "US25-00-FILING-POSITION": us25_00_filing_position,
     "US25-01-WAGE-TRANSLATION": us25_01_wage_translation,
     "US25-02-INCOME-SIDE-INPUTS": us25_02_income_side_inputs,
+    "US25-02A-SCHEDULE-C": us25_02a_schedule_c,
     "US25-03-CAPITAL-BUCKETS": us25_03_capital_buckets,
     "US25-04-SECTION-1256": us25_04_section_1256,
     "US25-05-CAPITAL-LOSS-LINE-7A": us25_05_capital_loss_line_7a,
@@ -1575,6 +1689,7 @@ _RULE_FUNCTIONS = {
     "US25-07-AGI": us25_07_agi,
     "US25-FEIE": us25_feie,
     "US25-08-TAXABLE-INCOME": us25_08_taxable_income,
+    "US25-08A-QBI-GATE": us25_08a_qbi_gate,
     "US25-09-REGULAR-TAX": us25_09_regular_tax,
     "US25-10-FORM-1116-PREFERENTIAL-GATE": us25_10_form_1116_preferential_gate,
     "US25-11-FTC-DENOMINATOR": us25_11_ftc_denominator,
@@ -2104,6 +2219,7 @@ __all__ = [
     "us25_00_filing_position",
     "us25_01_wage_translation",
     "us25_02_income_side_inputs",
+    "us25_02a_schedule_c",
     "us25_03_capital_buckets",
     "us25_04_section_1256",
     "us25_05_capital_loss_line_7a",
@@ -2111,6 +2227,7 @@ __all__ = [
     "us25_07_agi",
     "us25_feie",
     "us25_08_taxable_income",
+    "us25_08a_qbi_gate",
     "us25_09_regular_tax",
     "us25_10_form_1116_preferential_gate",
     "us25_11_ftc_denominator",

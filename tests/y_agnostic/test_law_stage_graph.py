@@ -524,7 +524,17 @@ class LawStageGraphContractsTest(unittest.TestCase):
         # (FREELANCER-DE-EUER-SLICE-SPEC.md). Feeds DE25-07 taxable income.
         # https://www.gesetze-im-internet.de/estg/__18.html
         # https://www.gesetze-im-internet.de/estg/__4.html
-        self.assertEqual(len(validation.stage_ids), 65)
+        # 67 = 65 + US25-02A-SCHEDULE-C (26 U.S.C. § 61 / § 162 Schedule C
+        # net profit) + US25-08A-QBI-GATE (26 U.S.C. § 199A(c)(3)(A)(i) /
+        # § 864(c) QBI applicability gate — not_applicable for foreign-source
+        # business income) added by Phase 2 freelancer support
+        # (FREELANCER-US-SCHEDULE-C-SLICE-SPEC.md). US25-02A feeds the income
+        # side (Schedule 1 line 3 → AGI) and the SE-tax base; US25-08A
+        # adjudicates § 199A (grants zero for foreign source).
+        # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section61
+        # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section162
+        # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section199A
+        self.assertEqual(len(validation.stage_ids), 67)
 
     def test_union_law_stage_graph_fails_when_bridge_keys_are_omitted(self) -> None:
         # Counterpart: removing the bridge keys MUST surface as a missing-input

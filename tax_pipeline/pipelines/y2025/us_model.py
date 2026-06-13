@@ -264,6 +264,20 @@ def main() -> None:
             "us.tax.form_8959_line_18_total_addtl_medicare_usd",
         )
     }
+    # Phase 2 (FREELANCER-US-SCHEDULE-C) — Schedule C line-level decomposition
+    # (US25-02A-SCHEDULE-C). Each value is a 1:1 read of a declared rule output
+    # (no Decimal arithmetic on legal output keys, I5). IRS-VERIFIED 2026-06-13
+    # against the 2025 Schedule C PDF: line 7 gross income, line 28 total
+    # expenses, line 31 net profit.
+    # https://www.irs.gov/forms-pubs/about-schedule-c-form-1040
+    schedule_c_lines = {
+        key: us_execution.final_facts[key]
+        for key in (
+            "us.tax.schedule_c_line_7_gross_income_usd",
+            "us.tax.schedule_c_line_28_total_expenses_usd",
+            "us.tax.schedule_c_line_31_net_profit_usd",
+        )
+    }
     # B4 (FORM-MAPPING-FOLLOWUP) — Schedule SE line-level decomposition
     # (US25-SE-TAX). Each value is a 1:1 read of a declared rule output.
     # No Decimal arithmetic on legal output keys (I5).
@@ -518,6 +532,19 @@ def main() -> None:
             ),
             "form_8959_line_18_total_addtl_medicare_usd": fmt(
                 form_8959_lines["us.tax.form_8959_line_18_total_addtl_medicare_usd"]
+            ),
+            # Phase 2 (FREELANCER-US-SCHEDULE-C) — Schedule C line-level
+            # decomposition. Pure 1:1 projection of declared rule outputs
+            # (US25-02A-SCHEDULE-C). IRS-VERIFIED 2026-06-13.
+            # https://www.irs.gov/forms-pubs/about-schedule-c-form-1040
+            "schedule_c_line_7_gross_income_usd": fmt(
+                schedule_c_lines["us.tax.schedule_c_line_7_gross_income_usd"]
+            ),
+            "schedule_c_line_28_total_expenses_usd": fmt(
+                schedule_c_lines["us.tax.schedule_c_line_28_total_expenses_usd"]
+            ),
+            "schedule_c_line_31_net_profit_usd": fmt(
+                schedule_c_lines["us.tax.schedule_c_line_31_net_profit_usd"]
             ),
             # B4 (FORM-MAPPING-FOLLOWUP) — Schedule SE line-level
             # decomposition. Pure 1:1 projection of declared rule outputs.

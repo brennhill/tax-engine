@@ -86,6 +86,7 @@ _USA_FORM_FILE_STEM_TO_CANONICAL: dict[str, str] = {
     "schedule_2": "Schedule 2",
     "schedule_3": "Schedule 3",
     "schedule_b": "Schedule B",
+    "schedule_c": "Schedule C",
     "schedule_d": "Schedule D",
     "schedule_se": "Schedule SE",
     "schedule_8812": "Schedule 8812",

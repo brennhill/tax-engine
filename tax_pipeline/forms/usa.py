@@ -36,6 +36,7 @@ from tax_pipeline.y2025.us_law import (
     IRS_FORM_8938_VS_FBAR_URL,
     IRS_FORM_8959_URL,
     IRS_P514,
+    IRS_SCHEDULE_C_URL,
     IRS_SCHEDULE_SE_URL,
     SCH_8812_INSTRUCTIONS_URL,
     USC_24_URL,
@@ -1448,6 +1449,112 @@ def _write_schedule_se(
             "Every numeric line above traces to a declared "
             "``us.tax.schedule_se_*`` rule output via the executor's "
             "``StageResult.output_fingerprint`` chain (invariants I2 / I11).",
+        ],
+    )
+
+
+def _write_schedule_c(
+    paths: YearPaths,
+    treaty: dict,
+    tax_estimate: dict,
+    provenance: Mapping[str, Any] | None,
+) -> None:
+    """Render Schedule C (Profit or Loss From Business).
+
+    Authority (IRS-VERIFIED 2026-06-13 against the official 2025 Schedule C
+    PDF, https://www.irs.gov/pub/irs-pdf/f1040sc.pdf):
+      - 26 U.S.C. § 61(a)(2) — gross income from business (line 7).
+      - 26 U.S.C. § 162(a) — ordinary & necessary business expenses (line 28).
+      - Schedule C line 31 net profit = line 7 − line 28 (no-home-office
+        posture); carries to Schedule 1 line 3 and Schedule SE line 2.
+
+    The renderer is gated on a declared Schedule C position (net profit ≠ 0 or
+    gross receipts > 0); a pure wage earner has no Schedule C facts and the
+    form file is not written (invariant I13: the artifact is explicitly absent,
+    not a zeroed form). No Form 8995 is rendered — for foreign-source business
+    income the § 199A QBI deduction is not_applicable (see US25-08A-QBI-GATE),
+    so the § 199A non-applicability is narrated rather than shown as a zero
+    Form 8995 line.
+    """
+    schedule = treaty.get("schedule_c")
+    if not isinstance(schedule, dict):
+        raise FileNotFoundError(
+            "Missing required Schedule C projection in treaty package: "
+            "treaty['schedule_c']."
+        )
+    net_profit = D(str(schedule.get("line_31_net_profit_usd", "0.00")))
+    gross_income = D(str(schedule.get("line_7_gross_income_usd", "0.00")))
+    # Gate: skip rendering when there is no Schedule C business at all (the
+    # wage-earner posture). A loss (net_profit < 0) is still a real Schedule C
+    # and IS rendered.
+    if net_profit == D("0.00") and gross_income == D("0.00"):
+        return
+
+    SCHEDULE_C_PROVENANCE: dict[str, str] = {
+        "line_7_gross_income_usd": "us.tax.schedule_c_line_7_gross_income_usd",
+        "line_28_total_expenses_usd": "us.tax.schedule_c_line_28_total_expenses_usd",
+        "line_31_net_profit_usd": "us.tax.schedule_c_line_31_net_profit_usd",
+    }
+
+    def lv_sc(line_key: str) -> LegalValue:
+        return legal_value_from_dict(
+            schedule,
+            line_key,
+            country=USA_COUNTRY,
+            section="schedule_c",
+            provenance=provenance,
+            provenance_output_key=SCHEDULE_C_PROVENANCE[line_key],
+        )
+
+    schema = load_form_schema("schedule_c")
+    write_form(
+        paths.usa_forms_root / f"{paths.year}_schedule_c.md",
+        f"{paths.year} {schema.display_name}",
+        [
+            # IRS-VERIFIED 2026-06-13 — 2025 Schedule C lines (7/28/31 → Sch 1 ln 3, Sch SE ln 2): https://www.irs.gov/pub/irs-pdf/f1040sc.pdf
+            "Schedule C implements 26 U.S.C. § 61(a)(2) (gross income from "
+            "business) less 26 U.S.C. § 162(a) (ordinary & necessary "
+            "expenses). Line 31 net profit = line 7 − line 28; it carries to "
+            "Schedule 1 line 3 (income → AGI) and to Schedule SE line 2 (the "
+            "self-employment-tax base) — the same profit, counted once as "
+            "income.",
+            "The § 199A QBI deduction does NOT apply to this foreign-source "
+            "business income (26 U.S.C. § 199A(c)(3)(A)(i) / § 864(c): not "
+            "effectively connected with a U.S. trade or business). No Form "
+            "8995 is filed; the § 199A non-applicability is explained in the "
+            "US25-08A-QBI-GATE narrative.",
+            f"Authority: {IRS_SCHEDULE_C_URL}",
+        ],
+        [
+            legal_value_entry(
+                schema.label("7"),
+                lv_sc("line_7_gross_income_usd"),
+                currency=Currency.USD,
+                source="us-treaty-package.json",
+                notes="Gross income (§ 61(a)(2)); gross receipts less returns and cost of goods sold, plus other business income.",
+            ),
+            legal_value_entry(
+                schema.label("28"),
+                lv_sc("line_28_total_expenses_usd"),
+                currency=Currency.USD,
+                source="us-treaty-package.json",
+                notes="Total ordinary & necessary business expenses (§ 162(a)).",
+            ),
+            legal_value_entry(
+                schema.label("31"),
+                lv_sc("line_31_net_profit_usd"),
+                currency=Currency.USD,
+                source="us-treaty-package.json",
+                notes="Net profit (or loss) = line 7 − line 28. Carries to Schedule 1 line 3 and Schedule SE line 2.",
+            ),
+        ],
+        [
+            "IRS-VERIFIED 2026-06-13 against the official 2025 Schedule C PDF "
+            f"(https://www.irs.gov/pub/irs-pdf/f1040sc.pdf): {IRS_SCHEDULE_C_URL}",
+            "Every numeric line above traces to a declared "
+            "``us.tax.schedule_c_*`` rule output (US25-02A-SCHEDULE-C) via the "
+            "executor's ``StageResult.output_fingerprint`` chain (invariants "
+            "I2 / I3 / I11).",
         ],
     )
 
@@ -2976,6 +3083,11 @@ def render_usa_forms(paths: YearPaths) -> None:
     _write_schedule_3(paths, treaty, provenance)
     # B4 (FORM-MAPPING-FOLLOWUP) — Schedule SE (Self-Employment Tax)
     # under 26 U.S.C. §§ 1401, 1402(a)(12). Gated on net SE earnings >
+    # Phase 2 (FREELANCER-US-SCHEDULE-C) — Schedule C (Profit or Loss From
+    # Business) under 26 U.S.C. § 61 / § 162. Gated on a declared Schedule C
+    # position (net profit ≠ 0 or gross receipts > 0). IRS-VERIFIED 2026-06-13
+    # against the 2025 Schedule C PDF: renders lines 7/28/31.
+    _write_schedule_c(paths, treaty, tax_estimate, provenance)
     # 0; renders lines 2/3/4a/4c/6/8a/10/11/12.
     _write_schedule_se(paths, treaty, tax_estimate, provenance)
     # B3 (FORM-MAPPING-FOLLOWUP) — Form 8959 (Additional Medicare Tax)

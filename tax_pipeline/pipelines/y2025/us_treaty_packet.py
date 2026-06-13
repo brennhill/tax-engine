@@ -420,6 +420,24 @@ def main() -> None:
                 tax["form_8959_line_18_total_addtl_medicare_usd"]
             ),
         },
+        # Phase 2 (FREELANCER-US-SCHEDULE-C) — Schedule C line-level
+        # decomposition under 26 U.S.C. § 61 / § 162. Each numeric field is a
+        # 1:1 projection of a declared rule output (US25-02A-SCHEDULE-C). No
+        # Decimal arithmetic on legal output keys outside the rule graph
+        # (invariant I5). IRS-VERIFIED 2026-06-13: line 7 gross income, line 28
+        # total expenses, line 31 net profit.
+        # Authority: https://www.irs.gov/forms-pubs/about-schedule-c-form-1040
+        "schedule_c": {
+            "line_7_gross_income_usd": fmt(
+                tax["schedule_c_line_7_gross_income_usd"]
+            ),
+            "line_28_total_expenses_usd": fmt(
+                tax["schedule_c_line_28_total_expenses_usd"]
+            ),
+            "line_31_net_profit_usd": fmt(
+                tax["schedule_c_line_31_net_profit_usd"]
+            ),
+        },
         # B4 (FORM-MAPPING-FOLLOWUP) — Schedule SE line-level decomposition
         # under 26 U.S.C. §§ 1401, 1402(a)(12). Each numeric field is a
         # 1:1 projection of a declared rule output (US25-SE-TAX). No

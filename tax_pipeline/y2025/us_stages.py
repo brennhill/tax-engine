@@ -35,6 +35,7 @@ from tax_pipeline.y2025.us_law import (
     IRS_P525,
     IRS_P54_URL,
     IRS_P550,
+    IRS_SCHEDULE_C_URL,
     IRS_SCHEDULE_SE_URL,
     IRS_YEARLY_AVG_RATES,
     REV_PROC_2024_40_URL,
@@ -48,7 +49,10 @@ from tax_pipeline.y2025.us_law import (
     USC_61_URL,
     USC_63_URL,
     USC_152_URL,
+    USC_162_URL,
     USC_164_URL,
+    USC_199A_URL,
+    USC_864_URL,
     USC_901_URL,
     USC_904_URL,
     USC_911_URL,
@@ -192,6 +196,72 @@ def usa_law_stages_2025() -> tuple[LawStage, ...]:
                 OutputDeclaration(
                     key="us.stage.income_side_inputs",
                     audit_waypoints=frozenset({AuditWaypoint.PER_POSTEN_AGGREGATION}),
+                ),
+            ),
+        ),
+        # US25-02A: 26 U.S.C. § 61 / § 162 Schedule C net profit. Net profit =
+        # § 61(a)(2) gross receipts − § 162(a) ordinary & necessary expenses.
+        # IRS-VERIFIED 2026-06-13 against the 2025 Schedule C PDF
+        # (https://www.irs.gov/pub/irs-pdf/f1040sc.pdf): line 31 = line 7 (gross
+        # income) − line 28 (total expenses) in the no-home-office posture. The
+        # single net-profit amount feeds TWO downstream paths: (a) the income
+        # side — folded into ``schedule_1_other_income_usd`` at
+        # US25-02-INCOME-SIDE-INPUTS so it reaches Schedule 1 line 3 → Form 1040
+        # → AGI; and (b) the SE-tax base — the loader derives
+        # ``se_inputs.net_se_earnings_usd`` from this same profit so
+        # § 1402(a)(12) (× 0.9235) and the Phase 0 Totalization logic apply over
+        # the real profit. These are the SAME profit (income once; SE tax is a
+        # separate tax on the same earnings; ½ SE tax is § 164(f) deductible) —
+        # standard treatment, not double-counting. For a wage earner (no
+        # Schedule C facts) the net profit is zero, so AGI / taxable income are
+        # value-identical to the wage-only baseline (invariant I13: the
+        # wage-earner Schedule C artifact is absent, not a zeroed form).
+        # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section61
+        # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section162
+        # https://www.irs.gov/forms-pubs/about-schedule-c-form-1040
+        _stage_with_outputs(
+            "US25-02A-SCHEDULE-C",
+            ("26 U.S.C. § 61", "26 U.S.C. § 162", "IRS Schedule C (Form 1040)"),
+            (USC_61_URL, USC_162_URL, IRS_SCHEDULE_C_URL),
+            ("us.assessment.inputs",),
+            # IRS-VERIFIED 2026-06-13 — Schedule C line 31 (net profit) carries
+            # to Schedule 1 line 3; the line numbers are from the official 2025
+            # Schedule C PDF (https://www.irs.gov/pub/irs-pdf/f1040sc.pdf).
+            "Schedule C net profit is rounded to cents to match the Schedule C line-31 entry.",
+            "Schedule C net profit is computed before US25-03 capital buckets so it can feed the income side (Schedule 1 line 3) and the self-employment-tax base.",
+            "us.stage.schedule_c.net_profit_usd = round(gross_receipts_usd - business_expenses_usd) per 26 U.S.C. §§ 61, 162 (IRS Schedule C line 31)",
+            (
+                OutputDeclaration(
+                    key="us.stage.schedule_c",
+                    audit_waypoints=frozenset({AuditWaypoint.INTERMEDIATE_MATH}),
+                ),
+                # Schedule C line-level decomposition. Each line is a declared
+                # rule output so the Schedule C renderer transits
+                # ``legal_value_entry`` with a real
+                # ``StageResult.output_fingerprint`` (invariants I2 / I3 / I11).
+                # IRS-VERIFIED 2026-06-13 against the 2025 Schedule C PDF
+                # (https://www.irs.gov/pub/irs-pdf/f1040sc.pdf): line 7 gross
+                # income, line 28 total expenses, line 31 net profit.
+                OutputDeclaration(
+                    key="us.tax.schedule_c_line_7_gross_income_usd",
+                    form_line_refs=(
+                        FormLineRef(form="Schedule C", line="7", url=IRS_SCHEDULE_C_URL),
+                    ),
+                    audit_waypoints=frozenset({AuditWaypoint.INTERMEDIATE_MATH}),
+                ),
+                OutputDeclaration(
+                    key="us.tax.schedule_c_line_28_total_expenses_usd",
+                    form_line_refs=(
+                        FormLineRef(form="Schedule C", line="28", url=IRS_SCHEDULE_C_URL),
+                    ),
+                    audit_waypoints=frozenset({AuditWaypoint.INTERMEDIATE_MATH}),
+                ),
+                OutputDeclaration(
+                    key="us.tax.schedule_c_line_31_net_profit_usd",
+                    form_line_refs=(
+                        FormLineRef(form="Schedule C", line="31", url=IRS_SCHEDULE_C_URL),
+                    ),
+                    audit_waypoints=frozenset({AuditWaypoint.RECONCILIATION_INVARIANT}),
                 ),
             ),
         ),
@@ -502,6 +572,36 @@ def usa_law_stages_2025() -> tuple[LawStage, ...]:
                 OutputDeclaration(
                     key="us.stage.taxable_income",
                     audit_waypoints=frozenset({AuditWaypoint.INTERMEDIATE_MATH}),
+                ),
+            ),
+        ),
+        # US25-08A: 26 U.S.C. § 199A QBI applicability GATE. For this engine's
+        # taxpayer (U.S. citizen resident in Germany, German-source freelance
+        # income, business_income_source='foreign'), § 199A(c)(3)(A)(i) / § 864(c)
+        # require income effectively connected with a trade or business WITHIN
+        # the United States. German-source business income is conducted within
+        # Germany, NOT within the U.S. → it is NOT QBI → the § 199A deduction is
+        # not_applicable and ZERO. Taxable income is UNCHANGED by § 199A in this
+        # posture (the gate subtracts nothing before US25-09-REGULAR-TAX). This
+        # is an explicit cited not_applicable status (invariant I13), NEVER a
+        # Form 8995 zero line — granting any 20 % deduction here would be a
+        # LEAK-class over-deduction. The us_effectively_connected QBI-granting
+        # path is NOT modeled and fails closed at the loader (the W-2-wage /
+        # UBIA / SSTB limits need verified 2025 § 199A thresholds, out of scope).
+        # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section199A
+        # https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section864
+        _stage_with_outputs(
+            "US25-08A-QBI-GATE",
+            ("26 U.S.C. § 199A(c)(3)(A)(i)", "26 U.S.C. § 864(c)"),
+            (USC_199A_URL, USC_864_URL),
+            ("us.stage.taxable_income", "us.assessment.inputs"),
+            "No currency rounding; the foreign-source § 199A deduction is a fixed zero (not_applicable).",
+            "§ 199A applicability is adjudicated after § 63 taxable income and before § 1 regular tax; for foreign-source business income the deduction is not_applicable (zero) and taxable income is unchanged.",
+            "gate: business_income_source='foreign' (§ 864(c): not US-effectively-connected) => § 199A not_applicable, qbi_deduction_usd = 0, taxable income unchanged; 'us_effectively_connected' fails closed (QBI-granting path not modeled)",
+            (
+                OutputDeclaration(
+                    key="us.stage.qbi_gate",
+                    audit_waypoints=frozenset({AuditWaypoint.RECONCILIATION_INVARIANT}),
                 ),
             ),
         ),
