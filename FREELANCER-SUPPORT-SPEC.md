@@ -219,6 +219,15 @@ verification (the New-2 label-inventory ratchet applies).
 
 ## Phase 2 — U.S. Schedule C + § 199A QBI
 
+> Fully specified, grounded in the real U.S. rule-graph, with a mandatory
+> legal-review gate, in
+> [FREELANCER-US-SCHEDULE-C-SLICE-SPEC.md](FREELANCER-US-SCHEDULE-C-SLICE-SPEC.md).
+> **Key finding:** for this engine's taxpayer (a U.S. citizen resident in
+> Germany with German-source freelance income), § 199A QBI most likely
+> does **not** apply (§ 199A(c)(3)(A)(i) requires US-effectively-connected
+> income), so the slice models § 199A as a `not_applicable` gate rather
+> than a granted deduction.
+
 **Goal.** The U.S. side of the same business: Schedule C profit/loss, the
 § 199A QBI deduction, and the FEIE × SE-tax interaction — all reusing the
 economic facts from Phase 1.
